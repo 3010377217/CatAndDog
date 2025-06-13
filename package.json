@@ -1,0 +1,24 @@
+{
+  "name": "cat-and-dog",
+  "version": "1.0.0",
+  "description": "Cat and Dog uni-app project",
+  "main": "main.js",
+  "scripts": {
+    "dev:h5": "uni -p h5",
+    "dev:mp-weixin": "uni -p mp-weixin",
+    "build:h5": "uni build -p h5",
+    "build:mp-weixin": "uni build -p mp-weixin"
+  },
+  "dependencies": {
+    "vue": "^3.2.45"
+  },
+  "devDependencies": {
+    "@dcloudio/uni-app-plus": "^2.0.0",
+    "@dcloudio/uni-h5": "^2.0.0",
+    "@dcloudio/uni-mp-weixin": "^2.0.0",
+    "@dcloudio/uni-cli-shared": "^2.0.0",
+    "@dcloudio/vite-plugin-uni": "0.2.21",
+    "@vue/compiler-sfc": "^3.2.45",
+    "vite": "^4.0.0"
+  }
+} 

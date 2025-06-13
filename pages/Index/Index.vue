@@ -1,0 +1,23 @@
+<template>
+	<view class="container">
+		<text>首页</text>
+	</view>
+</template>
+
+<script setup>
+import { ref } from 'vue'
+
+// 响应式数据
+const title = ref('首页')
+
+// 方法
+const handleClick = () => {
+	console.log('点击事件')
+}
+</script>
+
+<style>
+.container {
+	padding: 20px;
+}
+</style>

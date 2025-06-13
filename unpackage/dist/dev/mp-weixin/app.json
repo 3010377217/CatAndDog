@@ -1,0 +1,47 @@
+{
+  "pages": [
+    "pages/Index/Index",
+    "pages/Shops/Shops",
+    "pages/Orders/Orders",
+    "pages/My/My"
+  ],
+  "window": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "uni-app",
+    "navigationBarBackgroundColor": "#F8F8F8",
+    "backgroundColor": "#F8F8F8"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#007AFF",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/Index/Index",
+        "text": "首页",
+        "iconPath": "/static/tabbar/Index.png",
+        "selectedIconPath": "/static/tabbar/Index-active.png"
+      },
+      {
+        "pagePath": "pages/Shops/Shops",
+        "text": "点单",
+        "iconPath": "/static/tabbar/Shops.png",
+        "selectedIconPath": "/static/tabbar/Shops-active.png"
+      },
+      {
+        "pagePath": "pages/Orders/Orders",
+        "text": "订单",
+        "iconPath": "/static/tabbar/Orders.png",
+        "selectedIconPath": "/static/tabbar/Orders-active.png"
+      },
+      {
+        "pagePath": "pages/My/My",
+        "text": "我的",
+        "iconPath": "/static/tabbar/My.png",
+        "selectedIconPath": "/static/tabbar/My-active.png"
+      }
+    ]
+  },
+  "usingComponents": {}
+}
