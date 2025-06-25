@@ -3,11 +3,11 @@
 	<view class="container">
 		<!-- 顶部搜索栏 -->
 		<view class="search-header">
-			<view class="search-box" @tap="goToSearch">
+			<view class="search-box">
 				<image class="search-icon" src="/static/icons/Search.png" mode="aspectFit"></image>
-				<text class="keyword">{{ searchKeyword }}</text>
+				<input type="text" v-model="searchKeyword" placeholder="搜索帖子" @confirm="searchPosts" />
 			</view>
-			<view class="search-btn" @tap="goToSearch">
+			<view class="search-btn" @tap="searchPosts">
 				<text>搜索</text>
 			</view>
 		</view>
@@ -40,8 +40,8 @@
 
 					<!-- 帖子内容 -->
 					<view class="post-content">
-						<text class="title">{{ item.title }}</text>
-						<text class="content">{{ item.content }}</text>
+						<text class="title ellipsis-1">{{ item.title }}</text>
+						<text class="content ellipsis-2">{{ item.content }}</text>
 						<view class="image-list" v-if="item.images && item.images.length">
 							<image 
 								v-for="(img, imgIndex) in item.images" 
@@ -145,6 +145,13 @@ const searchPosts = () => {
 	setTimeout(() => {
 		searchResults.value = forumStore.searchPosts(searchKeyword.value)
 		loading.value = false
+		
+		// 更新URL参数，不刷新页面
+		const pages = getCurrentPages()
+		const currentPage = pages[pages.length - 1]
+		if (currentPage && currentPage.$page) {
+			currentPage.$page.options.keyword = searchKeyword.value
+		}
 	}, 300)
 }
 
@@ -217,7 +224,8 @@ const loadMore = () => {
 			margin-right: 10rpx;
 		}
 
-		.keyword {
+		input {
+			flex: 1;
 			font-size: 28rpx;
 			color: #333;
 		}
@@ -326,6 +334,20 @@ const loadMore = () => {
 				line-height: 1.6;
 				margin-bottom: 20rpx;
 				display: block;
+			}
+			
+			.ellipsis-1 {
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+			}
+			
+			.ellipsis-2 {
+				display: -webkit-box;
+				-webkit-line-clamp: 2;
+				-webkit-box-orient: vertical;
+				overflow: hidden;
+				text-overflow: ellipsis;
 			}
 
 			.image-list {
