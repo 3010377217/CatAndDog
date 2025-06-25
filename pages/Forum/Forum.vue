@@ -49,8 +49,8 @@
 
 				<!-- 帖子内容 -->
 				<view class="post-content">
-					<text class="title">{{ item.title }}</text>
-					<text class="content">{{ item.content }}</text>
+					<text class="title ellipsis-1">{{ item.title }}</text>
+					<text class="content ellipsis-2">{{ item.content }}</text>
 					<view class="image-list" v-if="item.images && item.images.length">
 						<image 
 							v-for="(img, imgIndex) in item.images" 
@@ -356,6 +356,20 @@ const goToSearch = () => {
 				line-height: 1.6;
 				margin-bottom: 20rpx;
 				display: block;
+			}
+			
+			.ellipsis-1 {
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+			}
+			
+			.ellipsis-2 {
+				display: -webkit-box;
+				-webkit-line-clamp: 2;
+				-webkit-box-orient: vertical;
+				overflow: hidden;
+				text-overflow: ellipsis;
 			}
 
 			.image-list {
