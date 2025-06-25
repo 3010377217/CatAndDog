@@ -77,11 +77,11 @@
 						</view>
 						<text class="text">{{ comment.content }}</text>
 						<view class="comment-footer">
-							<view class="like" @tap="likeComment(index)">
+							<view class="like" @tap="handleLikeComment(comment)">
 								<text class="iconfont" :class="{ active: comment.isLiked }">👍</text>
 								<text class="count">{{ comment.likes }}</text>
 							</view>
-							<text class="reply-btn" @tap="showReplyInput(comment.username)">回复</text>
+							<text class="reply-btn" @tap="showReplyInput(comment.username, comment.id)">回复</text>
 						</view>
 						
 						<!-- 回复列表 -->
@@ -141,6 +141,7 @@ const loading = ref(false)
 const showKeyboard = ref(false)
 const commentText = ref('')
 const replyTo = ref('')
+const currentCommentId = ref(null) // 当前回复的评论ID
 
 // 计算属性：获取帖子数据
 const post = computed(() => {
@@ -148,38 +149,21 @@ const post = computed(() => {
 	return forumStore.getPostById(postId.value)
 })
 
-// 评论数据
-const comments = ref([
-	{
-		id: 1,
-		username: '小橘猫',
-		avatar: '/static/logo.png',
-		content: '感谢分享，对新手很有帮助！',
-		time: '5分钟前',
-		likes: 12,
-		isLiked: false,
-		replies: []
-	},
-	{
-		id: 2,
-		username: '猫咪爱好者',
-		avatar: '/static/logo.png',
-		content: '建议补充一下猫砂的选择和使用方法',
-		time: '10分钟前',
-		likes: 8,
-		isLiked: false,
-		replies: [
-			{
-				id: 21,
-				username: '楼主',
-				avatar: '/static/logo.png',
-				content: '好的，我会在下一篇详细讲解',
-				time: '8分钟前',
-				likes: 3
-			}
-		]
+// 计算属性：获取评论数据
+const comments = computed(() => {
+	if (!postId.value) return []
+	
+	const commentList = forumStore.getCommentsByPostId(postId.value)
+	
+	// 根据排序类型排序
+	if (sortType.value === 'hot') {
+		// 按点赞数排序
+		return [...commentList].sort((a, b) => b.likes - a.likes)
+	} else {
+		// 按时间排序（新的在前）
+		return [...commentList].sort((a, b) => b.timestamp - a.timestamp)
 	}
-])
+})
 
 // 生命周期钩子
 onMounted(() => {
@@ -222,18 +206,6 @@ const showShare = () => {
 
 const changeSortType = (type) => {
 	sortType.value = type
-	// 重新加载评论列表
-	loadComments()
-}
-
-const loadComments = () => {
-	// 这里可以根据sortType加载不同排序的评论
-	loading.value = true
-	
-	setTimeout(() => {
-		loading.value = false
-		// 实际应用中，这里应该调用API加载评论
-	}, 500)
 }
 
 const loadMoreComments = () => {
@@ -246,21 +218,21 @@ const loadMoreComments = () => {
 	}, 500)
 }
 
-const likeComment = (index) => {
-	const comment = comments.value[index]
-	comment.isLiked = !comment.isLiked
-	comment.likes += comment.isLiked ? 1 : -1
-	// 实际应用中，这里应该调用API点赞评论
+const handleLikeComment = (comment) => {
+	if (!postId.value) return
+	forumStore.likeComment(postId.value, comment.id)
 }
 
-const showReplyInput = (username) => {
+const showReplyInput = (username, commentId) => {
 	replyTo.value = username
+	currentCommentId.value = commentId
 	showKeyboard.value = true
 }
 
 const hideKeyboard = () => {
 	showKeyboard.value = false
 	replyTo.value = ''
+	currentCommentId.value = null
 }
 
 const submitComment = () => {
@@ -272,26 +244,37 @@ const submitComment = () => {
 		return
 	}
 	
-	// 添加评论
-	const newComment = {
-		id: Date.now(),
-		username: '当前用户', // 实际应用中应该使用当前登录用户信息
-		avatar: '/static/logo.png',
-		content: commentText.value,
-		time: '刚刚',
-		likes: 0,
-		isLiked: false,
-		replies: []
+	if (!postId.value) return
+	
+	if (currentCommentId.value) {
+		// 添加回复
+		const reply = {
+			userId: 100, // 实际应用中应该使用当前登录用户的ID
+			username: '当前用户', // 实际应用中应该使用当前登录用户的用户名
+			avatar: '/static/logo.png',
+			content: commentText.value,
+			likes: 0
+		}
+		
+		forumStore.addReply(postId.value, currentCommentId.value, reply)
+	} else {
+		// 添加评论
+		const comment = {
+			userId: 100, // 实际应用中应该使用当前登录用户的ID
+			username: '当前用户', // 实际应用中应该使用当前登录用户的用户名
+			avatar: '/static/logo.png',
+			content: commentText.value,
+			likes: 0,
+			isLiked: false,
+			replies: []
+		}
+		
+		forumStore.addComment(postId.value, comment)
 	}
 	
-	comments.value.unshift(newComment)
+	// 清空输入框并隐藏键盘
 	commentText.value = ''
 	hideKeyboard()
-	
-	// 更新帖子评论数
-	if (post.value) {
-		post.value.comments++
-	}
 }
 
 const previewImage = (index) => {
