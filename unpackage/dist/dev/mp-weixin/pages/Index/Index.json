@@ -1,4 +1,7 @@
 {
   "navigationBarTitleText": "首页",
-  "usingComponents": {}
+  "usingComponents": {
+    "u-swiper": "../../node-modules/uview-plus/components/u-swiper/u-swiper",
+    "goods-detail-popup": "../../components/GoodsDetailPopup"
+  }
 }

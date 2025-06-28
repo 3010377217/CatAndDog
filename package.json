@@ -1,24 +1,28 @@
 {
   "name": "cat-and-dog",
   "version": "1.0.0",
-  "description": "Cat and Dog uni-app project",
   "main": "main.js",
   "scripts": {
-    "dev:h5": "uni -p h5",
-    "dev:mp-weixin": "uni -p mp-weixin",
-    "build:h5": "uni build -p h5",
-    "build:mp-weixin": "uni build -p mp-weixin"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "宠物服务小程序",
   "dependencies": {
-    "vue": "^3.2.45"
-  },
-  "devDependencies": {
-    "@dcloudio/uni-app-plus": "^2.0.0",
-    "@dcloudio/uni-h5": "^2.0.0",
-    "@dcloudio/uni-mp-weixin": "^2.0.0",
-    "@dcloudio/uni-cli-shared": "^2.0.0",
-    "@dcloudio/vite-plugin-uni": "0.2.21",
-    "@vue/compiler-sfc": "^3.2.45",
-    "vite": "^4.0.0"
+    "@dcloudio/uni-app-plus": "^2.0.2-4060620250520001",
+    "@dcloudio/uni-cli-i18n": "^2.0.2-4060620250520001",
+    "@dcloudio/uni-cli-shared": "^2.0.2-4060620250520001",
+    "@dcloudio/uni-h5": "^2.0.2-4060620250520001",
+    "@dcloudio/uni-mp-weixin": "^2.0.2-4060620250520001",
+    "@dcloudio/vite-plugin-uni": "^3.0.0-alpha-3000020210521001",
+    "animate.css": "^4.1.1",
+    "clipboard": "^2.0.11",
+    "dayjs": "^1.11.13",
+    "pinia": "^2.1.7",
+    "rollup-plugin-visualizer": "^6.0.3",
+    "semver": "^7.7.2",
+    "uview-plus": "^3.1.41",
+    "webpack": "^5.99.9"
   }
-} 
+}

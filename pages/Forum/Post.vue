@@ -1,41 +1,31 @@
 <!-- 发帖界面 -->
 <template>
 	<view class="container">
-		<!-- 顶部导航 -->
-		<view class="nav-bar">
-			<view class="left-btn" @tap="goBack">
-				<text class="iconfont">←</text>
-				<text>返回</text>
-			</view>
-			<view class="title">发布帖子</view>
-			<view class="right-btn" @tap="publishPost" :class="{ disabled: !canPublish }">
-				<text>发布</text>
-			</view>
-		</view>
-
 		<!-- 发帖表单 -->
 		<view class="post-form">
 			<!-- 标题输入 -->
 			<view class="form-item">
-				<input 
-					class="title-input" 
+			<input 
+				class="title-input" 
 					type="text" 
 					v-model="postForm.title" 
-					placeholder="请输入标题（必填）"
-					maxlength="50"
-				/>
+				placeholder="请输入标题（必填）"
+				maxlength="50"
+			/>
 				<text class="char-count">{{ postForm.title.length }}/50</text>
+				<view class="divider"></view>
 			</view>
 
 			<!-- 内容输入 -->
 			<view class="form-item">
-				<textarea 
-					class="content-input" 
+			<textarea 
+				class="content-input" 
 					v-model="postForm.content" 
 					placeholder="请输入帖子内容（必填）"
-					maxlength="2000"
-				></textarea>
+				maxlength="2000"
+			></textarea>
 				<text class="char-count">{{ postForm.content.length }}/2000</text>
+				<view class="divider"></view>
 			</view>
 
 			<!-- 图片上传 -->
@@ -59,6 +49,7 @@
 						<text class="iconfont">+</text>
 					</view>
 				</view>
+				<view class="divider"></view>
 			</view>
 
 			<!-- 分类选择 -->
@@ -75,6 +66,7 @@
 						{{ item }}
 					</view>
 				</view>
+				<view class="divider"></view>
 			</view>
 
 			<!-- 标签输入 -->
@@ -100,7 +92,13 @@
 						<text class="delete-tag" @tap="removeTag(index)">×</text>
 					</view>
 				</view>
+				<view class="divider"></view>
 			</view>
+		</view>
+
+		<!-- 右下角发布按钮 -->
+		<view class="float-publish-btn" @tap="publishPost" :class="{ disabled: !canPublish }">
+			<text>发布</text>
 		</view>
 	</view>
 </template>
@@ -117,9 +115,9 @@ const categories = forumStore.categories.slice(1) // 去掉"全部"分类
 
 // 表单数据
 const postForm = ref({
-	title: '',
-	content: '',
-	images: [],
+			title: '',
+			content: '',
+			images: [],
 	categoryId: 0,
 	category: '',
 	tags: []
@@ -127,6 +125,11 @@ const postForm = ref({
 
 // 标签输入
 const tagInput = ref('')
+
+// 分类数据缓存
+const categoryCache = ref({
+	// 格式: { 分类ID: { posts: [...], page: 1, hasMore: true } }
+})
 
 // 计算是否可以发布
 const canPublish = computed(() => {
@@ -171,14 +174,14 @@ const chooseImage = () => {
 		success: (res) => {
 			// 合并图片数组
 			postForm.value.images = [...postForm.value.images, ...res.tempFilePaths]
-		}
-	})
+					}
+				})
 }
 
 // 移除图片
 const removeImage = (index) => {
 	postForm.value.images.splice(index, 1)
-}
+			}
 
 // 发布帖子
 const publishPost = () => {
@@ -189,12 +192,12 @@ const publishPost = () => {
 		})
 		return
 	}
-	
+
 	// 显示加载提示
-	uni.showLoading({
-		title: '发布中...'
-	})
-	
+			uni.showLoading({
+				title: '发布中...'
+			})
+
 	// 构建帖子数据
 	const newPost = {
 		// 帖子ID会在store中自动生成
@@ -218,23 +221,23 @@ const publishPost = () => {
 	}
 	
 	// 模拟网络请求延迟
-	setTimeout(() => {
+			setTimeout(() => {
 		// 添加到store
 		forumStore.addPost(newPost)
 		
 		// 隐藏加载提示
-		uni.hideLoading()
+				uni.hideLoading()
 		
 		// 显示成功提示
-		uni.showToast({
-			title: '发布成功',
-			icon: 'success'
-		})
+				uni.showToast({
+					title: '发布成功',
+					icon: 'success'
+				})
 		
 		// 返回论坛页面
 		setTimeout(() => {
-			uni.navigateBack()
-		}, 1500)
+				uni.navigateBack()
+			}, 1500)
 	}, 1000)
 }
 
@@ -242,44 +245,68 @@ const publishPost = () => {
 const goBack = () => {
 	uni.navigateBack()
 }
+
+const cacheCurrentCategoryData = (categoryId) => {
+	const cacheKey = categoryId === null ? 0 : categoryId
+	categoryCache.value[cacheKey] = {
+		posts: [...forumStore.posts],
+		page: currentPage.value,
+		hasMore: forumStore.pagination.hasMore
+				}
+}
+
+const handleCategoryChange = async (index) => {
+	// 如果点击的是当前分类，不做任何操作
+	if (forumStore.currentCategory === index) return
+	
+	// 设置新的分类
+	forumStore.setCategory(index)
+	
+	// 获取分类ID
+	const categoryId = index === 0 ? null : index
+	const cacheKey = categoryId === null ? 0 : categoryId
+	
+	// 检查是否有缓存数据
+	if (categoryCache.value[cacheKey]) {
+		// 使用缓存数据
+		forumStore.setPosts(categoryCache.value[cacheKey].posts)
+		currentPage.value = categoryCache.value[cacheKey].page
+		forumStore.pagination.hasMore = categoryCache.value[cacheKey].hasMore
+		return
+	}
+	
+	// 没有缓存数据，需要加载
+	loading.value = true
+	// ... 加载数据的逻辑 ...
+}
 </script>
 
 <style lang="scss" scoped>
 .container {
 	min-height: 100vh;
 	background: #fff;
+	position: relative;
 }
 
-.nav-bar {
+.float-publish-btn {
+	position: fixed;
+	right: 40rpx;
+	bottom: 40rpx;
+	width: 120rpx;
+	height: 120rpx;
+	border-radius: 60rpx;
+	background: #ff4400;
+	color: #fff;
 	display: flex;
-	justify-content: space-between;
 	align-items: center;
-	padding: 20rpx 30rpx;
-	border-bottom: 1rpx solid #f0f0f0;
-
-	.left-btn {
-		font-size: 28rpx;
-		color: #666;
-	}
-
-	.title {
-		font-size: 32rpx;
-		font-weight: bold;
-	}
-
-	.right-btn {
-		width: 120rpx;
-		height: 64rpx;
-		line-height: 64rpx;
+	justify-content: center;
+	font-size: 32rpx;
+	box-shadow: 0 4rpx 20rpx rgba(255, 68, 0, 0.3);
+	z-index: 999;
+	
+	&.disabled {
 		background: #ccc;
-		color: #fff;
-		font-size: 28rpx;
-		border-radius: 32rpx;
-		border: none;
-
-		&.disabled {
-			background: #ccc;
-		}
+		box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.1);
 	}
 }
 
@@ -287,29 +314,39 @@ const goBack = () => {
 	padding: 30rpx;
 
 	.form-item {
-		margin-bottom: 40rpx;
+		margin-bottom: 50rpx;
+		position: relative;
 
-		.title-input {
-			font-size: 32rpx;
-			font-weight: bold;
-			margin-bottom: 10rpx;
+		.divider {
+			position: absolute;
+			bottom: -20rpx;
+			left: 0;
+			right: 0;
+			height: 1rpx;
+			background-color: #f0f0f0;
 		}
+
+	.title-input {
+		font-size: 32rpx;
+		font-weight: bold;
+		margin-bottom: 10rpx;
+	}
 
 		.char-count {
-			font-size: 24rpx;
-			color: #999;
-			text-align: right;
-			display: block;
-			margin-bottom: 30rpx;
-		}
+		font-size: 24rpx;
+		color: #999;
+		text-align: right;
+		display: block;
+		margin-bottom: 30rpx;
+	}
 
-		.content-input {
-			font-size: 28rpx;
-			line-height: 1.6;
-			min-height: 200rpx;
-			width: 100%;
-			margin-bottom: 30rpx;
-		}
+	.content-input {
+		font-size: 28rpx;
+		line-height: 1.6;
+		min-height: 200rpx;
+		width: 100%;
+		margin-bottom: 30rpx;
+	}
 
 		.upload-title {
 			font-size: 28rpx;
@@ -323,80 +360,80 @@ const goBack = () => {
 		}
 
 		.upload-list {
-			display: flex;
-			flex-wrap: wrap;
-			margin: 0 -10rpx;
+		display: flex;
+		flex-wrap: wrap;
+		margin: 0 -10rpx;
 
 			.upload-item {
-				width: calc(33.33% - 20rpx);
-				margin: 10rpx;
-				position: relative;
+			width: calc(33.33% - 20rpx);
+			margin: 10rpx;
+			position: relative;
 
-				image {
-					width: 100%;
-					height: 200rpx;
-					border-radius: 8rpx;
-				}
-
-				.delete-btn {
-					position: absolute;
-					top: -20rpx;
-					right: -20rpx;
-					width: 40rpx;
-					height: 40rpx;
-					line-height: 40rpx;
-					text-align: center;
-					background: rgba(0,0,0,0.5);
-					color: #fff;
-					border-radius: 50%;
-					font-size: 32rpx;
-				}
+			image {
+				width: 100%;
+				height: 200rpx;
+				border-radius: 8rpx;
 			}
 
-			.upload-btn {
-				width: calc(33.33% - 20rpx);
-				height: 200rpx;
-				margin: 10rpx;
-				background: #f5f5f5;
-				border-radius: 8rpx;
-				display: flex;
-				flex-direction: column;
-				align-items: center;
-				justify-content: center;
-
-				.iconfont {
-					font-size: 48rpx;
-					color: #999;
-					margin-bottom: 10rpx;
-				}
+			.delete-btn {
+				position: absolute;
+				top: -20rpx;
+				right: -20rpx;
+				width: 40rpx;
+				height: 40rpx;
+				line-height: 40rpx;
+				text-align: center;
+				background: rgba(0,0,0,0.5);
+				color: #fff;
+				border-radius: 50%;
+				font-size: 32rpx;
 			}
 		}
+
+		.upload-btn {
+			width: calc(33.33% - 20rpx);
+			height: 200rpx;
+			margin: 10rpx;
+			background: #f5f5f5;
+			border-radius: 8rpx;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+
+			.iconfont {
+				font-size: 48rpx;
+				color: #999;
+				margin-bottom: 10rpx;
+			}
+	}
+}
 
 		.select-title {
 			font-size: 28rpx;
 			font-weight: bold;
 			margin-bottom: 10rpx;
-		}
+}
 
-		.category-list {
-			display: flex;
-			flex-wrap: wrap;
-			margin: 0 -10rpx;
+.category-list {
+	display: flex;
+	flex-wrap: wrap;
+	margin: 0 -10rpx;
 
-			.category-item {
-				width: calc(33.33% - 20rpx);
-				height: 80rpx;
-				line-height: 80rpx;
-				text-align: center;
-				background: #f5f5f5;
-				border-radius: 8rpx;
-				margin: 10rpx;
-				font-size: 26rpx;
-				color: #666;
+	.category-item {
+		width: calc(33.33% - 20rpx);
+		height: 80rpx;
+		line-height: 80rpx;
+		text-align: center;
+		background: #f5f5f5;
+		border-radius: 8rpx;
+		margin: 10rpx;
+		font-size: 26rpx;
+		color: #666;
 
-				&.active {
-					background: #ff4400;
-					color: #fff;
+		&.active {
+			background: #ff4400;
+			color: #fff;
 				}
 			}
 		}
@@ -415,7 +452,7 @@ const goBack = () => {
 		.tag-input {
 			font-size: 28rpx;
 			line-height: 1.6;
-			min-height: 200rpx;
+			min-height: 80rpx;
 			width: 100%;
 			margin-bottom: 30rpx;
 		}

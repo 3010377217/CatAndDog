@@ -1,4 +1,4 @@
-/**
+/*
  * 这里是uni-app内置的常用样式变量
  *
  * uni-app 官方扩展插件及插件市场（https://ext.dcloud.net.cn）上很多三方插件均使用了这些样式变量
@@ -23,130 +23,414 @@
 /* 垂直间距 */
 /* 透明度 */
 /* 文章场景相关 */
-.User.data-v-8f9a99c0 {
-  width: 100vw;
+.my-container.data-v-8f9a99c0 {
   min-height: 100vh;
-  background-color: whitesmoke;
-  padding-top: 50rpx;
-}
-.User .User-info.data-v-8f9a99c0 {
-  width: 95%;
-  margin: 0 auto;
-  height: 400rpx;
-  background-color: #fff;
-  margin-top: 0;
-  border: 1px solid #000;
-  border-radius: 20rpx;
-}
-.User .User-info .User-info-top.data-v-8f9a99c0 {
-  margin-top: 30rpx;
-  margin-left: 20rpx;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-}
-.User .User-info .User-info-top .User-info-text.data-v-8f9a99c0 {
+  background: linear-gradient(180deg, #F8F1FF 0%, #F5F5F5 100%);
+  padding: 20rpx;
   display: flex;
   flex-direction: column;
-  height: 100px;
+  gap: 10rpx;
+  box-sizing: border-box;
 }
-.User .User-info .User-info-top .User-info-text .User-info-text-title.data-v-8f9a99c0 {
-  font-size: 40rpx;
-  color: #000;
+.my-container .user-card.data-v-8f9a99c0 {
+  margin-top: 30rpx;
+  background-color: #fff;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
 }
-.User .User-info .User-info-top .User-info-text .User-info-text-name.data-v-8f9a99c0 {
-  font-size: 55rpx;
-  color: #000;
-}
-.User .User-info .User-info-top .User-info-text .User-info-text-button.data-v-8f9a99c0 {
-  width: 100px;
-  height: 40px;
-  background-color: #000;
-  color: #fff;
-  border-radius: 40rpx;
+.my-container .user-card .user-info-section.data-v-8f9a99c0 {
   display: flex;
   align-items: center;
-  justify-content: center;
-  margin-top: 10rpx;
+  margin-bottom: 30rpx;
+  padding-bottom: 20rpx;
+  border-bottom: 1rpx solid #f5f5f5;
 }
-.User .User-info .User-info-top .User-info-img.data-v-8f9a99c0 {
-  width: 80px;
-  height: 80px;
+.my-container .user-card .user-info-section .avatar.data-v-8f9a99c0 {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
   margin-right: 20rpx;
 }
-.User .User-info .User-info-top .User-info-img .User-info-img-img.data-v-8f9a99c0 {
-  width: 100%;
-  height: 100%;
+.my-container .user-card .user-info-section .user-details.data-v-8f9a99c0 {
+  margin-left: 20rpx;
+  /* 添加左边距 */
 }
-.User .User-info .User-info-wallet.data-v-8f9a99c0 {
-  margin-top: 20rpx;
+.my-container .user-card .user-info-section .user-details .nickname.data-v-8f9a99c0 {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10rpx;
+}
+.my-container .user-card .user-info-section .user-details .login-group.data-v-8f9a99c0 {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
+}
+.my-container .user-card .user-info-section .user-details .login-group .nickname.data-v-8f9a99c0 {
+  margin-bottom: 10rpx;
+}
+.my-container .user-card .user-info-section .user-details .login-group .login-btn.data-v-8f9a99c0 {
+  width: 100rpx;
+  display: flex;
   align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  color: #fff;
+  padding: 8rpx 20rpx;
+  background: linear-gradient(135deg, #2aeee6 0%, #1ac7c0 100%);
+  border-radius: 10rpx;
+  box-shadow: 0 4rpx 12rpx rgba(42, 238, 230, 0.3);
+}
+.my-container .user-card .user-info-section .user-details .login-group .login-btn .iconfont.data-v-8f9a99c0 {
+  font-size: 20rpx;
+  margin-left: 6rpx;
+}
+.my-container .user-card .user-info-section .arrow-right.data-v-8f9a99c0 {
+  color: #999;
+  font-size: 24rpx;
+  display: flex;
+  align-items: center;
+}
+.my-container .user-card .user-info-section .arrow-right .iconfont.data-v-8f9a99c0 {
+  font-size: 28rpx;
+}
+.my-container .user-card .function-area.data-v-8f9a99c0 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.my-container .user-card .function-area .function-item.data-v-8f9a99c0 {
+  flex: 1;
+  text-align: center;
+  position: relative;
+}
+.my-container .user-card .function-area .function-item.data-v-8f9a99c0:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 40rpx;
+  width: 1rpx;
+  background-color: #f0f0f0;
+}
+.my-container .user-card .function-area .function-item .function-value.data-v-8f9a99c0 {
+  display: block;
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 6rpx;
+}
+.my-container .user-card .function-area .function-item .function-title.data-v-8f9a99c0 {
+  font-size: 24rpx;
+  color: #666;
+}
+.my-container .vip-section.data-v-8f9a99c0 {
+  background-color: rgba(255, 255, 255, 0.9);
+  -webkit-backdrop-filter: blur(10px);
+          backdrop-filter: blur(10px);
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+}
+.my-container .vip-section .vip-title.data-v-8f9a99c0 {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10rpx;
+  display: flex;
   justify-content: space-between;
 }
-.User .User-info .User-info-wallet .User-info-wallet-balance.data-v-8f9a99c0,
-.User .User-info .User-info-wallet .User-info-wallet-Integral.data-v-8f9a99c0,
-.User .User-info .User-info-wallet .User-info-wallet-coupon.data-v-8f9a99c0 {
-  margin-top: 20rpx;
+.my-container .vip-section .vip-title .vip-progress.data-v-8f9a99c0 {
+  font-size: 24rpx;
+  color: #999;
+}
+.my-container .vip-section .vip-desc.data-v-8f9a99c0 {
+  font-size: 28rpx;
+  color: #333;
+}
+.my-container .vip-section .vip-link.data-v-8f9a99c0 {
+  font-size: 24rpx;
+  color: #9c27b0;
+}
+.my-container .order-section.data-v-8f9a99c0 {
+  background-color: #fff;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+}
+.my-container .order-section .order-header.data-v-8f9a99c0 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30rpx;
+}
+.my-container .order-section .order-header .order-title.data-v-8f9a99c0 {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+.my-container .order-section .order-header .view-all.data-v-8f9a99c0 {
+  display: flex;
+  align-items: center;
+  font-size: 24rpx;
+  color: #999;
+}
+.my-container .order-section .order-header .view-all .iconfont.data-v-8f9a99c0 {
+  font-size: 24rpx;
+  margin-left: 4rpx;
+}
+.my-container .order-section .order-status.data-v-8f9a99c0 {
+  display: flex;
+  justify-content: space-between;
+}
+.my-container .order-section .order-status .status-item.data-v-8f9a99c0 {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  width: 33.33%;
-  height: 50px;
+  flex: 1;
 }
-.User .User-order.data-v-8f9a99c0 {
-  width: 95%;
-  margin: 0 auto;
-  height: 250rpx;
-  background-color: #fff;
-  margin-top: 20rpx;
+.my-container .order-section .order-status .status-item .status-icon.data-v-8f9a99c0 {
+  width: 60rpx;
+  height: 60rpx;
+  margin-bottom: 10rpx;
+}
+.my-container .order-section .order-status .status-item .status-text.data-v-8f9a99c0 {
+  font-size: 24rpx;
+  color: #333;
+}
+.my-container .order-section .order-status .status-item.data-v-8f9a99c0:active {
+  opacity: 0.8;
+}
+.my-container .sign-in-system.data-v-8f9a99c0 {
+  background-color: rgba(255, 255, 255, 0.9);
+  -webkit-backdrop-filter: blur(10px);
+          backdrop-filter: blur(10px);
   border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
 }
-.User .User-order .User-order-title.data-v-8f9a99c0 {
+.my-container .sign-in-system .sign-in-tabs.data-v-8f9a99c0 {
   display: flex;
-  flex-direction: row;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+}
+.my-container .sign-in-system .sign-in-tabs .tab-item.data-v-8f9a99c0 {
+  padding: 10rpx 20rpx;
+  border-radius: 20rpx;
+  background-color: #f5f5f5;
+  color: #333;
+  font-size: 28rpx;
+  font-weight: bold;
+}
+.my-container .sign-in-system .sign-in-tabs .tab-item.active.data-v-8f9a99c0 {
+  background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%);
+  color: #fff;
+}
+.my-container .sign-in-system .sign-in-days.data-v-8f9a99c0 {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+}
+.my-container .sign-in-system .sign-in-days .day-item.data-v-8f9a99c0 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10rpx;
+}
+.my-container .sign-in-system .sign-in-days .day-item .day-name.data-v-8f9a99c0 {
+  font-size: 24rpx;
+  color: #333;
+}
+.my-container .sign-in-system .sign-in-days .day-item .day-reward.data-v-8f9a99c0 {
+  font-size: 28rpx;
+  color: #9c27b0;
+}
+.my-container .task-system.data-v-8f9a99c0 {
+  background-color: rgba(255, 255, 255, 0.9);
+  -webkit-backdrop-filter: blur(10px);
+          backdrop-filter: blur(10px);
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+}
+.my-container .task-system .task-header.data-v-8f9a99c0 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+.my-container .task-system .task-header .task-title.data-v-8f9a99c0 {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+.my-container .task-system .task-header .task-progress.data-v-8f9a99c0 {
+  font-size: 24rpx;
+  color: #999;
+}
+.my-container .task-system .task-date.data-v-8f9a99c0 {
+  font-size: 28rpx;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+.my-container .task-system .task-btn.data-v-8f9a99c0 {
+  display: inline-block;
+  padding: 10rpx 30rpx;
+  background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%);
+  color: #fff;
+  border-radius: 30rpx;
+  font-size: 28rpx;
+}
+.my-container .cells-section.data-v-8f9a99c0 {
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 20rpx;
+  margin-top: 10rpx;
+}
+.my-container .cells-section .section-title.data-v-8f9a99c0 {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20rpx;
+  padding: 0 20rpx;
+}
+.my-container .cells-section .cells .cell-item.data-v-8f9a99c0 {
+  display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 30rpx;
+  background: #fff;
+  border-bottom: 1rpx solid #f5f5f5;
 }
-.User .User-order .User-order-title .User-order-title-text.data-v-8f9a99c0 {
-  padding: 20rpx;
-  font-size: 32rpx;
-  color: #000;
+.my-container .cells-section .cells .cell-item.data-v-8f9a99c0:last-child {
+  border-bottom: none;
 }
-.User .User-order .User-order-title .User-order-subtitle.data-v-8f9a99c0 {
-  padding: 20rpx;
+.my-container .cells-section .cells .cell-item .cell-left.data-v-8f9a99c0 {
+  display: flex;
+  align-items: center;
+}
+.my-container .cells-section .cells .cell-item .cell-left .cell-icon.data-v-8f9a99c0 {
+  width: 40rpx;
+  height: 40rpx;
+  margin-right: 20rpx;
+}
+.my-container .cells-section .cells .cell-item .cell-left .cell-title.data-v-8f9a99c0 {
+  font-size: 28rpx;
+  color: #333;
+}
+.my-container .cells-section .cells .cell-item .icon-arrow.data-v-8f9a99c0 {
   font-size: 24rpx;
-  color: #afaaa7;
+  color: #999;
 }
-.User .User-order .User-order-list.data-v-8f9a99c0 {
-  height: 50%;
+.my-container .cells-section .cells .cell-item.data-v-8f9a99c0:active {
+  background-color: #f5f5f5;
+}
+.my-container .cells-section .services-grid.data-v-8f9a99c0 {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(4, 1fr);
+  gap: 30rpx;
+  padding: 10rpx 0;
+}
+.my-container .cells-section .services-grid .service-item.data-v-8f9a99c0 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 10rpx;
+}
+.my-container .cells-section .services-grid .service-item .service-name.data-v-8f9a99c0 {
+  font-size: 24rpx;
+  color: #333;
+  text-align: center;
+}
+.my-container .about-section.data-v-8f9a99c0 {
+  background-color: rgba(255, 255, 255, 0.9);
+  -webkit-backdrop-filter: blur(10px);
+          backdrop-filter: blur(10px);
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+}
+.my-container .about-section .about-text.data-v-8f9a99c0 {
+  font-size: 28rpx;
+  color: #333;
+}
+.my-container .app-download.data-v-8f9a99c0 {
+  background-color: rgba(255, 255, 255, 0.9);
+  -webkit-backdrop-filter: blur(10px);
+          backdrop-filter: blur(10px);
+  border-radius: 20rpx;
+  padding: 30rpx;
+  position: relative;
+}
+.my-container .app-download .app-title.data-v-8f9a99c0 {
+  font-size: 28rpx;
+  color: #333;
+  display: block;
+}
+.my-container .app-download .app-subtitle.data-v-8f9a99c0 {
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 10rpx;
+  display: block;
+}
+.my-container .app-download .version-text.data-v-8f9a99c0 {
+  font-size: 24rpx;
+  color: #999;
+  position: absolute;
+  right: 30rpx;
+  bottom: 30rpx;
+}
+.my-container .more-services.data-v-8f9a99c0 {
+  margin: 20rpx;
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx 20rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+.my-container .more-services .section-title.data-v-8f9a99c0 {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 30rpx;
+  padding-left: 10rpx;
+}
+.my-container .more-services .services-grid.data-v-8f9a99c0 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 30rpx;
   padding: 10rpx;
 }
-.User .User-order .User-order-list .User-order-list-item.data-v-8f9a99c0 {
+.my-container .more-services .services-grid .service-item.data-v-8f9a99c0 {
   display: flex;
   flex-direction: column;
   align-items: center;
-  border: 1px solid whitesmoke;
-  background-color: whitesmoke;
-  border-radius: 20rpx;
+  gap: 16rpx;
+  transition: all 0.3s;
+}
+.my-container .more-services .services-grid .service-item.data-v-8f9a99c0:active {
+  transform: scale(0.95);
+}
+.my-container .more-services .services-grid .service-item .icon-wrapper.data-v-8f9a99c0 {
+  width: 90rpx;
+  height: 90rpx;
+  background: rgba(42, 238, 230, 0.1);
+  display: flex;
+  align-items: center;
   justify-content: center;
-  gap: 10rpx;
+  transition: all 0.3s;
 }
-.User .User-order .User-order-list .User-order-list-item .User-order-list-item-img.data-v-8f9a99c0 {
-  width: 35rpx;
-  height: 35rpx;
+.my-container .more-services .services-grid .service-item .icon-wrapper .service-icon.data-v-8f9a99c0 {
+  width: 60rpx;
+  height: 60rpx;
 }
-.User .User-order .User-order-list .User-order-list-item .User-order-list-item-img .User-order-list-item-img-img.data-v-8f9a99c0 {
-  width: 100%;
-  height: 100%;
+.my-container .more-services .services-grid .service-item .service-name.data-v-8f9a99c0 {
+  font-size: 26rpx;
+  color: #333;
+  font-weight: 500;
 }
-.User .User-order .User-order-list .User-order-list-item .User-order-list-item-text.data-v-8f9a99c0 {
-  font-size: 32rpx;
-  color: #000;
+.my-container .more-services .services-grid .service-item:active .icon-wrapper.data-v-8f9a99c0 {
+  background: rgba(42, 238, 230, 0.2);
 }

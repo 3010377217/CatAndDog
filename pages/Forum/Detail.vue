@@ -37,20 +37,28 @@
 			<!-- 互动数据 -->
 			<view class="interaction" v-if="post">
 				<view class="action-item" @tap="handleLike">
-					<text class="iconfont" :class="{ active: post.isLiked }">👍</text>
+					<image 
+						:src="post.isLiked ? '/static/icons/Like-active.png' : '/static/icons/Like.png'" 
+						mode="aspectFit" 
+						class="action-icon"
+					></image>
 					<text class="count">{{ post.likes }}</text>
 				</view>
 				<view class="action-item">
-					<text class="iconfont">💬</text>
+					<image 
+						src="/static/icons/Comment.png" 
+						mode="aspectFit" 
+						class="action-icon"
+					></image>
 					<text class="count">{{ post.comments }}</text>
 				</view>
 				<view class="action-item" @tap="handleCollect">
-					<text class="iconfont" :class="{ active: post.isCollected }">⭐</text>
+					<image 
+						:src="post.isCollected ? '/static/icons/Collect-active.png' : '/static/icons/Collect.png'" 
+						mode="aspectFit" 
+						class="action-icon"
+					></image>
 					<text class="count">{{ post.collects }}</text>
-				</view>
-				<view class="action-item" @tap="showShare">
-					<text class="iconfont">↗️</text>
-					<text class="count">分享</text>
 				</view>
 			</view>
 		</view>
@@ -78,7 +86,11 @@
 						<text class="text">{{ comment.content }}</text>
 						<view class="comment-footer">
 							<view class="like" @tap="handleLikeComment(comment)">
-								<text class="iconfont" :class="{ active: comment.isLiked }">👍</text>
+								<image 
+									:src="comment.isLiked ? '/static/icons/Like-active.png' : '/static/icons/Like.png'" 
+									mode="aspectFit" 
+									class="like-icon"
+								></image>
 								<text class="count">{{ comment.likes }}</text>
 							</view>
 							<text class="reply-btn" @tap="showReplyInput(comment.username, comment.id)">回复</text>
@@ -169,8 +181,8 @@ const comments = computed(() => {
 onMounted(() => {
 	const pages = getCurrentPages()
 	const currentPage = pages[pages.length - 1]
-	if (currentPage && currentPage.$page?.options?.id) {
-		postId.value = parseInt(currentPage.$page.options.id)
+	if (currentPage && currentPage.options?.id) {
+		postId.value = parseInt(currentPage.options.id)
 		// 检查是否关注了帖子作者
 		if (post.value && post.value.user) {
 			isFollowing.value = forumStore.isUserFollowed(post.value.user.id)
@@ -194,14 +206,6 @@ const handleLike = () => {
 const handleCollect = () => {
 	if (!post.value) return
 	forumStore.toggleCollection(post.value.id)
-}
-
-const showShare = () => {
-	// 实现分享功能
-	uni.showShareMenu({
-		withShareTicket: true,
-		menus: ['shareAppMessage', 'shareTimeline']
-	})
 }
 
 const changeSortType = (type) => {
@@ -243,7 +247,7 @@ const submitComment = () => {
 		})
 		return
 	}
-	
+
 	if (!postId.value) return
 	
 	if (currentCommentId.value) {
@@ -262,13 +266,13 @@ const submitComment = () => {
 		const comment = {
 			userId: 100, // 实际应用中应该使用当前登录用户的ID
 			username: '当前用户', // 实际应用中应该使用当前登录用户的用户名
-			avatar: '/static/logo.png',
-			content: commentText.value,
-			likes: 0,
+		avatar: '/static/logo.png',
+		content: commentText.value,
+		likes: 0,
 			isLiked: false,
-			replies: []
-		}
-		
+		replies: []
+	}
+
 		forumStore.addComment(postId.value, comment)
 	}
 	
@@ -402,14 +406,10 @@ const previewImage = (index) => {
 			display: flex;
 			align-items: center;
 
-			.iconfont {
-				font-size: 36rpx;
-				color: #999;
+			.action-icon {
+				width: 40rpx;
+				height: 40rpx;
 				margin-right: 10rpx;
-
-				&.active {
-					color: #ff4400;
-				}
 			}
 
 			.count {
@@ -508,14 +508,10 @@ const previewImage = (index) => {
 						align-items: center;
 						margin-right: 40rpx;
 
-						.iconfont {
-							font-size: 32rpx;
-							color: #999;
+						.like-icon {
+							width: 36rpx;
+							height: 36rpx;
 							margin-right: 6rpx;
-
-							&.active {
-								color: #ff4400;
-							}
 						}
 
 						.count {

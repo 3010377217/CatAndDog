@@ -1,4 +1,291 @@
-
+/*
+ * 这里是uni-app内置的常用样式变量
+ *
+ * uni-app 官方扩展插件及插件市场（https://ext.dcloud.net.cn）上很多三方插件均使用了这些样式变量
+ * 如果你是插件开发者，建议你使用scss预处理，并在插件代码中直接使用这些变量（无需 import 这个文件），方便用户通过搭积木的方式开发整体风格一致的App
+ *
+ */
+/**
+ * 如果你是App开发者（插件使用者），你可以通过修改这些变量来定制自己的插件主题，实现自定义主题功能
+ *
+ * 如果你的项目同样使用了scss预处理，你也可以直接在你的 scss 代码中使用如下变量，同时无需 import 这个文件
+ */
+/* 颜色变量 */
+/* 行为相关颜色 */
+/* 文字基本颜色 */
+/* 背景颜色 */
+/* 边框颜色 */
+/* 尺寸变量 */
+/* 文字尺寸 */
+/* 图片尺寸 */
+/* Border Radius */
+/* 水平间距 */
+/* 垂直间距 */
+/* 透明度 */
+/* 文章场景相关 */
 .container {
-	padding: 20px;
+  display: flex;
+  flex-direction: column;
+  padding-top: 20rpx;
+  box-sizing: border-box;
+}
+.waterfall-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300rpx;
+  width: 100%;
+}
+.waterfall-loading .loading-text {
+  font-size: 28rpx;
+  color: #999;
+}
+.fade-swiper-box {
+  margin: 0 auto;
+  width: 95%;
+  height: 400rpx;
+  /* 减小轮播图高度 */
+  position: relative;
+  overflow: hidden;
+  border-radius: 12rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
+}
+.custom-fade-swiper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+.swiper-item {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+  will-change: opacity;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.swiper-item.active {
+  opacity: 1;
+  z-index: 2;
+  animation: fadeIn 1.3s ease forwards;
+}
+.swiper-item.prev {
+  opacity: 0;
+  z-index: 1;
+  animation: fadeOut 1.3s ease forwards;
+}
+.swiper-item.no-transition {
+  transition: none;
+  animation: none;
+}
+.swiper-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  background-color: #f5f5f5;
+  /* 添加背景色，防止图片较小时容器空白 */
+}
+.indicator {
+  position: absolute;
+  bottom: 20rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 16rpx;
+  z-index: 3;
+  padding: 8rpx 16rpx;
+  border-radius: 30rpx;
+  background-color: rgba(0, 0, 0, 0.2);
+}
+.dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.5);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+.dot.active {
+  background-color: #ffffff;
+  transform: scale(1.3);
+}
+
+/* 淡入淡出动画 */
+@keyframes fadeIn {
+from {
+    opacity: 0;
+}
+to {
+    opacity: 1;
+}
+}
+@keyframes fadeOut {
+from {
+    opacity: 1;
+}
+to {
+    opacity: 0;
+}
+}
+/* 瀑布流样式 */
+.waterfall-container {
+  padding: 0rpx 2%;
+  padding-top: 20rpx;
+  box-sizing: border-box;
+  width: 100%;
+}
+.waterfall-columns {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+.waterfall-column {
+  width: 48%;
+  /* 两列，留间隙 */
+}
+.goods-item {
+  margin-bottom: 30rpx;
+  /* 增加卡片之间的间距 */
+  border-radius: 16rpx;
+  overflow: hidden;
+  padding: 2rpx;
+  /* 添加小间距，突出边框 */
+}
+.goods-card {
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  box-shadow: 0 10rpx 25rpx rgba(0, 0, 0, 0.12), 0 4rpx 10rpx rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transform: translateZ(0) scale(1);
+  border: 3rpx solid rgba(215, 215, 215, 0.95);
+  /* 边框更粗且更明显 */
+  position: relative;
+  will-change: transform, box-shadow;
+  /* 顶部边缘高光效果 */
+  /* 左右边缘阴影效果 */
+  /* 按下状态样式 */
+}
+.goods-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2rpx;
+  background: linear-gradient(to right, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.5));
+  z-index: 1;
+}
+.goods-card::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4rpx;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.03), rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.03));
+  z-index: 1;
+}
+.goods-card.card-active {
+  transform: translateZ(0) scale(0.95);
+  box-shadow: 0 4rpx 10rpx rgba(0, 0, 0, 0.08), 0 2rpx 5rpx rgba(0, 0, 0, 0.04);
+}
+.goods-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: transform 0.3s ease;
+}
+.goods-image:active {
+  transform: scale(0.98);
+}
+.goods-info {
+  padding: 24rpx 20rpx;
+  /* 增加内部间距 */
+  position: relative;
+}
+.goods-info::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 1rpx;
+  background: linear-gradient(to right, transparent, rgba(200, 200, 200, 0.5), transparent);
+}
+.goods-title {
+  font-size: 28rpx;
+  color: #333333;
+  line-height: 1.5;
+  font-weight: 600;
+  /* 加粗标题 */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  margin-bottom: 10rpx;
+  /* 增加下方间距 */
+}
+.goods-desc {
+  font-size: 24rpx;
+  color: #999999;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  margin-bottom: 8rpx;
+}
+.goods-price-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16rpx;
+  /* 增加上方间距 */
+}
+.goods-price {
+  font-size: 36rpx;
+  /* 增大价格字体 */
+  color: #ff4400;
+  /* 更鲜艳的价格颜色 */
+  font-weight: bold;
+  text-shadow: 0 2rpx 3rpx rgba(255, 68, 0, 0.15);
+  /* 增强价格文字阴影 */
+}
+.goods-sales {
+  font-size: 24rpx;
+  color: #999999;
+  background-color: rgba(245, 245, 245, 0.9);
+  padding: 6rpx 12rpx;
+  /* 增加内部填充 */
+  border-radius: 20rpx;
+  box-shadow: inset 0 1rpx 2rpx rgba(0, 0, 0, 0.05);
+  /* 内阴影增加立体感 */
+}
+
+/* 加载状态样式 */
+.loading-status {
+  width: 100%;
+  height: 80rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20rpx 0;
+}
+.loading, .no-more {
+  font-size: 26rpx;
+  color: #999;
+  text-align: center;
+}
+.loading {
+  display: flex;
+  align-items: center;
+}
+.no-more {
+  padding: 10rpx 0;
 }

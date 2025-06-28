@@ -2,8 +2,8 @@ import { defineStore } from 'pinia'
 import { ref, reactive } from 'vue'
 
 export const useForumStore = defineStore('forum', () => {
-	// state
-	const posts = ref([
+	// 默认帖子数据（模拟后端数据库）
+	const defaultPosts = [
 		{
 			id: 1,
 			user: {
@@ -66,14 +66,102 @@ export const useForumStore = defineStore('forum', () => {
 			isLiked: false,
 			isCollected: false,
 			tags: ['猫咪食谱', '自制猫粮', '宠物营养']
+		},
+		{
+			id: 4,
+			user: {
+				id: 104,
+				username: '猫语者',
+				avatar: '/static/logo.png'
+			},
+			time: '5小时前',
+			timestamp: Date.now() - 5 * 60 * 60 * 1000,
+			category: '猫咪行为',
+			categoryId: 1,
+			title: '猫咪为什么会突然发疯乱跑？这里有答案！',
+			content: '很多铲屎官可能都遇到过这种情况：猫咪突然像疯了一样在家里狂奔，上蹿下跳，跑完后又若无其事地舔毛或睡觉。这种行为专业术语叫"疯狂半小时"(Zoomies)，是完全正常的行为！\n\n为什么会这样呢？主要有以下几个原因：\n\n1. 能量释放\n猫咪是天生的猎手，如果平时活动太少，积累了太多能量，就会通过这种方式释放。\n\n2. 本能使然\n野外的猫咪会有定时的狩猎活动，家猫虽然不需要狩猎，但这种本能依然存在。\n\n3. 快乐表达\n有时候这只是单纯的快乐表达，特别是年轻的猫咪。\n\n4. 排解压力\n某些情况下，这也可能是排解压力或焦虑的方式。\n\n如何应对？其实不需要特别处理，只要确保家中环境安全，没有尖锐物品或易碎品放在猫咪可能跑动的路线上即可。定期陪猫咪玩耍，提供足够的玩具和活动空间，也能减少这种行为的频率。',
+			images: ['/static/picture/8.jpg'],
+			likes: 345,
+			comments: 67,
+			collects: 42,
+			isLiked: false,
+			isCollected: false,
+			tags: ['猫咪行为', '猫咪心理', '宠物护理']
+		},
+		{
+			id: 5,
+			user: {
+				id: 105,
+				username: '汪星研究员',
+				avatar: '/static/logo.png'
+			},
+			time: '8小时前',
+			timestamp: Date.now() - 8 * 60 * 60 * 1000,
+			category: '狗狗训练',
+			categoryId: 2,
+			title: '一周搞定狗狗基础训练，这些命令最实用！',
+			content: '想让你的狗狗更听话更好沟通吗？基础训练是必不可少的，而且并不像你想象的那么难！只要方法正确，一周时间就能看到明显效果。\n\n以下是最实用的几个基础命令训练方法：\n\n1. "坐下"命令\n- 手持零食放在狗狗鼻子前面\n- 慢慢将零食举高并向后移动\n- 狗狗自然会坐下\n- 立即表扬并给予零食奖励\n- 同时说出"坐下"指令\n- 重复10-15次，每天练习3-4次\n\n2. "待命"命令\n- 先让狗狗"坐下"\n- 手掌对着狗狗，说"待命"\n- 后退一步，如果狗狗没动，立即奖励\n- 逐渐增加距离和时间\n\n3. "过来"命令\n- 蹲下来，张开双臂\n- 用愉快的语气说"过来"\n- 狗狗过来后立即奖励\n- 从短距离开始，逐渐增加难度\n\n4. "放下"命令\n- 当狗狗叼着玩具时\n- 拿出零食，放在鼻子前\n- 说"放下"\n- 狗狗放下玩具后立即给予零食奖励\n\n记住：训练要有耐心，每次训练时间不要太长（15-20分钟为宜），保持积极正面的态度，多使用奖励而非惩罚。',
+			images: ['/static/picture/1.jpg', '/static/picture/2.jpg'],
+			likes: 412,
+			comments: 89,
+			collects: 76,
+			isLiked: false,
+			isCollected: false,
+			tags: ['狗狗训练', '基础命令', '宠物教育']
+		},
+		{
+			id: 6,
+			user: {
+				id: 106,
+				username: '宠物医生小王',
+				avatar: '/static/logo.png'
+			},
+			time: '昨天',
+			timestamp: Date.now() - 24 * 60 * 60 * 1000,
+			category: '宠物健康',
+			categoryId: 3,
+			title: '猫狗常见皮肤问题解析与家庭护理方法',
+			content: '皮肤问题是猫狗最常见的健康问题之一，作为宠物医生，我每天都会接诊很多皮肤病患宠。今天和大家分享一些常见皮肤问题的识别和家庭护理方法。\n\n1. 跳蚤感染\n症状：频繁挠痒、不安、皮肤上有黑点（跳蚤粪便）\n护理方法：\n- 使用专业除跳蚤产品（喷剂、滴剂等）\n- 彻底清洁宠物窝及周围环境\n- 定期使用预防药物\n\n2. 真菌感染（癣）\n症状：圆形脱毛区域，可能有轻微发红和鳞片\n护理方法：\n- 需要兽医确诊并开具抗真菌药物\n- 保持感染区域干燥清洁\n- 使用专业药用洗浴产品\n- 注意！某些真菌可传染给人类\n\n3. 过敏性皮炎\n症状：发红、瘙痒、可能有丘疹\n护理方法：\n- 找出并避开过敏原\n- 使用兽医推荐的抗过敏药物\n- 可能需要特殊饮食\n\n4. 干燥皮肤\n症状：皮屑增多、皮肤发干、轻度瘙痒\n护理方法：\n- 增加饮食中的欧米茄-3脂肪酸\n- 使用温和无刺激的洗浴产品\n- 避免过度洗澡\n\n重要提示：如果宠物出现严重或持续的皮肤问题，一定要及时就医。自行用药可能会延误病情或加重症状。',
+			images: ['/static/picture/3.jpg', '/static/picture/4.jpg', '/static/picture/5.jpg'],
+			likes: 287,
+			comments: 53,
+			collects: 64,
+			isLiked: false,
+			isCollected: false,
+			tags: ['皮肤护理', '宠物健康', '家庭护理']
+		},
+		{
+			id: 7,
+			user: {
+				id: 107,
+				username: '冒险猫咪',
+				avatar: '/static/logo.png'
+			},
+			time: '前天',
+			timestamp: Date.now() - 2 * 24 * 60 * 60 * 1000,
+			category: '猫咪生活',
+			categoryId: 1,
+			title: '如何安全地带猫咪外出探险？这些装备必不可少！',
+			content: '作为一个经常带猫出门冒险的铲屎官，我想分享一些安全带猫外出的经验和必备装备。\n\n首先，并不是所有猫咪都适合外出，性格胆小或年龄太小/太大的猫咪可能不适合。要根据自己猫咪的性格特点决定。\n\n必备装备清单：\n\n1. 专业猫咪牵引绳和胸背带\n- 选择H型胸背带，更安全不易挣脱\n- 牵引绳最好有一定弹性，避免猫咪突然跑动时的拉扯\n\n2. 便携式猫包/背包\n- 选择透气、视野好的款式\n- 最好有扩展空间，让猫咪可以稍微活动\n\n3. 便携水碗和水\n- 折叠式硅胶碗最为方便\n- 长时间外出一定要带足够的水\n\n4. 猫咪零食\n- 有助于安抚紧张情绪\n- 可用于奖励好行为\n\n5. 猫咪湿巾\n- 清洁爪子和毛发上的灰尘\n\n6. 猫咪身份牌\n- 刻有联系方式，以防万一\n\n外出注意事项：\n- 第一次外出时间不宜过长，10-15分钟即可\n- 选择安静、人少的环境开始尝试\n- 密切观察猫咪状态，如有不适立即返回\n- 避开大型犬活动的区域\n- 不要在极端天气下外出\n\n外出前先在家中让猫咪适应胸背带，循序渐进增加外出时间和探索范围。每次外出后及时奖励，建立正面联系。',
+			images: ['/static/picture/10.jpg', '/static/picture/14.jpg'],
+			likes: 356,
+			comments: 71,
+			collects: 58,
+			isLiked: false,
+			isCollected: false,
+			tags: ['猫咪外出', '宠物装备', '猫咪探险']
 		}
-	]) // 帖子列表
+	]
+	
+	// state
+	// 将posts设置为空数组，模拟初始无数据状态
+	const posts = ref([]) // 帖子列表
 	
 	const categories = ref(['全部', '养猫经验', '养狗经验', '宠物美食', '宠物医疗', '宠物用品'])
 	const currentCategory = ref(0) // 当前选中的分类索引
 	const pagination = reactive({
 		page: 1, // 当前页码
-		pageSize: 10, // 每页数量
+		pageSize: 5, // 每页数量
 		hasMore: true // 是否还有更多数据
 	})
 	const postDetails = reactive({}) // 帖子详情缓存，key为帖子ID
@@ -212,6 +300,35 @@ export const useForumStore = defineStore('forum', () => {
 			}
 		]
 	})
+
+	// 添加额外的测试帖子数据
+	for (let i = 8; i <= 20; i++) {
+		// 分配给不同分类
+		const categoryId = (i % 3) + 1  // 在1、2、3之间循环
+		const category = categories.value[categoryId]
+		
+		defaultPosts.push({
+			id: i,
+			user: {
+				id: 100 + i,
+				username: `测试用户${i}`,
+				avatar: '/static/logo.png'
+			},
+			time: `${i}小时前`,
+			timestamp: Date.now() - i * 60 * 60 * 1000,
+			category: category,
+			categoryId: categoryId,
+			title: `测试帖子${i} - ${category}分类的内容`,
+			content: `这是一个测试帖子，用于测试分页加载功能。这是第${i}个测试帖子，属于${category}分类。\n\n这里有一些随机内容，确保帖子有足够的长度以便测试显示效果。帖子ID: ${i}`,
+			images: ['/static/picture/6.jpg', '/static/picture/9.jpg'],
+			likes: 10 + i,
+			comments: 5 + i,
+			collects: 2 + i,
+			isLiked: false,
+			isCollected: false,
+			tags: [`测试标签${i}`, category, '分页测试']
+		})
+	}
 
 	// ===== Getters =====
 
@@ -434,13 +551,26 @@ export const useForumStore = defineStore('forum', () => {
 	 * @returns {Array} 搜索结果
 	 */
 	const searchPosts = (keyword) => {
-		if (!keyword) return []
+		console.log('forumStore.searchPosts - 接收到搜索关键词:', keyword)
+		
+		if (!keyword) {
+			console.log('forumStore.searchPosts - 关键词为空，返回空数组')
+			return []
+		}
 		
 		const lowerKeyword = keyword.toLowerCase()
-		return posts.value.filter(post => 
+		console.log('forumStore.searchPosts - 转换为小写的关键词:', lowerKeyword)
+		console.log('forumStore.searchPosts - 当前帖子总数:', posts.value.length)
+		
+		const results = posts.value.filter(post => 
 			post.title.toLowerCase().includes(lowerKeyword) || 
 			post.content.toLowerCase().includes(lowerKeyword)
 		)
+		
+		console.log('forumStore.searchPosts - 过滤后的结果数量:', results.length)
+		console.log('forumStore.searchPosts - 匹配的帖子ID:', results.map(post => post.id))
+		
+		return results
 	}
 
 	/**
@@ -566,6 +696,111 @@ export const useForumStore = defineStore('forum', () => {
 		}
 	}
 
+	/**
+	 * 模拟从后端获取帖子数据
+	 * @param {number} page - 页码，从1开始
+	 * @param {number} pageSize - 每页数量，默认为5
+	 * @param {number} categoryId - 分类ID，可选，不传则获取全部
+	 * @returns {Promise} 包含帖子数据和分页信息的Promise
+	 */
+	const fetchPosts = (page = 1, pageSize = 5, categoryId = null) => {
+		// 更新分页信息
+		pagination.page = page
+		
+		// 模拟网络延迟
+		return new Promise((resolve) => {
+			setTimeout(() => {
+				// 根据分类筛选数据
+				let filteredData = [...defaultPosts]
+				
+				if (categoryId !== null && categoryId !== 0) {
+					filteredData = filteredData.filter(post => post.categoryId === categoryId)
+				}
+				
+				// 计算分页参数
+				const start = (page - 1) * pageSize
+				const end = start + pageSize
+				const hasMore = end < filteredData.length
+				
+				// 获取当前页的数据
+				const pageData = filteredData.slice(start, end)
+				
+				// 更新状态
+				if (page === 1) {
+					// 第一页，替换当前数据
+					setPosts(pageData)
+				} else {
+					// 非第一页，追加数据
+					addPosts(pageData)
+				}
+				
+				// 更新分页状态
+				pagination.hasMore = hasMore
+				
+				// 返回数据和分页信息
+				resolve({
+					data: pageData,
+					pagination: {
+						page,
+						pageSize,
+						hasMore,
+						total: filteredData.length
+					}
+				})
+			}, 1000) // 模拟1000ms网络延迟
+		})
+	}
+
+	/**
+	 * 随机获取帖子数据，用于下拉刷新
+	 * @param {number} count - 需要获取的帖子数量
+	 * @param {number} categoryId - 分类ID，可选，不传则获取全部
+	 * @param {Array} excludeIds - 需要排除的帖子ID数组，避免重复
+	 * @returns {Promise} 包含随机帖子数据的Promise
+	 */
+	const fetchRandomPosts = (count = 5, categoryId = null, excludeIds = []) => {
+		// 模拟网络延迟
+		return new Promise((resolve) => {
+			setTimeout(() => {
+				// 根据分类筛选数据
+				let filteredData = [...defaultPosts]
+				
+				if (categoryId !== null && categoryId !== 0) {
+					filteredData = filteredData.filter(post => post.categoryId === categoryId)
+				}
+				
+				// 排除指定ID的帖子
+				if (excludeIds.length > 0) {
+					filteredData = filteredData.filter(post => !excludeIds.includes(post.id))
+				}
+				
+				// 随机打乱数组顺序
+				const shuffledData = filteredData.sort(() => Math.random() - 0.5)
+				
+				// 获取指定数量的随机帖子
+				const randomData = shuffledData.slice(0, count)
+				
+				// 更新状态
+				setPosts(randomData)
+				
+				// 更新分页状态 - 由于是随机数据，设置为有更多数据可加载
+				pagination.page = 1
+				pagination.hasMore = true
+				
+				// 返回数据和分页信息
+				resolve({
+					data: randomData,
+					pagination: {
+						page: 1,
+						pageSize: count,
+						hasMore: true,
+						total: filteredData.length
+					}
+				})
+			}, 1000) // 模拟1000ms网络延迟
+		})
+	}
+
 	return {
 		// state
 		posts,
@@ -600,6 +835,8 @@ export const useForumStore = defineStore('forum', () => {
 		loadInteractions,
 		addComment,
 		addReply,
-		likeComment
+		likeComment,
+		fetchPosts, // 获取帖子方法
+		fetchRandomPosts // 新增的随机获取帖子方法
 	}
 }) 

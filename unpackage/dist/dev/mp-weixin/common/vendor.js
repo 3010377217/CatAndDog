@@ -18,29 +18,29 @@ const isOn = (key) => key.charCodeAt(0) === 111 && key.charCodeAt(1) === 110 && 
 const isModelListener = (key) => key.startsWith("onUpdate:");
 const extend = Object.assign;
 const remove = (arr, el) => {
-  const i = arr.indexOf(el);
-  if (i > -1) {
-    arr.splice(i, 1);
+  const i2 = arr.indexOf(el);
+  if (i2 > -1) {
+    arr.splice(i2, 1);
   }
 };
 const hasOwnProperty$1 = Object.prototype.hasOwnProperty;
 const hasOwn = (val, key) => hasOwnProperty$1.call(val, key);
-const isArray = Array.isArray;
+const isArray$1 = Array.isArray;
 const isMap = (val) => toTypeString(val) === "[object Map]";
 const isSet = (val) => toTypeString(val) === "[object Set]";
 const isFunction = (val) => typeof val === "function";
 const isString = (val) => typeof val === "string";
 const isSymbol = (val) => typeof val === "symbol";
-const isObject = (val) => val !== null && typeof val === "object";
+const isObject$1 = (val) => val !== null && typeof val === "object";
 const isPromise = (val) => {
-  return (isObject(val) || isFunction(val)) && isFunction(val.then) && isFunction(val.catch);
+  return (isObject$1(val) || isFunction(val)) && isFunction(val.then) && isFunction(val.catch);
 };
 const objectToString = Object.prototype.toString;
 const toTypeString = (value) => objectToString.call(value);
 const toRawType = (value) => {
   return toTypeString(value).slice(8, -1);
 };
-const isPlainObject = (val) => toTypeString(val) === "[object Object]";
+const isPlainObject$2 = (val) => toTypeString(val) === "[object Object]";
 const isIntegerKey = (key) => isString(key) && key !== "NaN" && key[0] !== "-" && "" + parseInt(key, 10) === key;
 const isReservedProp = /* @__PURE__ */ makeMap(
   // the leading comma is intentional so empty string "" is also included
@@ -58,7 +58,7 @@ const cacheStringFunction = (fn) => {
 };
 const camelizeRE = /-(\w)/g;
 const camelize = cacheStringFunction((str) => {
-  return str.replace(camelizeRE, (_, c) => c ? c.toUpperCase() : "");
+  return str.replace(camelizeRE, (_2, c2) => c2 ? c2.toUpperCase() : "");
 });
 const hyphenateRE = /\B([A-Z])/g;
 const hyphenate = cacheStringFunction(
@@ -68,13 +68,13 @@ const capitalize = cacheStringFunction((str) => {
   return str.charAt(0).toUpperCase() + str.slice(1);
 });
 const toHandlerKey = cacheStringFunction((str) => {
-  const s = str ? `on${capitalize(str)}` : ``;
-  return s;
+  const s2 = str ? `on${capitalize(str)}` : ``;
+  return s2;
 });
 const hasChanged = (value, oldValue) => !Object.is(value, oldValue);
 const invokeArrayFns$1 = (fns, arg) => {
-  for (let i = 0; i < fns.length; i++) {
-    fns[i](arg);
+  for (let i2 = 0; i2 < fns.length; i2++) {
+    fns[i2](arg);
   }
 };
 const def = (obj, key, value) => {
@@ -85,11 +85,65 @@ const def = (obj, key, value) => {
   });
 };
 const looseToNumber = (val) => {
-  const n = parseFloat(val);
-  return isNaN(n) ? val : n;
+  const n2 = parseFloat(val);
+  return isNaN(n2) ? val : n2;
 };
+const toNumber = (val) => {
+  const n2 = isString(val) ? Number(val) : NaN;
+  return isNaN(n2) ? val : n2;
+};
+function normalizeStyle(value) {
+  if (isArray$1(value)) {
+    const res = {};
+    for (let i2 = 0; i2 < value.length; i2++) {
+      const item = value[i2];
+      const normalized = isString(item) ? parseStringStyle(item) : normalizeStyle(item);
+      if (normalized) {
+        for (const key in normalized) {
+          res[key] = normalized[key];
+        }
+      }
+    }
+    return res;
+  } else if (isString(value) || isObject$1(value)) {
+    return value;
+  }
+}
+const listDelimiterRE = /;(?![^(]*\))/g;
+const propertyDelimiterRE = /:([^]+)/;
+const styleCommentRE = /\/\*[^]*?\*\//g;
+function parseStringStyle(cssText) {
+  const ret = {};
+  cssText.replace(styleCommentRE, "").split(listDelimiterRE).forEach((item) => {
+    if (item) {
+      const tmp = item.split(propertyDelimiterRE);
+      tmp.length > 1 && (ret[tmp[0].trim()] = tmp[1].trim());
+    }
+  });
+  return ret;
+}
+function normalizeClass(value) {
+  let res = "";
+  if (isString(value)) {
+    res = value;
+  } else if (isArray$1(value)) {
+    for (let i2 = 0; i2 < value.length; i2++) {
+      const normalized = normalizeClass(value[i2]);
+      if (normalized) {
+        res += normalized + " ";
+      }
+    }
+  } else if (isObject$1(value)) {
+    for (const name in value) {
+      if (value[name]) {
+        res += name + " ";
+      }
+    }
+  }
+  return res.trim();
+}
 const toDisplayString = (val) => {
-  return isString(val) ? val : val == null ? "" : isArray(val) || isObject(val) && (val.toString === objectToString || !isFunction(val.toString)) ? JSON.stringify(val, replacer, 2) : String(val);
+  return isString(val) ? val : val == null ? "" : isArray$1(val) || isObject$1(val) && (val.toString === objectToString || !isFunction(val.toString)) ? JSON.stringify(val, replacer, 2) : String(val);
 };
 const replacer = (_key, val) => {
   if (val && val.__v_isRef) {
@@ -97,8 +151,8 @@ const replacer = (_key, val) => {
   } else if (isMap(val)) {
     return {
       [`Map(${val.size})`]: [...val.entries()].reduce(
-        (entries, [key, val2], i) => {
-          entries[stringifySymbol(key, i) + " =>"] = val2;
+        (entries, [key, val2], i2) => {
+          entries[stringifySymbol(key, i2) + " =>"] = val2;
           return entries;
         },
         {}
@@ -106,18 +160,18 @@ const replacer = (_key, val) => {
     };
   } else if (isSet(val)) {
     return {
-      [`Set(${val.size})`]: [...val.values()].map((v) => stringifySymbol(v))
+      [`Set(${val.size})`]: [...val.values()].map((v2) => stringifySymbol(v2))
     };
   } else if (isSymbol(val)) {
     return stringifySymbol(val);
-  } else if (isObject(val) && !isArray(val) && !isPlainObject(val)) {
+  } else if (isObject$1(val) && !isArray$1(val) && !isPlainObject$2(val)) {
     return String(val);
   }
   return val;
 };
-const stringifySymbol = (v, i = "") => {
+const stringifySymbol = (v2, i2 = "") => {
   var _a;
-  return isSymbol(v) ? `Symbol(${(_a = v.description) != null ? _a : i})` : v;
+  return isSymbol(v2) ? `Symbol(${(_a = v2.description) != null ? _a : i2})` : v2;
 };
 const LOCALE_ZH_HANS = "zh-Hans";
 const LOCALE_ZH_HANT = "zh-Hant";
@@ -204,8 +258,8 @@ function addLeadingSlash(str) {
 }
 const invokeArrayFns = (fns, arg) => {
   let ret;
-  for (let i = 0; i < fns.length; i++) {
-    ret = fns[i](arg);
+  for (let i2 = 0; i2 < fns.length; i2++) {
+    ret = fns[i2](arg);
   }
   return ret;
 };
@@ -236,7 +290,7 @@ function getValueByDataPath(obj, path) {
 }
 function sortObject(obj) {
   let sortObj = {};
-  if (isPlainObject(obj)) {
+  if (isPlainObject$2(obj)) {
     Object.keys(obj).sort().forEach((key) => {
       const _key = key;
       sortObj[_key] = obj[_key];
@@ -248,13 +302,13 @@ const customizeRE = /:/g;
 function customizeEvent(str) {
   return camelize(str.replace(customizeRE, "-"));
 }
-const encode = encodeURIComponent;
-function stringifyQuery(obj, encodeStr = encode) {
+const encode$1 = encodeURIComponent;
+function stringifyQuery(obj, encodeStr = encode$1) {
   const res = obj ? Object.keys(obj).map((key) => {
     let val = obj[key];
     if (typeof val === void 0 || val === null) {
       val = "";
-    } else if (isPlainObject(val)) {
+    } else if (isPlainObject$2(val)) {
       val = JSON.stringify(val);
     }
     return encodeStr(key) + "=" + encodeStr(val);
@@ -354,8 +408,8 @@ const E = function() {
 E.prototype = {
   _id: 1,
   on: function(name, callback, ctx) {
-    var e = this.e || (this.e = {});
-    (e[name] || (e[name] = [])).push({
+    var e2 = this.e || (this.e = {});
+    (e2[name] || (e2[name] = [])).push({
       fn: callback,
       ctx,
       _id: this._id
@@ -374,27 +428,27 @@ E.prototype = {
   emit: function(name) {
     var data = [].slice.call(arguments, 1);
     var evtArr = ((this.e || (this.e = {}))[name] || []).slice();
-    var i = 0;
+    var i2 = 0;
     var len = evtArr.length;
-    for (i; i < len; i++) {
-      evtArr[i].fn.apply(evtArr[i].ctx, data);
+    for (i2; i2 < len; i2++) {
+      evtArr[i2].fn.apply(evtArr[i2].ctx, data);
     }
     return this;
   },
   off: function(name, event) {
-    var e = this.e || (this.e = {});
-    var evts = e[name];
+    var e2 = this.e || (this.e = {});
+    var evts = e2[name];
     var liveEvents = [];
     if (evts && event) {
-      for (var i = evts.length - 1; i >= 0; i--) {
-        if (evts[i].fn === event || evts[i].fn._ === event || evts[i]._id === event) {
-          evts.splice(i, 1);
+      for (var i2 = evts.length - 1; i2 >= 0; i2--) {
+        if (evts[i2].fn === event || evts[i2].fn._ === event || evts[i2]._id === event) {
+          evts.splice(i2, 1);
           break;
         }
       }
       liveEvents = evts;
     }
-    liveEvents.length ? e[name] = liveEvents : delete e[name];
+    liveEvents.length ? e2[name] = liveEvents : delete e2[name];
     return this;
   }
 };
@@ -453,16 +507,16 @@ class EffectScope {
   }
   stop(fromParent) {
     if (this._active) {
-      let i, l;
-      for (i = 0, l = this.effects.length; i < l; i++) {
-        this.effects[i].stop();
+      let i2, l2;
+      for (i2 = 0, l2 = this.effects.length; i2 < l2; i2++) {
+        this.effects[i2].stop();
       }
-      for (i = 0, l = this.cleanups.length; i < l; i++) {
-        this.cleanups[i]();
+      for (i2 = 0, l2 = this.cleanups.length; i2 < l2; i2++) {
+        this.cleanups[i2]();
       }
       if (this.scopes) {
-        for (i = 0, l = this.scopes.length; i < l; i++) {
-          this.scopes[i].stop(true);
+        for (i2 = 0, l2 = this.scopes.length; i2 < l2; i2++) {
+          this.scopes[i2].stop(true);
         }
       }
       if (!this.detached && this.parent && !fromParent) {
@@ -477,6 +531,9 @@ class EffectScope {
     }
   }
 }
+function effectScope(detached) {
+  return new EffectScope(detached);
+}
 function recordEffectScope(effect2, scope = activeEffectScope) {
   if (scope && scope.active) {
     scope.effects.push(effect2);
@@ -484,6 +541,15 @@ function recordEffectScope(effect2, scope = activeEffectScope) {
 }
 function getCurrentScope() {
   return activeEffectScope;
+}
+function onScopeDispose(fn) {
+  if (activeEffectScope) {
+    activeEffectScope.cleanups.push(fn);
+  } else {
+    warn$2(
+      `onScopeDispose() is called when there is no active effect scope to be associated with.`
+    );
+  }
 }
 let activeEffect;
 class ReactiveEffect {
@@ -504,8 +570,8 @@ class ReactiveEffect {
     if (this._dirtyLevel === 2 || this._dirtyLevel === 3) {
       this._dirtyLevel = 1;
       pauseTracking();
-      for (let i = 0; i < this._depsLength; i++) {
-        const dep = this.deps[i];
+      for (let i2 = 0; i2 < this._depsLength; i2++) {
+        const dep = this.deps[i2];
         if (dep.computed) {
           triggerComputed(dep.computed);
           if (this._dirtyLevel >= 4) {
@@ -520,8 +586,8 @@ class ReactiveEffect {
     }
     return this._dirtyLevel >= 4;
   }
-  set dirty(v) {
-    this._dirtyLevel = v ? 4 : 0;
+  set dirty(v2) {
+    this._dirtyLevel = v2 ? 4 : 0;
   }
   run() {
     this._dirtyLevel = 0;
@@ -562,8 +628,8 @@ function preCleanupEffect(effect2) {
 }
 function postCleanupEffect(effect2) {
   if (effect2.deps.length > effect2._depsLength) {
-    for (let i = effect2._depsLength; i < effect2.deps.length; i++) {
-      cleanupDepEffect(effect2.deps[i], effect2);
+    for (let i2 = effect2._depsLength; i2 < effect2.deps.length; i2++) {
+      cleanupDepEffect(effect2.deps[i2], effect2);
     }
     effect2.deps.length = effect2._depsLength;
   }
@@ -678,7 +744,7 @@ function trigger(target, type, key, newValue, oldValue, oldTarget) {
   let deps = [];
   if (type === "clear") {
     deps = [...depsMap.values()];
-  } else if (key === "length" && isArray(target)) {
+  } else if (key === "length" && isArray$1(target)) {
     const newLength = Number(newValue);
     depsMap.forEach((dep, key2) => {
       if (key2 === "length" || !isSymbol(key2) && key2 >= newLength) {
@@ -691,7 +757,7 @@ function trigger(target, type, key, newValue, oldValue, oldTarget) {
     }
     switch (type) {
       case "add":
-        if (!isArray(target)) {
+        if (!isArray$1(target)) {
           deps.push(depsMap.get(ITERATE_KEY));
           if (isMap(target)) {
             deps.push(depsMap.get(MAP_KEY_ITERATE_KEY));
@@ -701,7 +767,7 @@ function trigger(target, type, key, newValue, oldValue, oldTarget) {
         }
         break;
       case "delete":
-        if (!isArray(target)) {
+        if (!isArray$1(target)) {
           deps.push(depsMap.get(ITERATE_KEY));
           if (isMap(target)) {
             deps.push(depsMap.get(MAP_KEY_ITERATE_KEY));
@@ -734,6 +800,10 @@ function trigger(target, type, key, newValue, oldValue, oldTarget) {
   }
   resetScheduling();
 }
+function getDepFromReactive(object2, key) {
+  var _a;
+  return (_a = targetMap.get(object2)) == null ? void 0 : _a.get(key);
+}
 const isNonTrackableKeys = /* @__PURE__ */ makeMap(`__proto__,__v_isRef,__isVue`);
 const builtInSymbols = new Set(
   /* @__PURE__ */ Object.getOwnPropertyNames(Symbol).filter((key) => key !== "arguments" && key !== "caller").map((key) => Symbol[key]).filter(isSymbol)
@@ -744,8 +814,8 @@ function createArrayInstrumentations() {
   ["includes", "indexOf", "lastIndexOf"].forEach((key) => {
     instrumentations[key] = function(...args) {
       const arr = toRaw(this);
-      for (let i = 0, l = this.length; i < l; i++) {
-        track(arr, "get", i + "");
+      for (let i2 = 0, l2 = this.length; i2 < l2; i2++) {
+        track(arr, "get", i2 + "");
       }
       const res = arr[key](...args);
       if (res === -1 || res === false) {
@@ -793,7 +863,7 @@ class BaseReactiveHandler {
       }
       return;
     }
-    const targetIsArray = isArray(target);
+    const targetIsArray = isArray$1(target);
     if (!isReadonly2) {
       if (targetIsArray && hasOwn(arrayInstrumentations, key)) {
         return Reflect.get(arrayInstrumentations, key, receiver);
@@ -815,7 +885,7 @@ class BaseReactiveHandler {
     if (isRef(res)) {
       return targetIsArray && isIntegerKey(key) ? res : res.value;
     }
-    if (isObject(res)) {
+    if (isObject$1(res)) {
       return isReadonly2 ? readonly(res) : reactive(res);
     }
     return res;
@@ -833,7 +903,7 @@ class MutableReactiveHandler extends BaseReactiveHandler {
         oldValue = toRaw(oldValue);
         value = toRaw(value);
       }
-      if (!isArray(target) && isRef(oldValue) && !isRef(value)) {
+      if (!isArray$1(target) && isRef(oldValue) && !isRef(value)) {
         if (isOldValueReadonly) {
           return false;
         } else {
@@ -842,7 +912,7 @@ class MutableReactiveHandler extends BaseReactiveHandler {
         }
       }
     }
-    const hadKey = isArray(target) && isIntegerKey(key) ? Number(key) < target.length : hasOwn(target, key);
+    const hadKey = isArray$1(target) && isIntegerKey(key) ? Number(key) < target.length : hasOwn(target, key);
     const result = Reflect.set(target, key, value, receiver);
     if (target === toRaw(receiver)) {
       if (!hadKey) {
@@ -873,7 +943,7 @@ class MutableReactiveHandler extends BaseReactiveHandler {
     track(
       target,
       "iterate",
-      isArray(target) ? "length" : ITERATE_KEY
+      isArray$1(target) ? "length" : ITERATE_KEY
     );
     return Reflect.ownKeys(target);
   }
@@ -908,7 +978,7 @@ const shallowReactiveHandlers = /* @__PURE__ */ new MutableReactiveHandler(
 );
 const shallowReadonlyHandlers = /* @__PURE__ */ new ReadonlyReactiveHandler(true);
 const toShallow = (value) => value;
-const getProto = (v) => Reflect.getPrototypeOf(v);
+const getProto = (v2) => Reflect.getPrototypeOf(v2);
 function get(target, key, isReadonly2 = false, isShallow2 = false) {
   target = target["__v_raw"];
   const rawTarget = toRaw(target);
@@ -946,7 +1016,7 @@ function size(target, isReadonly2 = false) {
   !isReadonly2 && track(toRaw(target), "iterate", ITERATE_KEY);
   return Reflect.get(target, "size", target);
 }
-function add(value) {
+function add$1(value) {
   value = toRaw(value);
   const target = toRaw(this);
   const proto = getProto(target);
@@ -1005,7 +1075,7 @@ function clear() {
   return result;
 }
 function createForEach(isReadonly2, isShallow2) {
-  return function forEach(callback, thisArg) {
+  return function forEach3(callback, thisArg) {
     const observed = this;
     const target = observed["__v_raw"];
     const rawTarget = toRaw(target);
@@ -1067,7 +1137,7 @@ function createInstrumentations() {
       return size(this);
     },
     has: has$1,
-    add,
+    add: add$1,
     set: set$1,
     delete: deleteEntry,
     clear,
@@ -1081,7 +1151,7 @@ function createInstrumentations() {
       return size(this);
     },
     has: has$1,
-    add,
+    add: add$1,
     set: set$1,
     delete: deleteEntry,
     clear,
@@ -1247,7 +1317,7 @@ function shallowReadonly(target) {
   );
 }
 function createReactiveObject(target, isReadonly2, baseHandlers, collectionHandlers, proxyMap) {
-  if (!isObject(target)) {
+  if (!isObject$1(target)) {
     {
       warn$2(`value cannot be made reactive: ${String(target)}`);
     }
@@ -1283,6 +1353,9 @@ function isReadonly(value) {
 function isShallow(value) {
   return !!(value && value["__v_isShallow"]);
 }
+function isProxy(value) {
+  return isReactive(value) || isReadonly(value);
+}
 function toRaw(observed) {
   const raw = observed && observed["__v_raw"];
   return raw ? toRaw(raw) : observed;
@@ -1293,8 +1366,8 @@ function markRaw(value) {
   }
   return value;
 }
-const toReactive = (value) => isObject(value) ? reactive(value) : value;
-const toReadonly = (value) => isObject(value) ? readonly(value) : value;
+const toReactive = (value) => isObject$1(value) ? reactive(value) : value;
+const toReadonly = (value) => isObject$1(value) ? readonly(value) : value;
 const COMPUTED_SIDE_EFFECT_WARN = `Computed is still dirty after getter evaluation, likely because a computed is mutating its own dependency in its getter. State mutations in computed getters should be avoided.  Check the docs for more details: https://vuejs.org/guide/essentials/computed.html#getters-should-be-side-effect-free`;
 class ComputedRefImpl {
   constructor(getter, _setter, isReadonly2, isSSR) {
@@ -1337,8 +1410,8 @@ getter: `, this.getter);
   get _dirty() {
     return this.effect.dirty;
   }
-  set _dirty(v) {
-    this.effect.dirty = v;
+  set _dirty(v2) {
+    this.effect.dirty = v2;
   }
   // #endregion
 }
@@ -1448,6 +1521,59 @@ const shallowUnwrapHandlers = {
 function proxyRefs(objectWithRefs) {
   return isReactive(objectWithRefs) ? objectWithRefs : new Proxy(objectWithRefs, shallowUnwrapHandlers);
 }
+function toRefs(object2) {
+  if (!isProxy(object2)) {
+    warn$2(`toRefs() expects a reactive object but received a plain one.`);
+  }
+  const ret = isArray$1(object2) ? new Array(object2.length) : {};
+  for (const key in object2) {
+    ret[key] = propertyToRef(object2, key);
+  }
+  return ret;
+}
+class ObjectRefImpl {
+  constructor(_object, _key, _defaultValue) {
+    this._object = _object;
+    this._key = _key;
+    this._defaultValue = _defaultValue;
+    this.__v_isRef = true;
+  }
+  get value() {
+    const val = this._object[this._key];
+    return val === void 0 ? this._defaultValue : val;
+  }
+  set value(newVal) {
+    this._object[this._key] = newVal;
+  }
+  get dep() {
+    return getDepFromReactive(toRaw(this._object), this._key);
+  }
+}
+class GetterRefImpl {
+  constructor(_getter) {
+    this._getter = _getter;
+    this.__v_isRef = true;
+    this.__v_isReadonly = true;
+  }
+  get value() {
+    return this._getter();
+  }
+}
+function toRef(source, key, defaultValue) {
+  if (isRef(source)) {
+    return source;
+  } else if (isFunction(source)) {
+    return new GetterRefImpl(source);
+  } else if (isObject$1(source) && arguments.length > 1) {
+    return propertyToRef(source, key, defaultValue);
+  } else {
+    return ref(source);
+  }
+}
+function propertyToRef(source, key, defaultValue) {
+  const val = source[key];
+  return isRef(val) ? val : new ObjectRefImpl(source, key, defaultValue);
+}
 const stack = [];
 function pushWarningContext(vnode) {
   stack.push(vnode);
@@ -1466,9 +1592,9 @@ function warn$1(msg, ...args) {
       instance,
       11,
       [
-        msg + args.map((a) => {
+        msg + args.map((a2) => {
           var _a, _b;
-          return (_b = (_a = a.toString) == null ? void 0 : _a.call(a)) != null ? _b : JSON.stringify(a);
+          return (_b = (_a = a2.toString) == null ? void 0 : _a.call(a2)) != null ? _b : JSON.stringify(a2);
         }).join(""),
         instance && instance.proxy,
         trace.map(
@@ -1511,8 +1637,8 @@ function getComponentTrace() {
 }
 function formatTrace(trace) {
   const logs = [];
-  trace.forEach((entry, i) => {
-    logs.push(...i === 0 ? [] : [`
+  trace.forEach((entry, i2) => {
+    logs.push(...i2 === 0 ? [] : [`
 `], ...formatTraceEntry(entry));
   });
   return logs;
@@ -1528,11 +1654,11 @@ function formatTraceEntry({ vnode, recurseCount }) {
   const close = `>` + postfix;
   return vnode.props ? [open, ...formatProps(vnode.props), close] : [open + close];
 }
-function formatProps(props) {
+function formatProps(props2) {
   const res = [];
-  const keys = Object.keys(props);
+  const keys = Object.keys(props2);
   keys.slice(0, 3).forEach((key) => {
-    res.push(...formatProp(key, props[key]));
+    res.push(...formatProp(key, props2[key]));
   });
   if (keys.length > 3) {
     res.push(` ...`);
@@ -1604,8 +1730,8 @@ function callWithAsyncErrorHandling(fn, instance, type, args) {
     return res;
   }
   const values = [];
-  for (let i = 0; i < fn.length; i++) {
-    values.push(callWithAsyncErrorHandling(fn[i], instance, type, args));
+  for (let i2 = 0; i2 < fn.length; i2++) {
+    values.push(callWithAsyncErrorHandling(fn[i2], instance, type, args));
   }
   return values;
 }
@@ -1618,8 +1744,8 @@ function handleError(err, instance, type, throwInDev = true) {
     while (cur) {
       const errorCapturedHooks = cur.ec;
       if (errorCapturedHooks) {
-        for (let i = 0; i < errorCapturedHooks.length; i++) {
-          if (errorCapturedHooks[i](err, exposedInstance, errorInfo) === false) {
+        for (let i2 = 0; i2 < errorCapturedHooks.length; i2++) {
+          if (errorCapturedHooks[i2](err, exposedInstance, errorInfo) === false) {
             return;
           }
         }
@@ -1708,13 +1834,13 @@ function hasQueueJob(job) {
   return queue$1.indexOf(job) > -1;
 }
 function invalidateJob(job) {
-  const i = queue$1.indexOf(job);
-  if (i > flushIndex) {
-    queue$1.splice(i, 1);
+  const i2 = queue$1.indexOf(job);
+  if (i2 > flushIndex) {
+    queue$1.splice(i2, 1);
   }
 }
 function queuePostFlushCb(cb) {
-  if (!isArray(cb)) {
+  if (!isArray$1(cb)) {
     if (!activePostFlushCbs || !activePostFlushCbs.includes(
       cb,
       cb.allowRecurse ? postFlushIndex + 1 : postFlushIndex
@@ -1726,18 +1852,18 @@ function queuePostFlushCb(cb) {
   }
   queueFlush();
 }
-function flushPreFlushCbs(instance, seen, i = isFlushing ? flushIndex + 1 : 0) {
+function flushPreFlushCbs(instance, seen, i2 = isFlushing ? flushIndex + 1 : 0) {
   {
     seen = seen || /* @__PURE__ */ new Map();
   }
-  for (; i < queue$1.length; i++) {
-    const cb = queue$1[i];
+  for (; i2 < queue$1.length; i2++) {
+    const cb = queue$1[i2];
     if (cb && cb.pre) {
       if (checkRecursiveUpdates(seen, cb)) {
         continue;
       }
-      queue$1.splice(i, 1);
-      i--;
+      queue$1.splice(i2, 1);
+      i2--;
       cb();
     }
   }
@@ -1745,7 +1871,7 @@ function flushPreFlushCbs(instance, seen, i = isFlushing ? flushIndex + 1 : 0) {
 function flushPostFlushCbs(seen) {
   if (pendingPostFlushCbs.length) {
     const deduped = [...new Set(pendingPostFlushCbs)].sort(
-      (a, b) => getId(a) - getId(b)
+      (a2, b2) => getId(a2) - getId(b2)
     );
     pendingPostFlushCbs.length = 0;
     if (activePostFlushCbs) {
@@ -1767,12 +1893,12 @@ function flushPostFlushCbs(seen) {
   }
 }
 const getId = (job) => job.id == null ? Infinity : job.id;
-const comparator = (a, b) => {
-  const diff2 = getId(a) - getId(b);
+const comparator = (a2, b2) => {
+  const diff2 = getId(a2) - getId(b2);
   if (diff2 === 0) {
-    if (a.pre && !b.pre)
+    if (a2.pre && !b2.pre)
       return -1;
-    if (b.pre && !a.pre)
+    if (b2.pre && !a2.pre)
       return 1;
   }
   return diff2;
@@ -1869,7 +1995,7 @@ function setDevtoolsHook(hook, target) {
 function devtoolsInitApp(app, version2) {
   emit$1("app:init", app, version2, {
     Fragment,
-    Text,
+    Text: Text$1,
     Comment,
     Static
   });
@@ -1932,7 +2058,7 @@ function devtoolsComponentEmit(component, event, params) {
 function emit(instance, event, ...rawArgs) {
   if (instance.isUnmounted)
     return;
-  const props = instance.vnode.props || EMPTY_OBJ;
+  const props2 = instance.vnode.props || EMPTY_OBJ;
   {
     const {
       emitsOptions,
@@ -1961,13 +2087,13 @@ function emit(instance, event, ...rawArgs) {
   let args = rawArgs;
   const isModelListener2 = event.startsWith("update:");
   const modelArg = isModelListener2 && event.slice(7);
-  if (modelArg && modelArg in props) {
+  if (modelArg && modelArg in props2) {
     const modifiersKey = `${modelArg === "modelValue" ? "model" : modelArg}Modifiers`;
-    const { number, trim } = props[modifiersKey] || EMPTY_OBJ;
-    if (trim) {
-      args = rawArgs.map((a) => isString(a) ? a.trim() : a);
+    const { number: number2, trim: trim2 } = props2[modifiersKey] || EMPTY_OBJ;
+    if (trim2) {
+      args = rawArgs.map((a2) => isString(a2) ? a2.trim() : a2);
     }
-    if (number) {
+    if (number2) {
       args = rawArgs.map(looseToNumber);
     }
   }
@@ -1976,7 +2102,7 @@ function emit(instance, event, ...rawArgs) {
   }
   {
     const lowerCaseEvent = event.toLowerCase();
-    if (lowerCaseEvent !== event && props[toHandlerKey(lowerCaseEvent)]) {
+    if (lowerCaseEvent !== event && props2[toHandlerKey(lowerCaseEvent)]) {
       warn$1(
         `Event "${lowerCaseEvent}" is emitted in component ${formatComponentName(
           instance,
@@ -1988,10 +2114,10 @@ function emit(instance, event, ...rawArgs) {
     }
   }
   let handlerName;
-  let handler = props[handlerName = toHandlerKey(event)] || // also try camelCase event handler (#2249)
-  props[handlerName = toHandlerKey(camelize(event))];
+  let handler = props2[handlerName = toHandlerKey(event)] || // also try camelCase event handler (#2249)
+  props2[handlerName = toHandlerKey(camelize(event))];
   if (!handler && isModelListener2) {
-    handler = props[handlerName = toHandlerKey(hyphenate(event))];
+    handler = props2[handlerName = toHandlerKey(hyphenate(event))];
   }
   if (handler) {
     callWithAsyncErrorHandling(
@@ -2001,7 +2127,7 @@ function emit(instance, event, ...rawArgs) {
       args
     );
   }
-  const onceHandler = props[handlerName + `Once`];
+  const onceHandler = props2[handlerName + `Once`];
   if (onceHandler) {
     if (!instance.emitted) {
       instance.emitted = {};
@@ -2045,17 +2171,17 @@ function normalizeEmitsOptions(comp, appContext, asMixin = false) {
     }
   }
   if (!raw && !hasExtends) {
-    if (isObject(comp)) {
+    if (isObject$1(comp)) {
       cache.set(comp, null);
     }
     return null;
   }
-  if (isArray(raw)) {
+  if (isArray$1(raw)) {
     raw.forEach((key) => normalized[key] = null);
   } else {
     extend(normalized, raw);
   }
-  if (isObject(comp)) {
+  if (isObject$1(comp)) {
     cache.set(comp, normalized);
   }
   return normalized;
@@ -2073,6 +2199,47 @@ function setCurrentRenderingInstance(instance) {
   currentRenderingInstance = instance;
   instance && instance.type.__scopeId || null;
   return prev;
+}
+const COMPONENTS = "components";
+function resolveComponent(name, maybeSelfReference) {
+  return resolveAsset(COMPONENTS, name, true, maybeSelfReference) || name;
+}
+function resolveAsset(type, name, warnMissing = true, maybeSelfReference = false) {
+  const instance = currentRenderingInstance || currentInstance;
+  if (instance) {
+    const Component2 = instance.type;
+    if (type === COMPONENTS) {
+      const selfName = getComponentName(
+        Component2,
+        false
+      );
+      if (selfName && (selfName === name || selfName === camelize(name) || selfName === capitalize(camelize(name)))) {
+        return Component2;
+      }
+    }
+    const res = (
+      // local registration
+      // check instance[type] first which is resolved for options API
+      resolve(instance[type] || Component2[type], name) || // global registration
+      resolve(instance.appContext[type], name)
+    );
+    if (!res && maybeSelfReference) {
+      return Component2;
+    }
+    if (warnMissing && !res) {
+      const extra = type === COMPONENTS ? `
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.` : ``;
+      warn$1(`Failed to resolve ${type.slice(0, -1)}: ${name}${extra}`);
+    }
+    return res;
+  } else {
+    warn$1(
+      `resolve${capitalize(type.slice(0, -1))} can only be used in render() or setup().`
+    );
+  }
+}
+function resolve(registry, name) {
+  return registry && (registry[name] || registry[camelize(name)] || registry[capitalize(camelize(name))]);
 }
 const INITIAL_WATCHER_VALUE = {};
 function watch(source, cb, options) {
@@ -2141,7 +2308,7 @@ function doWatch(source, cb, {
   } else if (isReactive(source)) {
     getter = () => reactiveGetter(source);
     forceTrigger = true;
-  } else if (isArray(source)) {
+  } else if (isArray$1(source)) {
     isMultiSource = true;
     forceTrigger = source.some((s2) => isReactive(s2) || isShallow(s2));
     getter = () => source.map((s2) => {
@@ -2193,7 +2360,7 @@ function doWatch(source, cb, {
     }
     if (cb) {
       const newValue = effect2.run();
-      if (deep || forceTrigger || (isMultiSource ? newValue.some((v, i) => hasChanged(v, oldValue[i])) : hasChanged(newValue, oldValue)) || false) {
+      if (deep || forceTrigger || (isMultiSource ? newValue.some((v2, i2) => hasChanged(v2, oldValue[i2])) : hasChanged(newValue, oldValue)) || false) {
         if (cleanup) {
           cleanup();
         }
@@ -2268,14 +2435,14 @@ function createPathGetter(ctx, path) {
   const segments = path.split(".");
   return () => {
     let cur = ctx;
-    for (let i = 0; i < segments.length && cur; i++) {
-      cur = cur[segments[i]];
+    for (let i2 = 0; i2 < segments.length && cur; i2++) {
+      cur = cur[segments[i2]];
     }
     return cur;
   };
 }
 function traverse(value, depth, currentDepth = 0, seen) {
-  if (!isObject(value) || value["__v_skip"]) {
+  if (!isObject$1(value) || value["__v_skip"]) {
     return value;
   }
   if (depth && depth > 0) {
@@ -2291,15 +2458,15 @@ function traverse(value, depth, currentDepth = 0, seen) {
   seen.add(value);
   if (isRef(value)) {
     traverse(value.value, depth, currentDepth, seen);
-  } else if (isArray(value)) {
-    for (let i = 0; i < value.length; i++) {
-      traverse(value[i], depth, currentDepth, seen);
+  } else if (isArray$1(value)) {
+    for (let i2 = 0; i2 < value.length; i2++) {
+      traverse(value[i2], depth, currentDepth, seen);
     }
   } else if (isSet(value) || isMap(value)) {
-    value.forEach((v) => {
-      traverse(v, depth, currentDepth, seen);
+    value.forEach((v2) => {
+      traverse(v2, depth, currentDepth, seen);
     });
-  } else if (isPlainObject(value)) {
+  } else if (isPlainObject$2(value)) {
     for (const key in value) {
       traverse(value[key], depth, currentDepth, seen);
     }
@@ -2338,7 +2505,7 @@ function createAppAPI(render, hydrate) {
     if (!isFunction(rootComponent)) {
       rootComponent = extend({}, rootComponent);
     }
-    if (rootProps != null && !isObject(rootProps)) {
+    if (rootProps != null && !isObject$1(rootProps)) {
       warn$1(`root props passed to app.mount() must be an object.`);
       rootProps = null;
     }
@@ -2351,11 +2518,11 @@ function createAppAPI(render, hydrate) {
       _container: null,
       _context: context,
       _instance: null,
-      version,
+      version: version$1,
       get config() {
         return context.config;
       },
-      set config(v) {
+      set config(v2) {
         {
           warn$1(
             `app.config cannot be replaced. Modify individual options instead.`
@@ -2378,13 +2545,13 @@ function createAppAPI(render, hydrate) {
         }
         return app;
       },
-      mixin(mixin) {
+      mixin(mixin2) {
         {
-          if (!context.mixins.includes(mixin)) {
-            context.mixins.push(mixin);
+          if (!context.mixins.includes(mixin2)) {
+            context.mixins.push(mixin2);
           } else {
             warn$1(
-              "Mixin has already been applied to target app" + (mixin.name ? `: ${mixin.name}` : "")
+              "Mixin has already been applied to target app" + (mixin2.name ? `: ${mixin2.name}` : "")
             );
           }
         }
@@ -2477,6 +2644,9 @@ function inject(key, defaultValue, treatDefaultAsFactory = false) {
     warn$1(`inject() can only be used inside setup() or functional components.`);
   }
 }
+function hasInjectionContext() {
+  return !!(currentInstance || currentRenderingInstance || currentApp);
+}
 const isKeepAlive = (vnode) => vnode.type.__isKeepAlive;
 function onActivated(hook, target) {
   registerKeepAliveHook(hook, "a", target);
@@ -2550,63 +2720,63 @@ function injectHook(type, hook, target = currentInstance, prepend = false) {
     );
   }
 }
-const createHook = (lifecycle) => (hook, target = currentInstance) => (
+const createHook$1 = (lifecycle) => (hook, target = currentInstance) => (
   // post-create lifecycle registrations are noops during SSR (except for serverPrefetch)
   (!isInSSRComponentSetup || lifecycle === "sp") && injectHook(lifecycle, (...args) => hook(...args), target)
 );
-const onBeforeMount = createHook("bm");
-const onMounted = createHook("m");
-const onBeforeUpdate = createHook("bu");
-const onUpdated = createHook("u");
-const onBeforeUnmount = createHook("bum");
-const onUnmounted = createHook("um");
-const onServerPrefetch = createHook("sp");
-const onRenderTriggered = createHook(
+const onBeforeMount = createHook$1("bm");
+const onMounted = createHook$1("m");
+const onBeforeUpdate = createHook$1("bu");
+const onUpdated = createHook$1("u");
+const onBeforeUnmount = createHook$1("bum");
+const onUnmounted = createHook$1("um");
+const onServerPrefetch = createHook$1("sp");
+const onRenderTriggered = createHook$1(
   "rtg"
 );
-const onRenderTracked = createHook(
+const onRenderTracked = createHook$1(
   "rtc"
 );
 function onErrorCaptured(hook, target = currentInstance) {
   injectHook("ec", hook, target);
 }
-const getPublicInstance = (i) => {
-  if (!i)
+const getPublicInstance = (i2) => {
+  if (!i2)
     return null;
-  if (isStatefulComponent(i))
-    return getExposeProxy(i) || i.proxy;
-  return getPublicInstance(i.parent);
+  if (isStatefulComponent(i2))
+    return getExposeProxy(i2) || i2.proxy;
+  return getPublicInstance(i2.parent);
 };
 const publicPropertiesMap = (
   // Move PURE marker to new line to workaround compiler discarding it
   // due to type annotation
   /* @__PURE__ */ extend(/* @__PURE__ */ Object.create(null), {
-    $: (i) => i,
+    $: (i2) => i2,
     // fixed by xxxxxx vue-i18n 在 dev 模式，访问了 $el，故模拟一个假的
     // $el: i => i.vnode.el,
-    $el: (i) => i.__$el || (i.__$el = {}),
-    $data: (i) => i.data,
-    $props: (i) => shallowReadonly(i.props),
-    $attrs: (i) => shallowReadonly(i.attrs),
-    $slots: (i) => shallowReadonly(i.slots),
-    $refs: (i) => shallowReadonly(i.refs),
-    $parent: (i) => getPublicInstance(i.parent),
-    $root: (i) => getPublicInstance(i.root),
-    $emit: (i) => i.emit,
-    $options: (i) => resolveMergedOptions(i),
-    $forceUpdate: (i) => i.f || (i.f = () => {
-      i.effect.dirty = true;
-      queueJob(i.update);
+    $el: (i2) => i2.__$el || (i2.__$el = {}),
+    $data: (i2) => i2.data,
+    $props: (i2) => shallowReadonly(i2.props),
+    $attrs: (i2) => shallowReadonly(i2.attrs),
+    $slots: (i2) => shallowReadonly(i2.slots),
+    $refs: (i2) => shallowReadonly(i2.refs),
+    $parent: (i2) => getPublicInstance(i2.parent),
+    $root: (i2) => getPublicInstance(i2.root),
+    $emit: (i2) => i2.emit,
+    $options: (i2) => resolveMergedOptions(i2),
+    $forceUpdate: (i2) => i2.f || (i2.f = () => {
+      i2.effect.dirty = true;
+      queueJob(i2.update);
     }),
     // $nextTick: i => i.n || (i.n = nextTick.bind(i.proxy!)),// fixed by xxxxxx
-    $watch: (i) => instanceWatch.bind(i)
+    $watch: (i2) => instanceWatch.bind(i2)
   })
 );
 const isReservedPrefix = (key) => key === "_" || key === "$";
 const hasSetupBinding = (state, key) => state !== EMPTY_OBJ && !state.__isScriptSetup && hasOwn(state, key);
 const PublicInstanceProxyHandlers = {
   get({ _: instance }, key) {
-    const { ctx, setupState, data, props, accessCache, type, appContext } = instance;
+    const { ctx, setupState, data, props: props2, accessCache, type, appContext } = instance;
     if (key === "__isVue") {
       return true;
     }
@@ -2622,7 +2792,7 @@ const PublicInstanceProxyHandlers = {
           case 4:
             return ctx[key];
           case 3:
-            return props[key];
+            return props2[key];
         }
       } else if (hasSetupBinding(setupState, key)) {
         accessCache[key] = 1;
@@ -2636,7 +2806,7 @@ const PublicInstanceProxyHandlers = {
         (normalizedProps = instance.propsOptions[0]) && hasOwn(normalizedProps, key)
       ) {
         accessCache[key] = 3;
-        return props[key];
+        return props2[key];
       } else if (ctx !== EMPTY_OBJ && hasOwn(ctx, key)) {
         accessCache[key] = 4;
         return ctx[key];
@@ -2796,11 +2966,11 @@ function exposeSetupStateOnRenderContext(instance) {
     }
   });
 }
-function normalizePropsOrEmits(props) {
-  return isArray(props) ? props.reduce(
+function normalizePropsOrEmits(props2) {
+  return isArray$1(props2) ? props2.reduce(
     (normalized, p2) => (normalized[p2] = null, normalized),
     {}
-  ) : props;
+  ) : props2;
 }
 function createDuplicateChecker() {
   const cache = /* @__PURE__ */ Object.create(null);
@@ -2905,7 +3075,7 @@ function applyOptions$1(instance) {
         `data() returned a Promise - note data() cannot be async; If you intend to perform data fetching before component renders, use async setup() + <Suspense>.`
       );
     }
-    if (!isObject(data)) {
+    if (!isObject$1(data)) {
       warn$1(`data() should return an object.`);
     } else {
       instance.data = reactive(data);
@@ -2945,7 +3115,7 @@ function applyOptions$1(instance) {
         enumerable: true,
         configurable: true,
         get: () => c2.value,
-        set: (v) => c2.value = v
+        set: (v2) => c2.value = v2
       });
       {
         checkDuplicateProperties("Computed", key);
@@ -2974,7 +3144,7 @@ function applyOptions$1(instance) {
     }
   }
   function registerLifecycleHook(register, hook) {
-    if (isArray(hook)) {
+    if (isArray$1(hook)) {
       hook.forEach((_hook) => register(_hook.bind(publicThis)));
     } else if (hook) {
       register(hook.bind(publicThis));
@@ -2992,7 +3162,7 @@ function applyOptions$1(instance) {
   registerLifecycleHook(onBeforeUnmount, beforeUnmount);
   registerLifecycleHook(onUnmounted, unmounted);
   registerLifecycleHook(onServerPrefetch, serverPrefetch);
-  if (isArray(expose)) {
+  if (isArray$1(expose)) {
     if (expose.length) {
       const exposed = instance.exposed || (instance.exposed = {});
       expose.forEach((key) => {
@@ -3020,13 +3190,13 @@ function applyOptions$1(instance) {
   }
 }
 function resolveInjections(injectOptions, ctx, checkDuplicateProperties = NOOP) {
-  if (isArray(injectOptions)) {
+  if (isArray$1(injectOptions)) {
     injectOptions = normalizeInject(injectOptions);
   }
   for (const key in injectOptions) {
     const opt = injectOptions[key];
     let injected;
-    if (isObject(opt)) {
+    if (isObject$1(opt)) {
       if ("default" in opt) {
         injected = inject(
           opt.from || key,
@@ -3044,7 +3214,7 @@ function resolveInjections(injectOptions, ctx, checkDuplicateProperties = NOOP) 
         enumerable: true,
         configurable: true,
         get: () => injected.value,
-        set: (v) => injected.value = v
+        set: (v2) => injected.value = v2
       });
     } else {
       ctx[key] = injected;
@@ -3056,7 +3226,7 @@ function resolveInjections(injectOptions, ctx, checkDuplicateProperties = NOOP) 
 }
 function callHook$1(hook, instance, type) {
   callWithAsyncErrorHandling(
-    isArray(hook) ? hook.map((h2) => h2.bind(instance.proxy)) : hook.bind(instance.proxy),
+    isArray$1(hook) ? hook.map((h2) => h2.bind(instance.proxy)) : hook.bind(instance.proxy),
     instance,
     type
   );
@@ -3072,8 +3242,8 @@ function createWatcher(raw, ctx, publicThis, key) {
     }
   } else if (isFunction(raw)) {
     watch(getter, raw.bind(publicThis));
-  } else if (isObject(raw)) {
-    if (isArray(raw)) {
+  } else if (isObject$1(raw)) {
+    if (isArray$1(raw)) {
       raw.forEach((r2) => createWatcher(r2, ctx, publicThis, key));
     } else {
       const handler = isFunction(raw.handler) ? raw.handler.bind(publicThis) : ctx[raw.handler];
@@ -3112,7 +3282,7 @@ function resolveMergedOptions(instance) {
     }
     mergeOptions(resolved, base, optionMergeStrategies);
   }
-  if (isObject(base)) {
+  if (isObject$1(base)) {
     cache.set(base, resolved);
   }
   return resolved;
@@ -3188,10 +3358,10 @@ function mergeInject(to, from) {
   return mergeObjectOptions(normalizeInject(to), normalizeInject(from));
 }
 function normalizeInject(raw) {
-  if (isArray(raw)) {
+  if (isArray$1(raw)) {
     const res = {};
-    for (let i = 0; i < raw.length; i++) {
-      res[raw[i]] = raw[i];
+    for (let i2 = 0; i2 < raw.length; i2++) {
+      res[raw[i2]] = raw[i2];
     }
     return res;
   }
@@ -3205,7 +3375,7 @@ function mergeObjectOptions(to, from) {
 }
 function mergeEmitsOrPropsOptions(to, from) {
   if (to) {
-    if (isArray(to) && isArray(from)) {
+    if (isArray$1(to) && isArray$1(from)) {
       return [.../* @__PURE__ */ new Set([...to, ...from])];
     }
     return extend(
@@ -3229,25 +3399,25 @@ function mergeWatchOptions(to, from) {
   return merged;
 }
 function initProps$1(instance, rawProps, isStateful, isSSR = false) {
-  const props = {};
+  const props2 = {};
   const attrs = {};
   instance.propsDefaults = /* @__PURE__ */ Object.create(null);
-  setFullProps(instance, rawProps, props, attrs);
+  setFullProps(instance, rawProps, props2, attrs);
   for (const key in instance.propsOptions[0]) {
-    if (!(key in props)) {
-      props[key] = void 0;
+    if (!(key in props2)) {
+      props2[key] = void 0;
     }
   }
   {
-    validateProps(rawProps || {}, props, instance);
+    validateProps(rawProps || {}, props2, instance);
   }
   if (isStateful) {
-    instance.props = isSSR ? props : shallowReactive(props);
+    instance.props = isSSR ? props2 : shallowReactive(props2);
   } else {
     if (!instance.type.props) {
       instance.props = attrs;
     } else {
-      instance.props = props;
+      instance.props = props2;
     }
   }
   instance.attrs = attrs;
@@ -3256,11 +3426,11 @@ function isInHmrContext(instance) {
 }
 function updateProps(instance, rawProps, rawPrevProps, optimized) {
   const {
-    props,
+    props: props2,
     attrs,
     vnode: { patchFlag }
   } = instance;
-  const rawCurrentProps = toRaw(props);
+  const rawCurrentProps = toRaw(props2);
   const [options] = instance.propsOptions;
   let hasAttrsChanged = false;
   if (
@@ -3271,8 +3441,8 @@ function updateProps(instance, rawProps, rawPrevProps, optimized) {
   ) {
     if (patchFlag & 8) {
       const propsToUpdate = instance.vnode.dynamicProps;
-      for (let i = 0; i < propsToUpdate.length; i++) {
-        let key = propsToUpdate[i];
+      for (let i2 = 0; i2 < propsToUpdate.length; i2++) {
+        let key = propsToUpdate[i2];
         if (isEmitListener(instance.emitsOptions, key)) {
           continue;
         }
@@ -3285,7 +3455,7 @@ function updateProps(instance, rawProps, rawPrevProps, optimized) {
             }
           } else {
             const camelizedKey = camelize(key);
-            props[camelizedKey] = resolvePropValue$1(
+            props2[camelizedKey] = resolvePropValue$1(
               options,
               rawCurrentProps,
               camelizedKey,
@@ -3303,7 +3473,7 @@ function updateProps(instance, rawProps, rawPrevProps, optimized) {
       }
     }
   } else {
-    if (setFullProps(instance, rawProps, props, attrs)) {
+    if (setFullProps(instance, rawProps, props2, attrs)) {
       hasAttrsChanged = true;
     }
     let kebabKey;
@@ -3316,7 +3486,7 @@ function updateProps(instance, rawProps, rawPrevProps, optimized) {
           if (rawPrevProps && // for camelCase
           (rawPrevProps[key] !== void 0 || // for kebab-case
           rawPrevProps[kebabKey] !== void 0)) {
-            props[key] = resolvePropValue$1(
+            props2[key] = resolvePropValue$1(
               options,
               rawCurrentProps,
               key,
@@ -3326,7 +3496,7 @@ function updateProps(instance, rawProps, rawPrevProps, optimized) {
             );
           }
         } else {
-          delete props[key];
+          delete props2[key];
         }
       }
     }
@@ -3343,10 +3513,10 @@ function updateProps(instance, rawProps, rawPrevProps, optimized) {
     trigger(instance, "set", "$attrs");
   }
   {
-    validateProps(rawProps || {}, props, instance);
+    validateProps(rawProps || {}, props2, instance);
   }
 }
-function setFullProps(instance, rawProps, props, attrs) {
+function setFullProps(instance, rawProps, props2, attrs) {
   const [options, needCastKeys] = instance.propsOptions;
   let hasAttrsChanged = false;
   let rawCastValues;
@@ -3359,7 +3529,7 @@ function setFullProps(instance, rawProps, props, attrs) {
       let camelKey;
       if (options && hasOwn(options, camelKey = camelize(key))) {
         if (!needCastKeys || !needCastKeys.includes(camelKey)) {
-          props[camelKey] = value;
+          props2[camelKey] = value;
         } else {
           (rawCastValues || (rawCastValues = {}))[camelKey] = value;
         }
@@ -3372,11 +3542,11 @@ function setFullProps(instance, rawProps, props, attrs) {
     }
   }
   if (needCastKeys) {
-    const rawCurrentProps = toRaw(props);
+    const rawCurrentProps = toRaw(props2);
     const castValues = rawCastValues || EMPTY_OBJ;
-    for (let i = 0; i < needCastKeys.length; i++) {
-      const key = needCastKeys[i];
-      props[key] = resolvePropValue$1(
+    for (let i2 = 0; i2 < needCastKeys.length; i2++) {
+      const key = needCastKeys[i2];
+      props2[key] = resolvePropValue$1(
         options,
         rawCurrentProps,
         key,
@@ -3388,7 +3558,7 @@ function setFullProps(instance, rawProps, props, attrs) {
   }
   return hasAttrsChanged;
 }
-function resolvePropValue$1(options, props, key, value, instance, isAbsent) {
+function resolvePropValue$1(options, props2, key, value, instance, isAbsent) {
   const opt = options[key];
   if (opt != null) {
     const hasDefault = hasOwn(opt, "default");
@@ -3402,7 +3572,7 @@ function resolvePropValue$1(options, props, key, value, instance, isAbsent) {
           const reset = setCurrentInstance(instance);
           value = propsDefaults[key] = defaultValue.call(
             null,
-            props
+            props2
           );
           reset();
         }
@@ -3439,8 +3609,8 @@ function normalizePropsOptions(comp, appContext, asMixin = false) {
   if (!isFunction(comp)) {
     const extendProps = (raw2) => {
       hasExtends = true;
-      const [props, keys] = normalizePropsOptions(raw2, appContext, true);
-      extend(normalized, props);
+      const [props2, keys] = normalizePropsOptions(raw2, appContext, true);
+      extend(normalized, props2);
       if (keys)
         needCastKeys.push(...keys);
     };
@@ -3455,30 +3625,30 @@ function normalizePropsOptions(comp, appContext, asMixin = false) {
     }
   }
   if (!raw && !hasExtends) {
-    if (isObject(comp)) {
+    if (isObject$1(comp)) {
       cache.set(comp, EMPTY_ARR);
     }
     return EMPTY_ARR;
   }
-  if (isArray(raw)) {
-    for (let i = 0; i < raw.length; i++) {
-      if (!isString(raw[i])) {
-        warn$1(`props must be strings when using array syntax.`, raw[i]);
+  if (isArray$1(raw)) {
+    for (let i2 = 0; i2 < raw.length; i2++) {
+      if (!isString(raw[i2])) {
+        warn$1(`props must be strings when using array syntax.`, raw[i2]);
       }
-      const normalizedKey = camelize(raw[i]);
+      const normalizedKey = camelize(raw[i2]);
       if (validatePropName(normalizedKey)) {
         normalized[normalizedKey] = EMPTY_OBJ;
       }
     }
   } else if (raw) {
-    if (!isObject(raw)) {
+    if (!isObject$1(raw)) {
       warn$1(`invalid props options`, raw);
     }
     for (const key in raw) {
       const normalizedKey = camelize(key);
       if (validatePropName(normalizedKey)) {
         const opt = raw[key];
-        const prop = normalized[normalizedKey] = isArray(opt) || isFunction(opt) ? { type: opt } : extend({}, opt);
+        const prop = normalized[normalizedKey] = isArray$1(opt) || isFunction(opt) ? { type: opt } : extend({}, opt);
         if (prop) {
           const booleanIndex = getTypeIndex(Boolean, prop.type);
           const stringIndex = getTypeIndex(String, prop.type);
@@ -3498,7 +3668,7 @@ function normalizePropsOptions(comp, appContext, asMixin = false) {
     }
   }
   const res = [normalized, needCastKeys];
-  if (isObject(comp)) {
+  if (isObject$1(comp)) {
     cache.set(comp, res);
   }
   return res;
@@ -3523,19 +3693,19 @@ function getType$1(ctor) {
   }
   return "";
 }
-function isSameType(a, b) {
-  return getType$1(a) === getType$1(b);
+function isSameType(a2, b2) {
+  return getType$1(a2) === getType$1(b2);
 }
 function getTypeIndex(type, expectedTypes) {
-  if (isArray(expectedTypes)) {
+  if (isArray$1(expectedTypes)) {
     return expectedTypes.findIndex((t2) => isSameType(t2, type));
   } else if (isFunction(expectedTypes)) {
     return isSameType(expectedTypes, type) ? 0 : -1;
   }
   return -1;
 }
-function validateProps(rawProps, props, instance) {
-  const resolvedValues = toRaw(props);
+function validateProps(rawProps, props2, instance) {
+  const resolvedValues = toRaw(props2);
   const options = instance.propsOptions[0];
   for (const key in options) {
     let opt = options[key];
@@ -3550,7 +3720,7 @@ function validateProps(rawProps, props, instance) {
     );
   }
 }
-function validateProp$1(name, value, prop, props, isAbsent) {
+function validateProp$1(name, value, prop, props2, isAbsent) {
   const { type, required, validator, skipCheck } = prop;
   if (required && isAbsent) {
     warn$1('Missing required prop: "' + name + '"');
@@ -3561,10 +3731,10 @@ function validateProp$1(name, value, prop, props, isAbsent) {
   }
   if (type != null && type !== true && !skipCheck) {
     let isValid = false;
-    const types = isArray(type) ? type : [type];
+    const types = isArray$1(type) ? type : [type];
     const expectedTypes = [];
-    for (let i = 0; i < types.length && !isValid; i++) {
-      const { valid, expectedType } = assertType$1(value, types[i]);
+    for (let i2 = 0; i2 < types.length && !isValid; i2++) {
+      const { valid, expectedType } = assertType$1(value, types[i2]);
       expectedTypes.push(expectedType || "");
       isValid = valid;
     }
@@ -3573,7 +3743,7 @@ function validateProp$1(name, value, prop, props, isAbsent) {
       return;
     }
   }
-  if (validator && !validator(value, props)) {
+  if (validator && !validator(value, props2)) {
     warn$1('Invalid prop: custom validator check failed for prop "' + name + '".');
   }
 }
@@ -3590,9 +3760,9 @@ function assertType$1(value, type) {
       valid = value instanceof type;
     }
   } else if (expectedType === "Object") {
-    valid = isObject(value);
+    valid = isObject$1(value);
   } else if (expectedType === "Array") {
-    valid = isArray(value);
+    valid = isArray$1(value);
   } else if (expectedType === "null") {
     valid = value === null;
   } else {
@@ -3678,11 +3848,17 @@ function isSupported() {
 }
 const queuePostRenderEffect$1 = queuePostFlushCb;
 const Fragment = Symbol.for("v-fgt");
-const Text = Symbol.for("v-txt");
+const Text$1 = Symbol.for("v-txt");
 const Comment = Symbol.for("v-cmt");
 const Static = Symbol.for("v-stc");
 function isVNode(value) {
   return value ? value.__v_isVNode === true : false;
+}
+const InternalObjectKey = `__vInternal`;
+function guardReactiveProps(props2) {
+  if (!props2)
+    return null;
+  return isProxy(props2) || InternalObjectKey in props2 ? extend({}, props2) : props2;
 }
 const emptyAppContext = createAppContext();
 let uid = 0;
@@ -3786,11 +3962,11 @@ const getCurrentInstance = () => currentInstance || currentRenderingInstance;
 let internalSetCurrentInstance;
 let setInSSRSetupState;
 {
-  internalSetCurrentInstance = (i) => {
-    currentInstance = i;
+  internalSetCurrentInstance = (i2) => {
+    currentInstance = i2;
   };
-  setInSSRSetupState = (v) => {
-    isInSSRComponentSetup = v;
+  setInSSRSetupState = (v2) => {
+    isInSSRComponentSetup = v2;
   };
 }
 const setCurrentInstance = (instance) => {
@@ -3821,11 +3997,11 @@ let isInSSRComponentSetup = false;
 function setupComponent(instance, isSSR = false) {
   isSSR && setInSSRSetupState(isSSR);
   const {
-    props
+    props: props2
     /*, children*/
   } = instance.vnode;
   const isStateful = isStatefulComponent(instance);
-  initProps$1(instance, props, isStateful, isSSR);
+  initProps$1(instance, props2, isStateful, isSSR);
   const setupResult = isStateful ? setupStatefulComponent(instance, isSSR) : void 0;
   isSSR && setInSSRSetupState(false);
   return setupResult;
@@ -3838,14 +4014,14 @@ function setupStatefulComponent(instance, isSSR) {
     }
     if (Component2.components) {
       const names = Object.keys(Component2.components);
-      for (let i = 0; i < names.length; i++) {
-        validateComponentName(names[i], instance.appContext.config);
+      for (let i2 = 0; i2 < names.length; i2++) {
+        validateComponentName(names[i2], instance.appContext.config);
       }
     }
     if (Component2.directives) {
       const names = Object.keys(Component2.directives);
-      for (let i = 0; i < names.length; i++) {
-        validateDirectiveName(names[i]);
+      for (let i2 = 0; i2 < names.length; i2++) {
+        validateDirectiveName(names[i2]);
       }
     }
     if (Component2.compilerOptions && isRuntimeOnly()) {
@@ -3894,7 +4070,7 @@ function handleSetupResult(instance, setupResult, isSSR) {
     {
       instance.render = setupResult;
     }
-  } else if (isObject(setupResult)) {
+  } else if (isObject$1(setupResult)) {
     if (isVNode(setupResult)) {
       warn$1(
         `setup() should not return VNodes directly - return a render function instead.`
@@ -3977,7 +4153,7 @@ function createSetupContext(instance) {
       if (exposed != null) {
         let exposedType = typeof exposed;
         if (exposedType === "object") {
-          if (isArray(exposed)) {
+          if (isArray$1(exposed)) {
             exposedType = "array";
           } else if (isRef(exposed)) {
             exposedType = "ref";
@@ -4052,14 +4228,14 @@ function formatComponentName(instance, Component2, isRoot = false) {
 const computed = (getterOrOptions, debugOptions) => {
   const c2 = computed$1(getterOrOptions, debugOptions, isInSSRComponentSetup);
   {
-    const i = getCurrentInstance();
-    if (i && i.appContext.config.warnRecursiveComputed) {
+    const i2 = getCurrentInstance();
+    if (i2 && i2.appContext.config.warnRecursiveComputed) {
       c2._warnRecursive = true;
     }
   }
   return c2;
 };
-const version = "3.4.21";
+const version$1 = "3.4.21";
 const warn = warn$1;
 function unwrapper(target) {
   return unref(target);
@@ -4179,8 +4355,8 @@ function _diff(current, pre, path, result) {
     setResult(result, path, current);
   }
 }
-function setResult(result, k, v) {
-  result[k] = v;
+function setResult(result, k, v2) {
+  result[k] = v2;
 }
 function hasComponentEffect(instance) {
   return queue$1.includes(instance.update);
@@ -4191,8 +4367,8 @@ function flushCallbacks(instance) {
   if (callbacks && callbacks.length) {
     const copies = callbacks.slice(0);
     callbacks.length = 0;
-    for (let i = 0; i < copies.length; i++) {
-      copies[i]();
+    for (let i2 = 0; i2 < copies.length; i2++) {
+      copies[i2]();
     }
   }
 }
@@ -4220,7 +4396,7 @@ function nextTick(instance, fn) {
     _resolve = resolve2;
   });
 }
-function clone(src, seen) {
+function clone$1(src, seen) {
   src = unwrapper(src);
   const type = typeof src;
   if (type === "object" && src !== null) {
@@ -4228,19 +4404,19 @@ function clone(src, seen) {
     if (typeof copy !== "undefined") {
       return copy;
     }
-    if (isArray(src)) {
+    if (isArray$1(src)) {
       const len = src.length;
       copy = new Array(len);
       seen.set(src, copy);
-      for (let i = 0; i < len; i++) {
-        copy[i] = clone(src[i], seen);
+      for (let i2 = 0; i2 < len; i2++) {
+        copy[i2] = clone$1(src[i2], seen);
       }
     } else {
       copy = {};
       seen.set(src, copy);
       for (const name in src) {
         if (hasOwn(src, name)) {
-          copy[name] = clone(src[name], seen);
+          copy[name] = clone$1(src[name], seen);
         }
       }
     }
@@ -4251,7 +4427,7 @@ function clone(src, seen) {
   }
 }
 function deepCopy(src) {
-  return clone(src, typeof WeakMap !== "undefined" ? /* @__PURE__ */ new WeakMap() : /* @__PURE__ */ new Map());
+  return clone$1(src, typeof WeakMap !== "undefined" ? /* @__PURE__ */ new WeakMap() : /* @__PURE__ */ new Map());
 }
 function getMPInstanceData(instance, keys) {
   const data = instance.data;
@@ -4367,9 +4543,9 @@ function setRef$1(instance, isUnmount = false) {
   if ($templateUniElementRefs && $templateUniElementRefs.length) {
     nextTick(instance, () => {
       $templateUniElementRefs.forEach((templateRef) => {
-        if (isArray(templateRef.v)) {
-          templateRef.v.forEach((v) => {
-            setTemplateRef(templateRef, v, setupState);
+        if (isArray$1(templateRef.v)) {
+          templateRef.v.forEach((v2) => {
+            setTemplateRef(templateRef, v2, setupState);
           });
         } else {
           setTemplateRef(templateRef, templateRef.v, setupState);
@@ -4384,7 +4560,7 @@ function setRef$1(instance, isUnmount = false) {
   }
 }
 function toSkip(value) {
-  if (isObject(value)) {
+  if (isObject$1(value)) {
     markRaw(value);
   }
   return value;
@@ -4413,7 +4589,7 @@ function setTemplateRef({ r: r2, f: f2 }, refValue, setupState) {
         if (!_isRef) {
           return;
         }
-        if (!isArray(r2.value)) {
+        if (!isArray$1(r2.value)) {
           r2.value = [];
         }
         const existing = r2.value;
@@ -4494,7 +4670,7 @@ function renderComponentRoot(instance) {
     vnode,
     proxy,
     withProxy,
-    props,
+    props: props2,
     propsOptions: [propsOptions],
     slots,
     attrs,
@@ -4525,13 +4701,13 @@ function renderComponentRoot(instance) {
   const prev = setCurrentRenderingInstance(instance);
   try {
     if (vnode.shapeFlag & 4) {
-      fallthroughAttrs(inheritAttrs, props, propsOptions, attrs);
+      fallthroughAttrs(inheritAttrs, props2, propsOptions, attrs);
       const proxyToUse = withProxy || proxy;
       result = render.call(
         proxyToUse,
         proxyToUse,
         renderCache,
-        props,
+        props2,
         setupState,
         data,
         ctx
@@ -4539,13 +4715,13 @@ function renderComponentRoot(instance) {
     } else {
       fallthroughAttrs(
         inheritAttrs,
-        props,
+        props2,
         propsOptions,
         Component2.props ? attrs : getFunctionalFallthrough(attrs)
       );
       const render2 = Component2;
-      result = render2.length > 1 ? render2(props, { attrs, slots, emit: emit2 }) : render2(
-        props,
+      result = render2.length > 1 ? render2(props2, { attrs, slots, emit: emit2 }) : render2(
+        props2,
         null
         /* we know it doesn't need it */
       );
@@ -4558,8 +4734,8 @@ function renderComponentRoot(instance) {
   setCurrentRenderingInstance(prev);
   return result;
 }
-function fallthroughAttrs(inheritAttrs, props, propsOptions, fallthroughAttrs2) {
-  if (props && fallthroughAttrs2 && inheritAttrs !== false) {
+function fallthroughAttrs(inheritAttrs, props2, propsOptions, fallthroughAttrs2) {
+  if (props2 && fallthroughAttrs2 && inheritAttrs !== false) {
     const keys = Object.keys(fallthroughAttrs2).filter(
       (key) => key !== "class" && key !== "style"
     );
@@ -4569,11 +4745,11 @@ function fallthroughAttrs(inheritAttrs, props, propsOptions, fallthroughAttrs2) 
     if (propsOptions && keys.some(isModelListener)) {
       keys.forEach((key) => {
         if (!isModelListener(key) || !(key.slice(9) in propsOptions)) {
-          props[key] = fallthroughAttrs2[key];
+          props2[key] = fallthroughAttrs2[key];
         }
       });
     } else {
-      keys.forEach((key) => props[key] = fallthroughAttrs2[key]);
+      keys.forEach((key) => props2[key] = fallthroughAttrs2[key]);
     }
   }
 }
@@ -4634,7 +4810,7 @@ function setupRenderEffect(instance) {
         devtoolsComponentAdded(instance);
       }
     } else {
-      const { next, bu, u } = instance;
+      const { next, bu, u: u2 } = instance;
       {
         pushWarningContext(next || instance.vnode);
       }
@@ -4651,8 +4827,8 @@ function setupRenderEffect(instance) {
       {
         endMeasure(instance, `patch`);
       }
-      if (u) {
-        queuePostRenderEffect(u);
+      if (u2) {
+        queuePostRenderEffect(u2);
       }
       {
         devtoolsComponentUpdated(instance);
@@ -4764,7 +4940,7 @@ function createVueApp(rootComponent, rootProps = null) {
     );
     app._instance = instance.$;
     {
-      devtoolsInitApp(app, version);
+      devtoolsInitApp(app, version$1);
     }
     instance.$app = app;
     instance.$createComponent = createComponent2;
@@ -4790,7 +4966,7 @@ function initHooks$1(options, instance, publicThis) {
   Object.keys(options).forEach((name) => {
     if (isUniLifecycleHook(name, options[name], false)) {
       const hooks = options[name];
-      if (isArray(hooks)) {
+      if (isArray$1(hooks)) {
         hooks.forEach((hook) => injectLifecycleHook(name, hook, publicThis, instance));
       } else {
         injectLifecycleHook(name, hooks, publicThis, instance);
@@ -4801,7 +4977,7 @@ function initHooks$1(options, instance, publicThis) {
 function applyOptions$2(options, instance, publicThis) {
   initHooks$1(options, instance, publicThis);
 }
-function set(target, key, val) {
+function set$2(target, key, val) {
   return target[key] = val;
 }
 function $callMethod(method, ...args) {
@@ -4853,9 +5029,9 @@ if (typeof atob !== "function") {
     var result = "";
     var r1;
     var r2;
-    var i = 0;
-    for (; i < str.length; ) {
-      bitmap = b64.indexOf(str.charAt(i++)) << 18 | b64.indexOf(str.charAt(i++)) << 12 | (r1 = b64.indexOf(str.charAt(i++))) << 6 | (r2 = b64.indexOf(str.charAt(i++)));
+    var i2 = 0;
+    for (; i2 < str.length; ) {
+      bitmap = b64.indexOf(str.charAt(i2++)) << 18 | b64.indexOf(str.charAt(i2++)) << 12 | (r1 = b64.indexOf(str.charAt(i2++))) << 6 | (r2 = b64.indexOf(str.charAt(i2++)));
       result += r1 === 64 ? String.fromCharCode(bitmap >> 16 & 255) : r2 === 64 ? String.fromCharCode(bitmap >> 16 & 255, bitmap >> 8 & 255) : String.fromCharCode(bitmap >> 16 & 255, bitmap >> 8 & 255, bitmap & 255);
     }
     return result;
@@ -4869,7 +5045,7 @@ function b64DecodeUnicode(str) {
   }).join(""));
 }
 function getCurrentUserInfo() {
-  const token = index.getStorageSync("uni_id_token") || "";
+  const token = index$1.getStorageSync("uni_id_token") || "";
   const tokenArr = token.split(".");
   if (!token || tokenArr.length !== 3) {
     return {
@@ -4882,8 +5058,8 @@ function getCurrentUserInfo() {
   let userInfo;
   try {
     userInfo = JSON.parse(b64DecodeUnicode(tokenArr[1]));
-  } catch (error) {
-    throw new Error("获取当前用户信息出错，详细错误信息为：" + error.message);
+  } catch (error2) {
+    throw new Error("获取当前用户信息出错，详细错误信息为：" + error2.message);
   }
   userInfo.tokenExpired = userInfo.exp * 1e3;
   delete userInfo.exp;
@@ -4913,15 +5089,20 @@ function initApp(app) {
     uniIdMixin(globalProperties);
   }
   {
-    globalProperties.$set = set;
+    globalProperties.$set = set$2;
     globalProperties.$applyOptions = applyOptions$2;
     globalProperties.$callMethod = $callMethod;
   }
   {
-    index.invokeCreateVueAppHook(app);
+    index$1.invokeCreateVueAppHook(app);
   }
 }
 const propsCaches = /* @__PURE__ */ Object.create(null);
+function renderProps(props2) {
+  const { uid: uid2, __counter } = getCurrentInstance();
+  const propsId = (propsCaches[uid2] || (propsCaches[uid2] = [])).push(guardReactiveProps(props2)) - 1;
+  return uid2 + "," + propsId + "," + __counter;
+}
 function pruneComponentPropsCache(uid2) {
   delete propsCaches[uid2];
 }
@@ -4962,12 +5143,122 @@ function getCreateApp() {
     return my[method];
   }
 }
+function stringifyStyle(value) {
+  if (isString(value)) {
+    return value;
+  }
+  return stringify(normalizeStyle(value));
+}
+function stringify(styles) {
+  let ret = "";
+  if (!styles || isString(styles)) {
+    return ret;
+  }
+  for (const key in styles) {
+    ret += `${key.startsWith(`--`) ? key : hyphenate(key)}:${styles[key]};`;
+  }
+  return ret;
+}
+function vOn(value, key) {
+  const instance = getCurrentInstance();
+  const ctx = instance.ctx;
+  const extraKey = typeof key !== "undefined" && (ctx.$mpPlatform === "mp-weixin" || ctx.$mpPlatform === "mp-qq" || ctx.$mpPlatform === "mp-xhs") && (isString(key) || typeof key === "number") ? "_" + key : "";
+  const name = "e" + instance.$ei++ + extraKey;
+  const mpInstance = ctx.$scope;
+  if (!value) {
+    delete mpInstance[name];
+    return name;
+  }
+  const existingInvoker = mpInstance[name];
+  if (existingInvoker) {
+    existingInvoker.value = value;
+  } else {
+    mpInstance[name] = createInvoker(value, instance);
+  }
+  return name;
+}
+function createInvoker(initialValue, instance) {
+  const invoker = (e2) => {
+    patchMPEvent(e2);
+    let args = [e2];
+    if (instance && instance.ctx.$getTriggerEventDetail) {
+      if (typeof e2.detail === "number") {
+        e2.detail = instance.ctx.$getTriggerEventDetail(e2.detail);
+      }
+    }
+    if (e2.detail && e2.detail.__args__) {
+      args = e2.detail.__args__;
+    }
+    const eventValue = invoker.value;
+    const invoke = () => callWithAsyncErrorHandling(patchStopImmediatePropagation(e2, eventValue), instance, 5, args);
+    const eventTarget = e2.target;
+    const eventSync = eventTarget ? eventTarget.dataset ? String(eventTarget.dataset.eventsync) === "true" : false : false;
+    if (bubbles.includes(e2.type) && !eventSync) {
+      setTimeout(invoke);
+    } else {
+      const res = invoke();
+      if (e2.type === "input" && (isArray$1(res) || isPromise(res))) {
+        return;
+      }
+      return res;
+    }
+  };
+  invoker.value = initialValue;
+  return invoker;
+}
+const bubbles = [
+  // touch事件暂不做延迟，否则在 Android 上会影响性能，比如一些拖拽跟手手势等
+  // 'touchstart',
+  // 'touchmove',
+  // 'touchcancel',
+  // 'touchend',
+  "tap",
+  "longpress",
+  "longtap",
+  "transitionend",
+  "animationstart",
+  "animationiteration",
+  "animationend",
+  "touchforcechange"
+];
+function patchMPEvent(event, instance) {
+  if (event.type && event.target) {
+    event.preventDefault = NOOP;
+    event.stopPropagation = NOOP;
+    event.stopImmediatePropagation = NOOP;
+    if (!hasOwn(event, "detail")) {
+      event.detail = {};
+    }
+    if (hasOwn(event, "markerId")) {
+      event.detail = typeof event.detail === "object" ? event.detail : {};
+      event.detail.markerId = event.markerId;
+    }
+    if (isPlainObject$2(event.detail) && hasOwn(event.detail, "checked") && !hasOwn(event.detail, "value")) {
+      event.detail.value = event.detail.checked;
+    }
+    if (isPlainObject$2(event.detail)) {
+      event.target = extend({}, event.target, event.detail);
+    }
+  }
+}
+function patchStopImmediatePropagation(e2, value) {
+  if (isArray$1(value)) {
+    const originalStop = e2.stopImmediatePropagation;
+    e2.stopImmediatePropagation = () => {
+      originalStop && originalStop.call(e2);
+      e2._stopped = true;
+    };
+    return value.map((fn) => (e3) => !e3._stopped && fn(e3));
+  } else {
+    return value;
+  }
+}
 function vFor(source, renderItem) {
   let ret;
-  if (isArray(source) || isString(source)) {
+  if (isArray$1(source) || isString(source)) {
     ret = new Array(source.length);
-    for (let i = 0, l = source.length; i < l; i++) {
-      ret[i] = renderItem(source[i], i, i);
+    for (let i2 = 0, l2 = source.length; i2 < l2; i2++) {
+      ret[i2] = renderItem(source[i2], i2, i2);
     }
   } else if (typeof source === "number") {
     if (!Number.isInteger(source)) {
@@ -4975,18 +5266,18 @@ function vFor(source, renderItem) {
       return [];
     }
     ret = new Array(source);
-    for (let i = 0; i < source; i++) {
-      ret[i] = renderItem(i + 1, i, i);
+    for (let i2 = 0; i2 < source; i2++) {
+      ret[i2] = renderItem(i2 + 1, i2, i2);
     }
-  } else if (isObject(source)) {
+  } else if (isObject$1(source)) {
     if (source[Symbol.iterator]) {
-      ret = Array.from(source, (item, i) => renderItem(item, i, i));
+      ret = Array.from(source, (item, i2) => renderItem(item, i2, i2));
     } else {
       const keys = Object.keys(source);
       ret = new Array(keys.length);
-      for (let i = 0, l = keys.length; i < l; i++) {
-        const key = keys[i];
-        ret[i] = renderItem(source[key], key, i);
+      for (let i2 = 0, l2 = keys.length; i2 < l2; i2++) {
+        const key = keys[i2];
+        ret[i2] = renderItem(source[key], key, i2);
       }
     }
   } else {
@@ -4994,8 +5285,88 @@ function vFor(source, renderItem) {
   }
   return ret;
 }
-const f = (source, renderItem) => vFor(source, renderItem);
-const t = (val) => toDisplayString(val);
+function renderSlot(name, props2 = {}, key) {
+  const instance = getCurrentInstance();
+  const { parent, isMounted, ctx: { $scope } } = instance;
+  const vueIds = ($scope.properties || $scope.props).uI;
+  if (!vueIds) {
+    return;
+  }
+  if (!parent && !isMounted) {
+    onMounted(() => {
+      renderSlot(name, props2, key);
+    }, instance);
+    return;
+  }
+  const invoker = findScopedSlotInvoker(vueIds, instance);
+  if (invoker) {
+    invoker(name, props2, key);
+  }
+}
+function findScopedSlotInvoker(vueId, instance) {
+  let parent = instance.parent;
+  while (parent) {
+    const invokers = parent.$ssi;
+    if (invokers && invokers[vueId]) {
+      return invokers[vueId];
+    }
+    parent = parent.parent;
+  }
+}
+function setRef(ref2, id, opts = {}) {
+  const { $templateRefs } = getCurrentInstance();
+  $templateRefs.push({ i: id, r: ref2, k: opts.k, f: opts.f });
+}
+function withModelModifiers(fn, { number: number2, trim: trim2 }, isComponent = false) {
+  if (isComponent) {
+    return (...args) => {
+      if (trim2) {
+        args = args.map((a2) => a2.trim());
+      } else if (number2) {
+        args = args.map(toNumber);
+      }
+      return fn(...args);
+    };
+  }
+  return (event) => {
+    const value = event.detail.value;
+    if (trim2) {
+      event.detail.value = value.trim();
+    } else if (number2) {
+      event.detail.value = toNumber(value);
+    }
+    return fn(event);
+  };
+}
+function hasIdProp(_ctx) {
+  return _ctx.$.propsOptions && _ctx.$.propsOptions[0] && "id" in _ctx.$.propsOptions[0];
+}
+function getVirtualHostId(_ctx) {
+  return _ctx.$scope.virtualHostId;
+}
+function hasVirtualHostId(_ctx) {
+  return !!getVirtualHostId(_ctx);
+}
+function genIdWithVirtualHost(_ctx, idBinding) {
+  if (!hasVirtualHostId(_ctx) || hasIdProp(_ctx)) {
+    return idBinding;
+  }
+  return getVirtualHostId(_ctx);
+}
+function genUniElementId(_ctx, idBinding, genId) {
+  return genIdWithVirtualHost(_ctx, idBinding) || genId || "";
+}
+const o$1 = (value, key) => vOn(value, key);
+const f$1 = (source, renderItem) => vFor(source, renderItem);
+const r$1 = (name, props2, key) => renderSlot(name, props2, key);
+const s$1 = (value) => stringifyStyle(value);
+const e$1 = (target, ...sources) => extend(target, ...sources);
+const n$1 = (value) => normalizeClass(value);
+const t$1 = (val) => toDisplayString(val);
+const p$1 = (props2) => renderProps(props2);
+const sr = (ref2, id, opts) => setRef(ref2, id, opts);
+const m$1 = (fn, modifiers, isComponent = false) => withModelModifiers(fn, modifiers, isComponent);
+const gei = genUniElementId;
 function createApp$1(rootComponent, rootProps = null) {
   rootComponent && (rootComponent.mpType = "app");
   return createVueApp(rootComponent, rootProps).use(plugin);
@@ -5029,22 +5400,22 @@ function validateProtocols(name, args, protocol, onFail) {
   if (!protocol) {
     return;
   }
-  if (!isArray(protocol)) {
+  if (!isArray$1(protocol)) {
     return validateProtocol(name, args[0] || /* @__PURE__ */ Object.create(null), protocol, onFail);
   }
   const len = protocol.length;
   const argsLen = args.length;
-  for (let i = 0; i < len; i++) {
-    const opts = protocol[i];
+  for (let i2 = 0; i2 < len; i2++) {
+    const opts = protocol[i2];
     const data = /* @__PURE__ */ Object.create(null);
-    if (argsLen > i) {
-      data[opts.name] = args[i];
+    if (argsLen > i2) {
+      data[opts.name] = args[i2];
     }
     validateProtocol(name, data, { [opts.name]: opts }, onFail);
   }
 }
 function validateProp(name, value, prop, isAbsent) {
-  if (!isPlainObject(prop)) {
+  if (!isPlainObject$2(prop)) {
     prop = { type: prop };
   }
   const { type, required, validator } = prop;
@@ -5056,10 +5427,10 @@ function validateProp(name, value, prop, isAbsent) {
   }
   if (type != null) {
     let isValid = false;
-    const types = isArray(type) ? type : [type];
+    const types = isArray$1(type) ? type : [type];
     const expectedTypes = [];
-    for (let i = 0; i < types.length && !isValid; i++) {
-      const { valid, expectedType } = assertType(value, types[i]);
+    for (let i2 = 0; i2 < types.length && !isValid; i2++) {
+      const { valid, expectedType } = assertType(value, types[i2]);
       expectedTypes.push(expectedType || "");
       isValid = valid;
     }
@@ -5082,9 +5453,9 @@ function assertType(value, type) {
       valid = value instanceof type;
     }
   } else if (expectedType === "Object") {
-    valid = isObject(value);
+    valid = isObject$1(value);
   } else if (expectedType === "Array") {
-    valid = isArray(value);
+    valid = isArray$1(value);
   } else {
     {
       valid = value instanceof type;
@@ -5134,8 +5505,8 @@ function tryCatch(fn) {
   return function() {
     try {
       return fn.apply(fn, arguments);
-    } catch (e) {
-      console.error(e);
+    } catch (e2) {
+      console.error(e2);
     }
   };
 }
@@ -5182,7 +5553,7 @@ function normalizeErrMsg(errMsg, name) {
   return name + errMsg.substring(errMsg.indexOf(":fail"));
 }
 function createAsyncApiCallback(name, args = {}, { beforeAll, beforeSuccess } = {}) {
-  if (!isPlainObject(args)) {
+  if (!isPlainObject$2(args)) {
     args = {};
   }
   const { success, fail, complete } = getApiCallbacks(args);
@@ -5215,15 +5586,15 @@ function wrapperHook(hook, params) {
   };
 }
 function queue(hooks, data, params) {
-  let promise = false;
-  for (let i = 0; i < hooks.length; i++) {
-    const hook = hooks[i];
-    if (promise) {
-      promise = Promise.resolve(wrapperHook(hook, params));
+  let promise2 = false;
+  for (let i2 = 0; i2 < hooks.length; i2++) {
+    const hook = hooks[i2];
+    if (promise2) {
+      promise2 = Promise.resolve(wrapperHook(hook, params));
     } else {
       const res = hook(data, params);
       if (isPromise(res)) {
-        promise = Promise.resolve(res);
+        promise2 = Promise.resolve(res);
       }
       if (res === false) {
         return {
@@ -5235,7 +5606,7 @@ function queue(hooks, data, params) {
       }
     }
   }
-  return promise || {
+  return promise2 || {
     then(callback) {
       return callback(data);
     },
@@ -5246,7 +5617,7 @@ function queue(hooks, data, params) {
 function wrapperOptions(interceptors2, options = {}) {
   [HOOK_SUCCESS, HOOK_FAIL, HOOK_COMPLETE].forEach((name) => {
     const hooks = interceptors2[name];
-    if (!isArray(hooks)) {
+    if (!isArray$1(hooks)) {
       return;
     }
     const oldCallback = options[name];
@@ -5260,11 +5631,11 @@ function wrapperOptions(interceptors2, options = {}) {
 }
 function wrapperReturnValue(method, returnValue) {
   const returnValueHooks = [];
-  if (isArray(globalInterceptors.returnValue)) {
+  if (isArray$1(globalInterceptors.returnValue)) {
     returnValueHooks.push(...globalInterceptors.returnValue);
   }
   const interceptor = scopedInterceptors[method];
-  if (interceptor && isArray(interceptor.returnValue)) {
+  if (interceptor && isArray$1(interceptor.returnValue)) {
     returnValueHooks.push(...interceptor.returnValue);
   }
   returnValueHooks.forEach((hook) => {
@@ -5292,7 +5663,7 @@ function getApiInterceptorHooks(method) {
 function invokeApi(method, api, options, params) {
   const interceptor = getApiInterceptorHooks(method);
   if (interceptor && Object.keys(interceptor).length) {
-    if (isArray(interceptor.invoke)) {
+    if (isArray$1(interceptor.invoke)) {
       const res = queue(interceptor.invoke, options);
       return res.then((options2) => {
         return api(wrapperOptions(getApiInterceptorHooks(method), options2), ...params);
@@ -5304,21 +5675,21 @@ function invokeApi(method, api, options, params) {
   return api(options, ...params);
 }
 function hasCallback(args) {
-  if (isPlainObject(args) && [API_SUCCESS, API_FAIL, API_COMPLETE].find((cb) => isFunction(args[cb]))) {
+  if (isPlainObject$2(args) && [API_SUCCESS, API_FAIL, API_COMPLETE].find((cb) => isFunction(args[cb]))) {
     return true;
   }
   return false;
 }
-function handlePromise(promise) {
-  return promise;
+function handlePromise(promise2) {
+  return promise2;
 }
 function promisify$1(name, fn) {
   return (args = {}, ...rest) => {
     if (hasCallback(args)) {
       return wrapperReturnValue(name, invokeApi(name, fn, args, rest));
     }
-    return wrapperReturnValue(name, handlePromise(new Promise((resolve, reject) => {
-      invokeApi(name, fn, extend(args, { success: resolve, fail: reject }), rest);
+    return wrapperReturnValue(name, handlePromise(new Promise((resolve2, reject) => {
+      invokeApi(name, fn, extend(args, { success: resolve2, fail: reject }), rest);
     })));
   };
 }
@@ -5417,28 +5788,28 @@ let deviceWidth = 0;
 let deviceDPR = 0;
 function checkDeviceWidth() {
   var _a, _b;
-  let windowWidth, pixelRatio, platform;
+  let windowWidth, pixelRatio, platform2;
   {
     const windowInfo = ((_a = wx.getWindowInfo) === null || _a === void 0 ? void 0 : _a.call(wx)) || wx.getSystemInfoSync();
     const deviceInfo = ((_b = wx.getDeviceInfo) === null || _b === void 0 ? void 0 : _b.call(wx)) || wx.getSystemInfoSync();
     windowWidth = windowInfo.windowWidth;
     pixelRatio = windowInfo.pixelRatio;
-    platform = deviceInfo.platform;
+    platform2 = deviceInfo.platform;
   }
   deviceWidth = windowWidth;
   deviceDPR = pixelRatio;
-  isIOS = platform === "ios";
+  isIOS = platform2 === "ios";
 }
-const upx2px = defineSyncApi(API_UPX2PX, (number, newDeviceWidth) => {
+const upx2px = defineSyncApi(API_UPX2PX, (number2, newDeviceWidth) => {
   if (deviceWidth === 0) {
     checkDeviceWidth();
   }
-  number = Number(number);
-  if (number === 0) {
+  number2 = Number(number2);
+  if (number2 === 0) {
     return 0;
   }
   let width = newDeviceWidth || deviceWidth;
-  let result = number / BASE_DEVICE_WIDTH * width;
+  let result = number2 / BASE_DEVICE_WIDTH * width;
   if (result < 0) {
     result = -result;
   }
@@ -5450,7 +5821,7 @@ const upx2px = defineSyncApi(API_UPX2PX, (number, newDeviceWidth) => {
       result = 0.5;
     }
   }
-  return number < 0 ? -result : result;
+  return number2 < 0 ? -result : result;
 }, Upx2pxProtocol);
 function __f__(type, filename, ...args) {
   if (filename) {
@@ -5482,39 +5853,39 @@ function removeInterceptorHook(interceptors2, interceptor) {
   Object.keys(interceptor).forEach((name) => {
     const hooks = interceptors2[name];
     const hook = interceptor[name];
-    if (isArray(hooks) && isFunction(hook)) {
+    if (isArray$1(hooks) && isFunction(hook)) {
       remove(hooks, hook);
     }
   });
 }
 function mergeHook(parentVal, childVal) {
-  const res = childVal ? parentVal ? parentVal.concat(childVal) : isArray(childVal) ? childVal : [childVal] : parentVal;
+  const res = childVal ? parentVal ? parentVal.concat(childVal) : isArray$1(childVal) ? childVal : [childVal] : parentVal;
   return res ? dedupeHooks(res) : res;
 }
 function dedupeHooks(hooks) {
   const res = [];
-  for (let i = 0; i < hooks.length; i++) {
-    if (res.indexOf(hooks[i]) === -1) {
-      res.push(hooks[i]);
+  for (let i2 = 0; i2 < hooks.length; i2++) {
+    if (res.indexOf(hooks[i2]) === -1) {
+      res.push(hooks[i2]);
     }
   }
   return res;
 }
 const addInterceptor = defineSyncApi(API_ADD_INTERCEPTOR, (method, interceptor) => {
-  if (isString(method) && isPlainObject(interceptor)) {
+  if (isString(method) && isPlainObject$2(interceptor)) {
     mergeInterceptorHook(scopedInterceptors[method] || (scopedInterceptors[method] = {}), interceptor);
-  } else if (isPlainObject(method)) {
+  } else if (isPlainObject$2(method)) {
     mergeInterceptorHook(globalInterceptors, method);
   }
 }, AddInterceptorProtocol);
 const removeInterceptor = defineSyncApi(API_REMOVE_INTERCEPTOR, (method, interceptor) => {
   if (isString(method)) {
-    if (isPlainObject(interceptor)) {
+    if (isPlainObject$2(interceptor)) {
       removeInterceptorHook(scopedInterceptors[method], interceptor);
     } else {
       delete scopedInterceptors[method];
     }
-  } else if (isPlainObject(method)) {
+  } else if (isPlainObject$2(method)) {
     removeInterceptorHook(globalInterceptors, method);
   }
 }, RemoveInterceptorProtocol);
@@ -5584,10 +5955,10 @@ const $once = defineSyncApi(API_ONCE, (name, callback) => {
   return () => eventBus.off(name, callback);
 }, OnceProtocol);
 const $off = defineSyncApi(API_OFF, (name, callback) => {
-  if (!isArray(name))
+  if (!isArray$1(name))
     name = name ? [name] : [];
-  name.forEach((n) => {
-    eventBus.off(n, callback);
+  name.forEach((n2) => {
+    eventBus.off(n2, callback);
   });
 }, OffProtocol);
 const $emit = defineSyncApi(API_EMIT, (name, ...args) => {
@@ -5599,7 +5970,7 @@ let enabled;
 function normalizePushMessage(message) {
   try {
     return JSON.parse(message);
-  } catch (e) {
+  } catch (e2) {
   }
   return message;
 }
@@ -5615,8 +5986,8 @@ function invokePushCallback(args) {
       type: "receive",
       data: normalizePushMessage(args.message)
     };
-    for (let i = 0; i < onPushMessageCallbacks.length; i++) {
-      const callback = onPushMessageCallbacks[i];
+    for (let i2 = 0; i2 < onPushMessageCallbacks.length; i2++) {
+      const callback = onPushMessageCallbacks[i2];
       callback(message);
       if (message.stopped) {
         break;
@@ -5639,7 +6010,7 @@ function invokeGetPushCidCallbacks(cid2, errMsg) {
   getPushCidCallbacks.length = 0;
 }
 const API_GET_PUSH_CLIENT_ID = "getPushClientId";
-const getPushClientId = defineAsyncApi(API_GET_PUSH_CLIENT_ID, (_, { resolve, reject }) => {
+const getPushClientId = defineAsyncApi(API_GET_PUSH_CLIENT_ID, (_2, { resolve: resolve2, reject }) => {
   Promise.resolve().then(() => {
     if (typeof enabled === "undefined") {
       enabled = false;
@@ -5648,7 +6019,7 @@ const getPushClientId = defineAsyncApi(API_GET_PUSH_CLIENT_ID, (_, { resolve, re
     }
     getPushCidCallbacks.push((cid2, errMsg) => {
       if (cid2) {
-        resolve({ cid: cid2 });
+        resolve2({ cid: cid2 });
       } else {
         reject(errMsg);
       }
@@ -5700,8 +6071,8 @@ function shouldPromise(name) {
 }
 if (!Promise.prototype.finally) {
   Promise.prototype.finally = function(onfinally) {
-    const promise = this.constructor;
-    return this.then((value) => promise.resolve(onfinally && onfinally()).then(() => value), (reason) => promise.resolve(onfinally && onfinally()).then(() => {
+    const promise2 = this.constructor;
+    return this.then((value) => promise2.resolve(onfinally && onfinally()).then(() => value), (reason) => promise2.resolve(onfinally && onfinally()).then(() => {
       throw reason;
     }));
   };
@@ -5717,9 +6088,9 @@ function promisify(name, api) {
     if (isFunction(options.success) || isFunction(options.fail) || isFunction(options.complete)) {
       return wrapperReturnValue(name, invokeApi(name, api, options, rest));
     }
-    return wrapperReturnValue(name, handlePromise(new Promise((resolve, reject) => {
+    return wrapperReturnValue(name, handlePromise(new Promise((resolve2, reject) => {
       invokeApi(name, api, extend({}, options, {
-        success: resolve,
+        success: resolve2,
         fail: reject
       }), rest);
     })));
@@ -5733,7 +6104,7 @@ function initWrapper(protocols2) {
     };
   }
   function processArgs(methodName, fromArgs, argsOption = {}, returnValue = {}, keepFromArgs = false) {
-    if (isPlainObject(fromArgs)) {
+    if (isPlainObject$2(fromArgs)) {
       const toArgs = keepFromArgs === true ? fromArgs : {};
       if (isFunction(argsOption)) {
         argsOption = argsOption(fromArgs, toArgs) || {};
@@ -5748,7 +6119,7 @@ function initWrapper(protocols2) {
             console.warn(`微信小程序 ${methodName} 暂不支持 ${key}`);
           } else if (isString(keyOption)) {
             toArgs[keyOption] = fromArgs[key];
-          } else if (isPlainObject(keyOption)) {
+          } else if (isPlainObject$2(keyOption)) {
             toArgs[keyOption.name ? keyOption.name : key] = keyOption.value;
           }
         } else if (CALLBACKS.indexOf(key) !== -1) {
@@ -5849,7 +6220,7 @@ if (typeof global !== "undefined") {
 const UUID_KEY = "__DC_STAT_UUID";
 let deviceId;
 function useDeviceId(global2 = wx) {
-  return function addDeviceId(_, toRes) {
+  return function addDeviceId(_2, toRes) {
     deviceId = deviceId || global2.getStorageSync(UUID_KEY);
     if (!deviceId) {
       deviceId = Date.now() + "" + Math.floor(Math.random() * 1e7);
@@ -5872,14 +6243,14 @@ function addSafeAreaInsets(fromRes, toRes) {
     };
   }
 }
-function getOSInfo(system, platform) {
+function getOSInfo(system, platform2) {
   let osName = "";
   let osVersion = "";
-  if (platform && false) {
-    osName = platform;
+  if (platform2 && false) {
+    osName = platform2;
     osVersion = system;
   } else {
-    osName = system.split(" ")[0] || platform;
+    osName = system.split(" ")[0] || platform2;
     osVersion = system.split(" ")[1] || "";
   }
   osName = osName.toLocaleLowerCase();
@@ -5906,8 +6277,8 @@ function getOSInfo(system, platform) {
   };
 }
 function populateParameters(fromRes, toRes) {
-  const { brand = "", model = "", system = "", language = "", theme, version: version2, platform, fontSizeSetting, SDKVersion, pixelRatio, deviceOrientation } = fromRes;
-  const { osName, osVersion } = getOSInfo(system, platform);
+  const { brand = "", model = "", system = "", language = "", theme, version: version2, platform: platform2, fontSizeSetting, SDKVersion, pixelRatio, deviceOrientation } = fromRes;
+  const { osName, osVersion } = getOSInfo(system, platform2);
   let hostVersion = version2;
   let deviceType = getGetDeviceType(fromRes, model);
   let deviceBrand = getDeviceBrand(brand);
@@ -5917,7 +6288,7 @@ function populateParameters(fromRes, toRes) {
   let _SDKVersion = SDKVersion;
   const hostLanguage = (language || "").replace(/_/g, "-");
   const parameters = {
-    appId: "",
+    appId: "__UNI__YOURCATDOG",
     appName: "CatAndDog",
     appVersion: "1.0.0",
     appVersionCode: "100",
@@ -6010,7 +6381,7 @@ const previewImage = {
       return;
     }
     const urls = fromArgs.urls;
-    if (!isArray(urls)) {
+    if (!isArray$1(urls)) {
       return;
     }
     const len = urls.length;
@@ -6041,11 +6412,11 @@ const showActionSheet = {
 };
 const getDeviceInfo = {
   returnValue: (fromRes, toRes) => {
-    const { brand, model, system = "", platform = "" } = fromRes;
+    const { brand, model, system = "", platform: platform2 = "" } = fromRes;
     let deviceType = getGetDeviceType(fromRes, model);
     let deviceBrand = getDeviceBrand(brand);
     useDeviceId()(fromRes, toRes);
-    const { osName, osVersion } = getOSInfo(system, platform);
+    const { osName, osVersion } = getOSInfo(system, platform2);
     toRes = sortObject(extend(toRes, {
       deviceType,
       deviceBrand,
@@ -6066,7 +6437,7 @@ const getAppBaseInfo = {
       hostName: _hostName,
       hostSDKVersion: SDKVersion,
       hostTheme: theme,
-      appId: "",
+      appId: "__UNI__YOURCATDOG",
       appName: "CatAndDog",
       appVersion: "1.0.0",
       appVersionCode: "100",
@@ -6080,7 +6451,7 @@ const getAppBaseInfo = {
     extend(toRes, parameters);
   }
 };
-const getWindowInfo = {
+const getWindowInfo$1 = {
   returnValue: (fromRes, toRes) => {
     addSafeAreaInsets(fromRes, toRes);
     toRes = sortObject(extend(toRes, {
@@ -6168,7 +6539,7 @@ const baseApis = {
   invokePushCallback,
   __f__
 };
-function initUni(api, protocols2, platform = wx) {
+function initUni(api, protocols2, platform2 = wx) {
   const wrapper = initWrapper(protocols2);
   const UniProxyHandlers = {
     get(target, key) {
@@ -6181,7 +6552,7 @@ function initUni(api, protocols2, platform = wx) {
       if (hasOwn(baseApis, key)) {
         return promisify(key, baseApis[key]);
       }
-      return promisify(key, wrapper(key, platform[key]));
+      return promisify(key, wrapper(key, platform2[key]));
     }
   };
   return new Proxy({}, UniProxyHandlers);
@@ -6302,7 +6673,7 @@ var protocols = /* @__PURE__ */ Object.freeze({
   getDeviceInfo,
   getSystemInfo,
   getSystemInfoSync,
-  getWindowInfo,
+  getWindowInfo: getWindowInfo$1,
   offError,
   onError,
   onSocketMessage,
@@ -6312,12 +6683,12 @@ var protocols = /* @__PURE__ */ Object.freeze({
   showActionSheet
 });
 const wx$1 = initWx();
-var index = initUni(shims, protocols, wx$1);
+var index$1 = initUni(shims, protocols, wx$1);
 function initRuntimeSocket(hosts, port, id) {
   if (hosts == "" || port == "" || id == "")
     return Promise.resolve(null);
-  return hosts.split(",").reduce((promise, host2) => {
-    return promise.then((socket) => {
+  return hosts.split(",").reduce((promise2, host2) => {
+    return promise2.then((socket) => {
       if (socket != null)
         return Promise.resolve(socket);
       return tryConnectSocket(host2, port, id);
@@ -6326,13 +6697,13 @@ function initRuntimeSocket(hosts, port, id) {
 }
 const SOCKET_TIMEOUT = 500;
 function tryConnectSocket(host2, port, id) {
-  return new Promise((resolve, reject) => {
-    const socket = index.connectSocket({
+  return new Promise((resolve2, reject) => {
+    const socket = index$1.connectSocket({
       url: `ws://${host2}:${port}/${id}`,
       multiple: true,
       // 支付宝小程序 是否开启多实例
       fail() {
-        resolve(null);
+        resolve2(null);
       }
     });
     const timer = setTimeout(() => {
@@ -6340,19 +6711,19 @@ function tryConnectSocket(host2, port, id) {
         code: 1006,
         reason: "connect timeout"
       });
-      resolve(null);
+      resolve2(null);
     }, SOCKET_TIMEOUT);
-    socket.onOpen((e) => {
+    socket.onOpen((e2) => {
       clearTimeout(timer);
-      resolve(socket);
+      resolve2(socket);
     });
-    socket.onClose((e) => {
+    socket.onClose((e2) => {
       clearTimeout(timer);
-      resolve(null);
+      resolve2(null);
     });
-    socket.onError((e) => {
+    socket.onError((e2) => {
       clearTimeout(timer);
-      resolve(null);
+      resolve2(null);
     });
   });
 }
@@ -6366,8 +6737,8 @@ const errorQueue = /* @__PURE__ */ new Set();
 const errorExtra = {};
 function sendErrorMessages(errors) {
   if (sendError == null) {
-    errors.forEach((error) => {
-      errorQueue.add(error);
+    errors.forEach((error2) => {
+      errorQueue.add(error2);
     });
     return;
   }
@@ -6413,31 +6784,31 @@ function setSendError(value, extra = {}) {
   }
 }
 function initOnError() {
-  function onError2(error) {
+  function onError2(error2) {
     try {
-      if (typeof PromiseRejectionEvent !== "undefined" && error instanceof PromiseRejectionEvent && error.reason instanceof Error && error.reason.message && error.reason.message.includes(`Cannot create property 'errMsg' on string 'taskId`)) {
+      if (typeof PromiseRejectionEvent !== "undefined" && error2 instanceof PromiseRejectionEvent && error2.reason instanceof Error && error2.reason.message && error2.reason.message.includes(`Cannot create property 'errMsg' on string 'taskId`)) {
         return;
       }
       if (true) {
-        originalConsole.error(error);
+        originalConsole.error(error2);
       }
-      sendErrorMessages([error]);
+      sendErrorMessages([error2]);
     } catch (err) {
       originalConsole.error(err);
     }
   }
-  if (typeof index.onError === "function") {
-    index.onError(onError2);
+  if (typeof index$1.onError === "function") {
+    index$1.onError(onError2);
   }
-  if (typeof index.onUnhandledRejection === "function") {
-    index.onUnhandledRejection(onError2);
+  if (typeof index$1.onUnhandledRejection === "function") {
+    index$1.onUnhandledRejection(onError2);
   }
   return function offError2() {
-    if (typeof index.offError === "function") {
-      index.offError(onError2);
+    if (typeof index$1.offError === "function") {
+      index$1.offError(onError2);
     }
-    if (typeof index.offUnhandledRejection === "function") {
-      index.offUnhandledRejection(onError2);
+    if (typeof index$1.offUnhandledRejection === "function") {
+      index$1.offUnhandledRejection(onError2);
     }
   };
 }
@@ -6447,7 +6818,7 @@ function formatMessage(type, args) {
       type,
       args: formatArgs(args)
     };
-  } catch (e) {
+  } catch (e2) {
   }
   return {
     type,
@@ -6475,7 +6846,7 @@ function formatArg(arg, depth = 0) {
     case "object":
       try {
         return formatObject(arg, depth);
-      } catch (e) {
+      } catch (e2) {
         return {
           type: "object",
           value: {
@@ -6560,7 +6931,7 @@ function formatObject(value, depth) {
       type: "object",
       subType: "array",
       value: {
-        properties: value.map((v, i) => formatArrayElement(v, i, depth + 1))
+        properties: value.map((v2, i2) => formatArrayElement(v2, i2, depth + 1))
       }
     };
   }
@@ -6571,7 +6942,7 @@ function formatObject(value, depth) {
       className: "Set",
       description: `Set(${value.size})`,
       value: {
-        entries: Array.from(value).map((v) => formatSetEntry(v, depth + 1))
+        entries: Array.from(value).map((v2) => formatSetEntry(v2, depth + 1))
       }
     };
   }
@@ -6582,7 +6953,7 @@ function formatObject(value, depth) {
       className: "Map",
       description: `Map(${value.size})`,
       value: {
-        entries: Array.from(value.entries()).map((v) => formatMapEntry(v, depth + 1))
+        entries: Array.from(value.entries()).map((v2) => formatMapEntry(v2, depth + 1))
       }
     };
   }
@@ -6784,16 +7155,16 @@ function rewriteConsole() {
     };
   } else {
     {
-      if (typeof index !== "undefined" && index.__f__) {
-        const oldLog = index.__f__;
+      if (typeof index$1 !== "undefined" && index$1.__f__) {
+        const oldLog = index$1.__f__;
         if (oldLog) {
-          index.__f__ = function(...args) {
+          index$1.__f__ = function(...args) {
             const [type, filename, ...rest] = args;
             oldLog(type, "", ...rest);
             sendConsoleMessages([formatMessage(type, [...rest, filename])]);
           };
           return function restoreConsole() {
-            index.__f__ = oldLog;
+            index$1.__f__ = oldLog;
           };
         }
       }
@@ -6815,9 +7186,9 @@ function isConsoleWritable() {
   return isWritable;
 }
 function initRuntimeSocketService() {
-  const hosts = "192.168.1.12,127.0.0.1";
+  const hosts = "192.168.1.14,127.0.0.1";
   const port = "8090";
-  const id = "mp-weixin_nTM3Hd";
+  const id = "mp-weixin_iBHXFl";
   const lazy = typeof swan !== "undefined";
   let restoreError = lazy ? () => {
   } : initOnError();
@@ -6864,8 +7235,8 @@ function initRuntimeSocketService() {
   });
 }
 const ERROR_CHAR = "‌";
-function wrapError(error) {
-  return `${ERROR_CHAR}${error}${ERROR_CHAR}`;
+function wrapError(error2) {
+  return `${ERROR_CHAR}${error2}${ERROR_CHAR}`;
 }
 function initMiniProgramGlobalFlag() {
   if (typeof wx$1 !== "undefined") {
@@ -6891,9 +7262,9 @@ function initMiniProgramGlobalFlag() {
   }
 }
 initRuntimeSocketService();
-const _export_sfc = (sfc, props) => {
+const _export_sfc = (sfc, props2) => {
   const target = sfc.__vccOpts || sfc;
-  for (const [key, val] of props) {
+  for (const [key, val] of props2) {
     target[key] = val;
   }
   return target;
@@ -6933,7 +7304,7 @@ function initWorkletMethods(mpMethods, vueMethods) {
   }
 }
 function initWxsCallMethods(methods, wxsCallMethods) {
-  if (!isArray(wxsCallMethods)) {
+  if (!isArray$1(wxsCallMethods)) {
     return;
   }
   wxsCallMethods.forEach((callMethod) => {
@@ -6971,15 +7342,15 @@ function initRefs(instance, mpInstance) {
 }
 function findVmByVueId(instance, vuePid) {
   const $children = instance.$children;
-  for (let i = $children.length - 1; i >= 0; i--) {
-    const childVm = $children[i];
+  for (let i2 = $children.length - 1; i2 >= 0; i2--) {
+    const childVm = $children[i2];
     if (childVm.$scope._$vueId === vuePid) {
       return childVm;
     }
   }
   let parentVm;
-  for (let i = $children.length - 1; i >= 0; i--) {
-    parentVm = findVmByVueId($children[i], vuePid);
+  for (let i2 = $children.length - 1; i2 >= 0; i2--) {
+    parentVm = findVmByVueId($children[i2], vuePid);
     if (parentVm) {
       return parentVm;
     }
@@ -7035,7 +7406,7 @@ function initBaseInstance(instance, options) {
     ctx._self = {};
   }
   instance.slots = {};
-  if (isArray(options.slots) && options.slots.length) {
+  if (isArray$1(options.slots) && options.slots.length) {
     options.slots.forEach((name) => {
       instance.slots[name] = true;
     });
@@ -7113,7 +7484,7 @@ function findHooks(vueOptions, hooks = /* @__PURE__ */ new Set()) {
     {
       const { extends: extendsOptions, mixins } = vueOptions;
       if (mixins) {
-        mixins.forEach((mixin) => findHooks(mixin, hooks));
+        mixins.forEach((mixin2) => findHooks(mixin2, hooks));
       }
       if (extendsOptions) {
         findHooks(extendsOptions, hooks);
@@ -7152,11 +7523,11 @@ const findMixinRuntimeHooks = /* @__PURE__ */ once(() => {
   const app = isFunction(getApp) && getApp({ allowDefault: true });
   if (app && app.$vm && app.$vm.$) {
     const mixins = app.$vm.$.appContext.mixins;
-    if (isArray(mixins)) {
+    if (isArray$1(mixins)) {
       const hooks = Object.keys(MINI_PROGRAM_PAGE_RUNTIME_HOOKS);
-      mixins.forEach((mixin) => {
+      mixins.forEach((mixin2) => {
         hooks.forEach((hook) => {
-          if (hasOwn(mixin, hook) && !runtimeHooks.includes(hook)) {
+          if (hasOwn(mixin2, hook) && !runtimeHooks.includes(hook)) {
             runtimeHooks.push(hook);
           }
         });
@@ -7266,8 +7637,8 @@ function initLocale(appVm) {
     get() {
       return locale.value;
     },
-    set(v) {
-      locale.value = v;
+    set(v2) {
+      locale.value = v2;
     }
   });
 }
@@ -7364,7 +7735,7 @@ function initProps(mpComponentOptions) {
 }
 const PROP_TYPES = [String, Number, Boolean, Object, Array, null];
 function parsePropType(type, defaultValue) {
-  if (isArray(type) && type.length === 1) {
+  if (isArray$1(type) && type.length === 1) {
     return type[0];
   }
   return type;
@@ -7374,17 +7745,17 @@ function normalizePropType(type, defaultValue) {
   return PROP_TYPES.indexOf(res) !== -1 ? res : null;
 }
 function initPageProps({ properties }, rawProps) {
-  if (isArray(rawProps)) {
+  if (isArray$1(rawProps)) {
     rawProps.forEach((key) => {
       properties[key] = {
         type: String,
         value: ""
       };
     });
-  } else if (isPlainObject(rawProps)) {
+  } else if (isPlainObject$2(rawProps)) {
     Object.keys(rawProps).forEach((key) => {
       const opts = rawProps[key];
-      if (isPlainObject(opts)) {
+      if (isPlainObject$2(opts)) {
         let value = opts.default;
         if (isFunction(value)) {
           value = value();
@@ -7408,7 +7779,7 @@ function findPropsData(properties, isPage2) {
 }
 function findPagePropsData(properties) {
   const propsData = {};
-  if (isPlainObject(properties)) {
+  if (isPlainObject$2(properties)) {
     Object.keys(properties).forEach((name) => {
       if (builtInProps.indexOf(name) === -1) {
         propsData[name] = resolvePropValue(properties[name]);
@@ -7419,7 +7790,7 @@ function findPagePropsData(properties) {
 }
 function initFormField(vm) {
   const vueOptions = vm.$options;
-  if (isArray(vueOptions.behaviors) && vueOptions.behaviors.includes("uni://form-field")) {
+  if (isArray$1(vueOptions.behaviors) && vueOptions.behaviors.includes("uni://form-field")) {
     vm.$watch("modelValue", () => {
       vm.$scope && vm.$scope.setData({
         name: vm.name,
@@ -7433,7 +7804,7 @@ function initFormField(vm) {
 function resolvePropValue(prop) {
   return prop;
 }
-function initData(_) {
+function initData(_2) {
   return {};
 }
 function initPropsObserver(componentOptions) {
@@ -7480,8 +7851,8 @@ function hasPropsChanged(prevProps, nextProps, checkLen = true) {
   if (checkLen && nextKeys.length !== Object.keys(prevProps).length) {
     return true;
   }
-  for (let i = 0; i < nextKeys.length; i++) {
-    const key = nextKeys[i];
+  for (let i2 = 0; i2 < nextKeys.length; i2++) {
+    const key = nextKeys[i2];
     if (nextProps[key] !== prevProps[key]) {
       return true;
     }
@@ -7495,11 +7866,11 @@ function initBehaviors(vueOptions) {
     vueOptions.props = vueProps = [];
   }
   const behaviors = [];
-  if (isArray(vueBehaviors)) {
+  if (isArray$1(vueBehaviors)) {
     vueBehaviors.forEach((behavior) => {
       behaviors.push(behavior.replace("uni://", "wx://"));
       if (behavior === "uni://form-field") {
-        if (isArray(vueProps)) {
+        if (isArray$1(vueProps)) {
           vueProps.push("name");
           vueProps.push("modelValue");
         } else {
@@ -7529,9 +7900,9 @@ function parseComponent(vueOptions, { parse, mocks: mocks2, isPage: isPage2, isP
     addGlobalClass: true,
     pureDataPattern: /^uP$/
   };
-  if (isArray(vueOptions.mixins)) {
+  if (isArray$1(vueOptions.mixins)) {
     vueOptions.mixins.forEach((item) => {
-      if (isObject(item.options)) {
+      if (isObject$1(item.options)) {
         extend(options, item.options);
       }
     });
@@ -7647,7 +8018,7 @@ function initTriggerEvent(mpInstance) {
   };
   try {
     mpInstance.triggerEvent = newTriggerEvent;
-  } catch (error) {
+  } catch (error2) {
     mpInstance._triggerEvent = newTriggerEvent;
   }
 }
@@ -7763,10 +8134,8719 @@ const createSubpackageApp = initCreateSubpackageApp();
   wx.createPluginApp = global.createPluginApp = createPluginApp;
   wx.createSubpackageApp = global.createSubpackageApp = createSubpackageApp;
 }
+var isVue2 = false;
+function set(target, key, val) {
+  if (Array.isArray(target)) {
+    target.length = Math.max(target.length, key);
+    target.splice(key, 1, val);
+    return val;
+  }
+  target[key] = val;
+  return val;
+}
+function del(target, key) {
+  if (Array.isArray(target)) {
+    target.splice(key, 1);
+    return;
+  }
+  delete target[key];
+}
+/*!
+ * pinia v2.1.7
+ * (c) 2023 Eduardo San Martin Morote
+ * @license MIT
+ */
+let activePinia;
+const setActivePinia = (pinia) => activePinia = pinia;
+const piniaSymbol = Symbol("pinia");
+function isPlainObject$1(o2) {
+  return o2 && typeof o2 === "object" && Object.prototype.toString.call(o2) === "[object Object]" && typeof o2.toJSON !== "function";
+}
+var MutationType;
+(function(MutationType2) {
+  MutationType2["direct"] = "direct";
+  MutationType2["patchObject"] = "patch object";
+  MutationType2["patchFunction"] = "patch function";
+})(MutationType || (MutationType = {}));
+const IS_CLIENT = typeof window !== "undefined";
+const USE_DEVTOOLS = IS_CLIENT;
+const componentStateTypes = [];
+const getStoreType = (id) => "🍍 " + id;
+function addStoreToDevtools(app, store) {
+  if (!componentStateTypes.includes(getStoreType(store.$id))) {
+    componentStateTypes.push(getStoreType(store.$id));
+  }
+}
+function patchActionForGrouping(store, actionNames, wrapWithProxy) {
+  const actions = actionNames.reduce((storeActions, actionName) => {
+    storeActions[actionName] = toRaw(store)[actionName];
+    return storeActions;
+  }, {});
+  for (const actionName in actions) {
+    store[actionName] = function() {
+      const trackedStore = wrapWithProxy ? new Proxy(store, {
+        get(...args) {
+          return Reflect.get(...args);
+        },
+        set(...args) {
+          return Reflect.set(...args);
+        }
+      }) : store;
+      const retValue = actions[actionName].apply(trackedStore, arguments);
+      return retValue;
+    };
+  }
+}
+function devtoolsPlugin({ app, store, options }) {
+  if (store.$id.startsWith("__hot:")) {
+    return;
+  }
+  store._isOptionsAPI = !!options.state;
+  patchActionForGrouping(store, Object.keys(options.actions), store._isOptionsAPI);
+  const originalHotUpdate = store._hotUpdate;
+  toRaw(store)._hotUpdate = function(newStore) {
+    originalHotUpdate.apply(this, arguments);
+    patchActionForGrouping(store, Object.keys(newStore._hmrPayload.actions), !!store._isOptionsAPI);
+  };
+  addStoreToDevtools(
+    app,
+    // FIXME: is there a way to allow the assignment from Store<Id, S, G, A> to StoreGeneric?
+    store
+  );
+}
+function createPinia() {
+  const scope = effectScope(true);
+  const state = scope.run(() => ref({}));
+  let _p = [];
+  let toBeInstalled = [];
+  const pinia = markRaw({
+    install(app) {
+      setActivePinia(pinia);
+      {
+        pinia._a = app;
+        app.provide(piniaSymbol, pinia);
+        app.config.globalProperties.$pinia = pinia;
+        toBeInstalled.forEach((plugin2) => _p.push(plugin2));
+        toBeInstalled = [];
+      }
+    },
+    use(plugin2) {
+      if (!this._a && !isVue2) {
+        toBeInstalled.push(plugin2);
+      } else {
+        _p.push(plugin2);
+      }
+      return this;
+    },
+    _p,
+    // it's actually undefined here
+    // @ts-expect-error
+    _a: null,
+    _e: scope,
+    _s: /* @__PURE__ */ new Map(),
+    state
+  });
+  if (USE_DEVTOOLS && typeof Proxy !== "undefined") {
+    pinia.use(devtoolsPlugin);
+  }
+  return pinia;
+}
+function patchObject(newState, oldState) {
+  for (const key in oldState) {
+    const subPatch = oldState[key];
+    if (!(key in newState)) {
+      continue;
+    }
+    const targetValue = newState[key];
+    if (isPlainObject$1(targetValue) && isPlainObject$1(subPatch) && !isRef(subPatch) && !isReactive(subPatch)) {
+      newState[key] = patchObject(targetValue, subPatch);
+    } else {
+      {
+        newState[key] = subPatch;
+      }
+    }
+  }
+  return newState;
+}
+const noop = () => {
+};
+function addSubscription(subscriptions, callback, detached, onCleanup = noop) {
+  subscriptions.push(callback);
+  const removeSubscription = () => {
+    const idx = subscriptions.indexOf(callback);
+    if (idx > -1) {
+      subscriptions.splice(idx, 1);
+      onCleanup();
+    }
+  };
+  if (!detached && getCurrentScope()) {
+    onScopeDispose(removeSubscription);
+  }
+  return removeSubscription;
+}
+function triggerSubscriptions(subscriptions, ...args) {
+  subscriptions.slice().forEach((callback) => {
+    callback(...args);
+  });
+}
+const fallbackRunWithContext = (fn) => fn();
+function mergeReactiveObjects(target, patchToApply) {
+  if (target instanceof Map && patchToApply instanceof Map) {
+    patchToApply.forEach((value, key) => target.set(key, value));
+  }
+  if (target instanceof Set && patchToApply instanceof Set) {
+    patchToApply.forEach(target.add, target);
+  }
+  for (const key in patchToApply) {
+    if (!patchToApply.hasOwnProperty(key))
+      continue;
+    const subPatch = patchToApply[key];
+    const targetValue = target[key];
+    if (isPlainObject$1(targetValue) && isPlainObject$1(subPatch) && target.hasOwnProperty(key) && !isRef(subPatch) && !isReactive(subPatch)) {
+      target[key] = mergeReactiveObjects(targetValue, subPatch);
+    } else {
+      target[key] = subPatch;
+    }
+  }
+  return target;
+}
+const skipHydrateSymbol = Symbol("pinia:skipHydration");
+function shouldHydrate(obj) {
+  return !isPlainObject$1(obj) || !obj.hasOwnProperty(skipHydrateSymbol);
+}
+const { assign } = Object;
+function isComputed(o2) {
+  return !!(isRef(o2) && o2.effect);
+}
+function createOptionsStore(id, options, pinia, hot) {
+  const { state, actions, getters } = options;
+  const initialState = pinia.state.value[id];
+  let store;
+  function setup() {
+    if (!initialState && !hot) {
+      {
+        pinia.state.value[id] = state ? state() : {};
+      }
+    }
+    const localState = hot ? (
+      // use ref() to unwrap refs inside state TODO: check if this is still necessary
+      toRefs(ref(state ? state() : {}).value)
+    ) : toRefs(pinia.state.value[id]);
+    return assign(localState, actions, Object.keys(getters || {}).reduce((computedGetters, name) => {
+      if (name in localState) {
+        console.warn(`[🍍]: A getter cannot have the same name as another state property. Rename one of them. Found with "${name}" in store "${id}".`);
+      }
+      computedGetters[name] = markRaw(computed(() => {
+        setActivePinia(pinia);
+        const store2 = pinia._s.get(id);
+        return getters[name].call(store2, store2);
+      }));
+      return computedGetters;
+    }, {}));
+  }
+  store = createSetupStore(id, setup, options, pinia, hot, true);
+  return store;
+}
+function createSetupStore($id, setup, options = {}, pinia, hot, isOptionsStore) {
+  let scope;
+  const optionsForPlugin = assign({ actions: {} }, options);
+  if (!pinia._e.active) {
+    throw new Error("Pinia destroyed");
+  }
+  const $subscribeOptions = {
+    deep: true
+    // flush: 'post',
+  };
+  {
+    $subscribeOptions.onTrigger = (event) => {
+      if (isListening) {
+        debuggerEvents = event;
+      } else if (isListening == false && !store._hotUpdating) {
+        if (Array.isArray(debuggerEvents)) {
+          debuggerEvents.push(event);
+        } else {
+          console.error("🍍 debuggerEvents should be an array. This is most likely an internal Pinia bug.");
+        }
+      }
+    };
+  }
+  let isListening;
+  let isSyncListening;
+  let subscriptions = [];
+  let actionSubscriptions = [];
+  let debuggerEvents;
+  const initialState = pinia.state.value[$id];
+  if (!isOptionsStore && !initialState && !hot) {
+    {
+      pinia.state.value[$id] = {};
+    }
+  }
+  const hotState = ref({});
+  let activeListener;
+  function $patch(partialStateOrMutator) {
+    let subscriptionMutation;
+    isListening = isSyncListening = false;
+    {
+      debuggerEvents = [];
+    }
+    if (typeof partialStateOrMutator === "function") {
+      partialStateOrMutator(pinia.state.value[$id]);
+      subscriptionMutation = {
+        type: MutationType.patchFunction,
+        storeId: $id,
+        events: debuggerEvents
+      };
+    } else {
+      mergeReactiveObjects(pinia.state.value[$id], partialStateOrMutator);
+      subscriptionMutation = {
+        type: MutationType.patchObject,
+        payload: partialStateOrMutator,
+        storeId: $id,
+        events: debuggerEvents
+      };
+    }
+    const myListenerId = activeListener = Symbol();
+    nextTick$1().then(() => {
+      if (activeListener === myListenerId) {
+        isListening = true;
+      }
+    });
+    isSyncListening = true;
+    triggerSubscriptions(subscriptions, subscriptionMutation, pinia.state.value[$id]);
+  }
+  const $reset = isOptionsStore ? function $reset2() {
+    const { state } = options;
+    const newState = state ? state() : {};
+    this.$patch(($state) => {
+      assign($state, newState);
+    });
+  } : (
+    /* istanbul ignore next */
+    () => {
+      throw new Error(`🍍: Store "${$id}" is built using the setup syntax and does not implement $reset().`);
+    }
+  );
+  function $dispose() {
+    scope.stop();
+    subscriptions = [];
+    actionSubscriptions = [];
+    pinia._s.delete($id);
+  }
+  function wrapAction(name, action) {
+    return function() {
+      setActivePinia(pinia);
+      const args = Array.from(arguments);
+      const afterCallbackList = [];
+      const onErrorCallbackList = [];
+      function after(callback) {
+        afterCallbackList.push(callback);
+      }
+      function onError2(callback) {
+        onErrorCallbackList.push(callback);
+      }
+      triggerSubscriptions(actionSubscriptions, {
+        args,
+        name,
+        store,
+        after,
+        onError: onError2
+      });
+      let ret;
+      try {
+        ret = action.apply(this && this.$id === $id ? this : store, args);
+      } catch (error2) {
+        triggerSubscriptions(onErrorCallbackList, error2);
+        throw error2;
+      }
+      if (ret instanceof Promise) {
+        return ret.then((value) => {
+          triggerSubscriptions(afterCallbackList, value);
+          return value;
+        }).catch((error2) => {
+          triggerSubscriptions(onErrorCallbackList, error2);
+          return Promise.reject(error2);
+        });
+      }
+      triggerSubscriptions(afterCallbackList, ret);
+      return ret;
+    };
+  }
+  const _hmrPayload = /* @__PURE__ */ markRaw({
+    actions: {},
+    getters: {},
+    state: [],
+    hotState
+  });
+  const partialStore = {
+    _p: pinia,
+    // _s: scope,
+    $id,
+    $onAction: addSubscription.bind(null, actionSubscriptions),
+    $patch,
+    $reset,
+    $subscribe(callback, options2 = {}) {
+      const removeSubscription = addSubscription(subscriptions, callback, options2.detached, () => stopWatcher());
+      const stopWatcher = scope.run(() => watch(() => pinia.state.value[$id], (state) => {
+        if (options2.flush === "sync" ? isSyncListening : isListening) {
+          callback({
+            storeId: $id,
+            type: MutationType.direct,
+            events: debuggerEvents
+          }, state);
+        }
+      }, assign({}, $subscribeOptions, options2)));
+      return removeSubscription;
+    },
+    $dispose
+  };
+  const store = reactive(assign(
+    {
+      _hmrPayload,
+      _customProperties: markRaw(/* @__PURE__ */ new Set())
+      // devtools custom properties
+    },
+    partialStore
+    // must be added later
+    // setupStore
+  ));
+  pinia._s.set($id, store);
+  const runWithContext = pinia._a && pinia._a.runWithContext || fallbackRunWithContext;
+  const setupStore = runWithContext(() => pinia._e.run(() => (scope = effectScope()).run(setup)));
+  for (const key in setupStore) {
+    const prop = setupStore[key];
+    if (isRef(prop) && !isComputed(prop) || isReactive(prop)) {
+      if (hot) {
+        set(hotState.value, key, toRef(setupStore, key));
+      } else if (!isOptionsStore) {
+        if (initialState && shouldHydrate(prop)) {
+          if (isRef(prop)) {
+            prop.value = initialState[key];
+          } else {
+            mergeReactiveObjects(prop, initialState[key]);
+          }
+        }
+        {
+          pinia.state.value[$id][key] = prop;
+        }
+      }
+      {
+        _hmrPayload.state.push(key);
+      }
+    } else if (typeof prop === "function") {
+      const actionValue = hot ? prop : wrapAction(key, prop);
+      {
+        setupStore[key] = actionValue;
+      }
+      {
+        _hmrPayload.actions[key] = prop;
+      }
+      optionsForPlugin.actions[key] = prop;
+    } else {
+      if (isComputed(prop)) {
+        _hmrPayload.getters[key] = isOptionsStore ? (
+          // @ts-expect-error
+          options.getters[key]
+        ) : prop;
+        if (IS_CLIENT) {
+          const getters = setupStore._getters || // @ts-expect-error: same
+          (setupStore._getters = markRaw([]));
+          getters.push(key);
+        }
+      }
+    }
+  }
+  {
+    assign(store, setupStore);
+    assign(toRaw(store), setupStore);
+  }
+  Object.defineProperty(store, "$state", {
+    get: () => hot ? hotState.value : pinia.state.value[$id],
+    set: (state) => {
+      if (hot) {
+        throw new Error("cannot set hotState");
+      }
+      $patch(($state) => {
+        assign($state, state);
+      });
+    }
+  });
+  {
+    store._hotUpdate = markRaw((newStore) => {
+      store._hotUpdating = true;
+      newStore._hmrPayload.state.forEach((stateKey) => {
+        if (stateKey in store.$state) {
+          const newStateTarget = newStore.$state[stateKey];
+          const oldStateSource = store.$state[stateKey];
+          if (typeof newStateTarget === "object" && isPlainObject$1(newStateTarget) && isPlainObject$1(oldStateSource)) {
+            patchObject(newStateTarget, oldStateSource);
+          } else {
+            newStore.$state[stateKey] = oldStateSource;
+          }
+        }
+        set(store, stateKey, toRef(newStore.$state, stateKey));
+      });
+      Object.keys(store.$state).forEach((stateKey) => {
+        if (!(stateKey in newStore.$state)) {
+          del(store, stateKey);
+        }
+      });
+      isListening = false;
+      isSyncListening = false;
+      pinia.state.value[$id] = toRef(newStore._hmrPayload, "hotState");
+      isSyncListening = true;
+      nextTick$1().then(() => {
+        isListening = true;
+      });
+      for (const actionName in newStore._hmrPayload.actions) {
+        const action = newStore[actionName];
+        set(store, actionName, wrapAction(actionName, action));
+      }
+      for (const getterName in newStore._hmrPayload.getters) {
+        const getter = newStore._hmrPayload.getters[getterName];
+        const getterValue = isOptionsStore ? (
+          // special handling of options api
+          computed(() => {
+            setActivePinia(pinia);
+            return getter.call(store, store);
+          })
+        ) : getter;
+        set(store, getterName, getterValue);
+      }
+      Object.keys(store._hmrPayload.getters).forEach((key) => {
+        if (!(key in newStore._hmrPayload.getters)) {
+          del(store, key);
+        }
+      });
+      Object.keys(store._hmrPayload.actions).forEach((key) => {
+        if (!(key in newStore._hmrPayload.actions)) {
+          del(store, key);
+        }
+      });
+      store._hmrPayload = newStore._hmrPayload;
+      store._getters = newStore._getters;
+      store._hotUpdating = false;
+    });
+  }
+  if (USE_DEVTOOLS) {
+    const nonEnumerable = {
+      writable: true,
+      configurable: true,
+      // avoid warning on devtools trying to display this property
+      enumerable: false
+    };
+    ["_p", "_hmrPayload", "_getters", "_customProperties"].forEach((p2) => {
+      Object.defineProperty(store, p2, assign({ value: store[p2] }, nonEnumerable));
+    });
+  }
+  pinia._p.forEach((extender) => {
+    if (USE_DEVTOOLS) {
+      const extensions = scope.run(() => extender({
+        store,
+        app: pinia._a,
+        pinia,
+        options: optionsForPlugin
+      }));
+      Object.keys(extensions || {}).forEach((key) => store._customProperties.add(key));
+      assign(store, extensions);
+    } else {
+      assign(store, scope.run(() => extender({
+        store,
+        app: pinia._a,
+        pinia,
+        options: optionsForPlugin
+      })));
+    }
+  });
+  if (store.$state && typeof store.$state === "object" && typeof store.$state.constructor === "function" && !store.$state.constructor.toString().includes("[native code]")) {
+    console.warn(`[🍍]: The "state" must be a plain object. It cannot be
+	state: () => new MyClass()
+Found in store "${store.$id}".`);
+  }
+  if (initialState && isOptionsStore && options.hydrate) {
+    options.hydrate(store.$state, initialState);
+  }
+  isListening = true;
+  isSyncListening = true;
+  return store;
+}
+function defineStore(idOrOptions, setup, setupOptions) {
+  let id;
+  let options;
+  const isSetupStore = typeof setup === "function";
+  if (typeof idOrOptions === "string") {
+    id = idOrOptions;
+    options = isSetupStore ? setupOptions : setup;
+  } else {
+    options = idOrOptions;
+    id = idOrOptions.id;
+    if (typeof id !== "string") {
+      throw new Error(`[🍍]: "defineStore()" must be passed a store id as its first argument.`);
+    }
+  }
+  function useStore(pinia, hot) {
+    const hasContext = hasInjectionContext();
+    pinia = // in test mode, ignore the argument provided as we can always retrieve a
+    // pinia instance with getActivePinia()
+    pinia || (hasContext ? inject(piniaSymbol, null) : null);
+    if (pinia)
+      setActivePinia(pinia);
+    if (!activePinia) {
+      throw new Error(`[🍍]: "getActivePinia()" was called but there was no active Pinia. Are you trying to use a store before calling "app.use(pinia)"?
+See https://pinia.vuejs.org/core-concepts/outside-component-usage.html for help.
+This will fail in production.`);
+    }
+    pinia = activePinia;
+    if (!pinia._s.has(id)) {
+      if (isSetupStore) {
+        createSetupStore(id, setup, options, pinia);
+      } else {
+        createOptionsStore(id, options, pinia);
+      }
+      {
+        useStore._pinia = pinia;
+      }
+    }
+    const store = pinia._s.get(id);
+    if (hot) {
+      const hotId = "__hot:" + id;
+      const newStore = isSetupStore ? createSetupStore(hotId, setup, options, pinia, true) : createOptionsStore(hotId, assign({}, options), pinia, true);
+      hot._hotUpdate(newStore);
+      delete pinia.state.value[hotId];
+      pinia._s.delete(hotId);
+    }
+    if (IS_CLIENT) {
+      const currentInstance2 = getCurrentInstance();
+      if (currentInstance2 && currentInstance2.proxy && // avoid adding stores that are just built for hot module replacement
+      !hot) {
+        const vm = currentInstance2.proxy;
+        const cache = "_pStores" in vm ? vm._pStores : vm._pStores = {};
+        cache[id] = store;
+      }
+    }
+    return store;
+  }
+  useStore.$id = id;
+  return useStore;
+}
+function storeToRefs(store) {
+  {
+    store = toRaw(store);
+    const refs = {};
+    for (const key in store) {
+      const value = store[key];
+      if (isRef(value) || isReactive(value)) {
+        refs[key] = // ---
+        toRef(store, key);
+      }
+    }
+    return refs;
+  }
+}
+const defineMixin = (options) => {
+  return options;
+};
+function email(value) {
+  return /^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/.test(value);
+}
+function mobile(value) {
+  return /^1[23456789]\d{9}$/.test(value);
+}
+function url(value) {
+  return /^((https|http|ftp|rtsp|mms):\/\/)(([0-9a-zA-Z_!~*'().&=+$%-]+: )?[0-9a-zA-Z_!~*'().&=+$%-]+@)?(([0-9]{1,3}.){3}[0-9]{1,3}|([0-9a-zA-Z_!~*'()-]+.)*([0-9a-zA-Z][0-9a-zA-Z-]{0,61})?[0-9a-zA-Z].[a-zA-Z]{2,6})(:[0-9]{1,4})?((\/?)|(\/[0-9a-zA-Z_!~*'().;?:@&=+$,%#-]+)+\/?)$/.test(value);
+}
+function date(value) {
+  if (!value)
+    return false;
+  if (typeof value === "number") {
+    if (value.toString().length !== 10 && value.toString().length !== 13) {
+      return false;
+    }
+    return !isNaN(new Date(value).getTime());
+  }
+  if (typeof value === "string") {
+    const numV = Number(value);
+    if (!isNaN(numV)) {
+      if (numV.toString().length === 10 || numV.toString().length === 13) {
+        return !isNaN(new Date(numV).getTime());
+      }
+    }
+    if (value.length < 10 || value.length > 19) {
+      return false;
+    }
+    const dateRegex = /^\d{4}[-\/]\d{2}[-\/]\d{2}( \d{1,2}:\d{2}(:\d{2})?)?$/;
+    if (!dateRegex.test(value)) {
+      return false;
+    }
+    const dateValue = new Date(value);
+    return !isNaN(dateValue.getTime());
+  }
+  return false;
+}
+function dateISO(value) {
+  return /^\d{4}[\/\-](0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])$/.test(value);
+}
+function number(value) {
+  return /^[\+-]?(\d+\.?\d*|\.\d+|\d\.\d+e\+\d+)$/.test(value);
+}
+function string(value) {
+  return typeof value === "string";
+}
+function digits(value) {
+  return /^\d+$/.test(value);
+}
+function idCard(value) {
+  return /^[1-9]\d{5}[1-9]\d{3}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])\d{3}([0-9]|X)$/.test(
+    value
+  );
+}
+function carNo(value) {
+  const xreg = /^[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领A-Z]{1}[A-Z]{1}(([0-9]{5}[DF]$)|([DF][A-HJ-NP-Z0-9][0-9]{4}$))/;
+  const creg = /^[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领A-Z]{1}[A-Z]{1}[A-HJ-NP-Z0-9]{4}[A-HJ-NP-Z0-9挂学警港澳]{1}$/;
+  if (value.length === 7) {
+    return creg.test(value);
+  }
+  if (value.length === 8) {
+    return xreg.test(value);
+  }
+  return false;
+}
+function amount(value) {
+  return /^[1-9]\d*(,\d{3})*(\.\d{1,2})?$|^0\.\d{1,2}$/.test(value);
+}
+function chinese(value) {
+  const reg = /^[\u4e00-\u9fa5]+$/gi;
+  return reg.test(value);
+}
+function letter(value) {
+  return /^[a-zA-Z]*$/.test(value);
+}
+function enOrNum(value) {
+  const reg = /^[0-9a-zA-Z]*$/g;
+  return reg.test(value);
+}
+function contains(value, param) {
+  return value.indexOf(param) >= 0;
+}
+function range$1(value, param) {
+  return value >= param[0] && value <= param[1];
+}
+function rangeLength(value, param) {
+  return value.length >= param[0] && value.length <= param[1];
+}
+function landline(value) {
+  const reg = /^\d{3,4}-\d{7,8}(-\d{3,4})?$/;
+  return reg.test(value);
+}
+function empty(value) {
+  switch (typeof value) {
+    case "undefined":
+      return true;
+    case "string":
+      if (value.replace(/(^[ \t\n\r]*)|([ \t\n\r]*$)/g, "").length == 0)
+        return true;
+      break;
+    case "boolean":
+      if (!value)
+        return true;
+      break;
+    case "number":
+      if (value === 0 || isNaN(value))
+        return true;
+      break;
+    case "object":
+      if (value === null || value.length === 0)
+        return true;
+      for (const i2 in value) {
+        return false;
+      }
+      return true;
+  }
+  return false;
+}
+function jsonString(value) {
+  if (typeof value === "string") {
+    try {
+      const obj = JSON.parse(value);
+      if (typeof obj === "object" && obj) {
+        return true;
+      }
+      return false;
+    } catch (e2) {
+      return false;
+    }
+  }
+  return false;
+}
+function array(value) {
+  if (typeof Array.isArray === "function") {
+    return Array.isArray(value);
+  }
+  return Object.prototype.toString.call(value) === "[object Array]";
+}
+function object(value) {
+  return Object.prototype.toString.call(value) === "[object Object]";
+}
+function objectPromise(value) {
+  return Object.prototype.toString.call(value) === "[object Promise]";
+}
+function code(value, len = 6) {
+  return new RegExp(`^\\d{${len}}$`).test(value);
+}
+function func(value) {
+  return typeof value === "function";
+}
+function promise(value) {
+  return objectPromise(value) && func(value.then) && func(value.catch);
+}
+function image(value) {
+  const newValue = value.split("?")[0];
+  const IMAGE_REGEXP = /\.(jpeg|jpg|gif|png|svg|webp|jfif|bmp|dpg)/i;
+  return IMAGE_REGEXP.test(newValue);
+}
+function video(value) {
+  const VIDEO_REGEXP = /\.(mp4|mpg|mpeg|dat|asf|avi|rm|rmvb|mov|wmv|flv|mkv|m3u8)/i;
+  return VIDEO_REGEXP.test(value);
+}
+function regExp(o2) {
+  return o2 && Object.prototype.toString.call(o2) === "[object RegExp]";
+}
+const test = {
+  email,
+  mobile,
+  url,
+  date,
+  dateISO,
+  number,
+  digits,
+  idCard,
+  carNo,
+  amount,
+  chinese,
+  letter,
+  enOrNum,
+  contains,
+  range: range$1,
+  rangeLength,
+  empty,
+  isEmpty: empty,
+  jsonString,
+  landline,
+  object,
+  array,
+  code,
+  func,
+  promise,
+  video,
+  image,
+  regExp,
+  string
+};
+function strip(num, precision = 15) {
+  return +parseFloat(Number(num).toPrecision(precision));
+}
+function digitLength(num) {
+  const eSplit = num.toString().split(/[eE]/);
+  const len = (eSplit[0].split(".")[1] || "").length - +(eSplit[1] || 0);
+  return len > 0 ? len : 0;
+}
+function float2Fixed(num) {
+  if (num.toString().indexOf("e") === -1) {
+    return Number(num.toString().replace(".", ""));
+  }
+  const dLen = digitLength(num);
+  return dLen > 0 ? strip(Number(num) * Math.pow(10, dLen)) : Number(num);
+}
+function checkBoundary(num) {
+  {
+    if (num > Number.MAX_SAFE_INTEGER || num < Number.MIN_SAFE_INTEGER) {
+      index$1.__f__("warn", "at node_modules/uview-plus/libs/function/digit.js:45", `${num} 超出了精度限制，结果可能不正确`);
+    }
+  }
+}
+function iteratorOperation(arr, operation) {
+  const [num1, num2, ...others] = arr;
+  let res = operation(num1, num2);
+  others.forEach((num) => {
+    res = operation(res, num);
+  });
+  return res;
+}
+function times(...nums) {
+  if (nums.length > 2) {
+    return iteratorOperation(nums, times);
+  }
+  const [num1, num2] = nums;
+  const num1Changed = float2Fixed(num1);
+  const num2Changed = float2Fixed(num2);
+  const baseNum = digitLength(num1) + digitLength(num2);
+  const leftValue = num1Changed * num2Changed;
+  checkBoundary(leftValue);
+  return leftValue / Math.pow(10, baseNum);
+}
+function divide(...nums) {
+  if (nums.length > 2) {
+    return iteratorOperation(nums, divide);
+  }
+  const [num1, num2] = nums;
+  const num1Changed = float2Fixed(num1);
+  const num2Changed = float2Fixed(num2);
+  checkBoundary(num1Changed);
+  checkBoundary(num2Changed);
+  return times(num1Changed / num2Changed, strip(Math.pow(10, digitLength(num2) - digitLength(num1))));
+}
+function round(num, ratio) {
+  const base = Math.pow(10, ratio);
+  let result = divide(Math.round(Math.abs(times(num, base))), base);
+  if (num < 0 && result !== 0) {
+    result = times(result, -1);
+  }
+  return result;
+}
+const version = "3";
+{
+  index$1.__f__("log", "at node_modules/uview-plus/libs/config/config.js:5", `
+ %c uview-plus V${version} %c https://ijry.github.io/uview-plus/ 
+
+`, "color: #ffffff; background: #3c9cff; padding:5px 0;", "color: #3c9cff;background: #ffffff; padding:5px 0;");
+}
+const config = {
+  v: version,
+  version,
+  // 主题名称
+  type: [
+    "primary",
+    "success",
+    "info",
+    "error",
+    "warning"
+  ],
+  // 颜色部分，本来可以通过scss的:export导出供js使用，但是奈何nvue不支持
+  color: {
+    "u-primary": "#2979ff",
+    "u-warning": "#ff9900",
+    "u-success": "#19be6b",
+    "u-error": "#fa3534",
+    "u-info": "#909399",
+    "u-main-color": "#303133",
+    "u-content-color": "#606266",
+    "u-tips-color": "#909399",
+    "u-light-color": "#c0c4cc",
+    "up-primary": "#2979ff",
+    "up-warning": "#ff9900",
+    "up-success": "#19be6b",
+    "up-error": "#fa3534",
+    "up-info": "#909399",
+    "up-main-color": "#303133",
+    "up-content-color": "#606266",
+    "up-tips-color": "#909399",
+    "up-light-color": "#c0c4cc"
+  },
+  // 字体图标地址
+  iconUrl: "https://at.alicdn.com/t/font_2225171_8kdcwk4po24.ttf",
+  // 自定义图标
+  customIcon: {
+    family: "",
+    url: ""
+  },
+  customIcons: {},
+  // 自定义图标与unicode对应关系
+  // 默认单位，可以通过配置为rpx，那么在用于传入组件大小参数为数值时，就默认为rpx
+  unit: "px",
+  // 拦截器
+  interceptor: {
+    navbarLeftClick: null
+  }
+};
+function range(min = 0, max = 0, value = 0) {
+  return Math.max(min, Math.min(max, Number(value)));
+}
+function getPx(value, unit = false) {
+  if (number(value)) {
+    return unit ? `${value}px` : Number(value);
+  }
+  if (/(rpx|upx)$/.test(value)) {
+    return unit ? `${index$1.upx2px(parseInt(value))}px` : Number(index$1.upx2px(parseInt(value)));
+  }
+  return unit ? `${parseInt(value)}px` : parseInt(value);
+}
+function sleep(value = 30) {
+  return new Promise((resolve2) => {
+    setTimeout(() => {
+      resolve2();
+    }, value);
+  });
+}
+function os$1() {
+  return index$1.getDeviceInfo().platform.toLowerCase();
+}
+function sys() {
+  return index$1.getSystemInfoSync();
+}
+function getWindowInfo() {
+  let ret = {};
+  ret = index$1.getWindowInfo();
+  return ret;
+}
+function random(min, max) {
+  if (min >= 0 && max > 0 && max >= min) {
+    const gab = max - min + 1;
+    return Math.floor(Math.random() * gab + min);
+  }
+  return 0;
+}
+function guid(len = 32, firstU = true, radix = null) {
+  const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".split("");
+  const uuid = [];
+  radix = radix || chars.length;
+  if (len) {
+    for (let i2 = 0; i2 < len; i2++)
+      uuid[i2] = chars[0 | Math.random() * radix];
+  } else {
+    let r2;
+    uuid[8] = uuid[13] = uuid[18] = uuid[23] = "-";
+    uuid[14] = "4";
+    for (let i2 = 0; i2 < 36; i2++) {
+      if (!uuid[i2]) {
+        r2 = 0 | Math.random() * 16;
+        uuid[i2] = chars[i2 == 19 ? r2 & 3 | 8 : r2];
+      }
+    }
+  }
+  if (firstU) {
+    uuid.shift();
+    return `u${uuid.join("")}`;
+  }
+  return uuid.join("");
+}
+function $parent(name = void 0) {
+  let parent = this.$parent;
+  while (parent) {
+    name = name.replace(/up-([a-zA-Z0-9-_]+)/g, "u-$1");
+    if (parent.$options && parent.$options.name !== name) {
+      parent = parent.$parent;
+    } else {
+      return parent;
+    }
+  }
+  return false;
+}
+function addStyle(customStyle, target = "object") {
+  if (empty(customStyle) || typeof customStyle === "object" && target === "object" || target === "string" && typeof customStyle === "string") {
+    return customStyle;
+  }
+  if (target === "object") {
+    customStyle = trim(customStyle);
+    const styleArray = customStyle.split(";");
+    const style = {};
+    for (let i2 = 0; i2 < styleArray.length; i2++) {
+      if (styleArray[i2]) {
+        const item = styleArray[i2].split(":");
+        style[trim(item[0])] = trim(item[1]);
+      }
+    }
+    return style;
+  }
+  let string2 = "";
+  if (typeof customStyle === "object") {
+    customStyle.forEach((val, i2) => {
+      const key = i2.replace(/([A-Z])/g, "-$1").toLowerCase();
+      string2 += `${key}:${val};`;
+    });
+  }
+  return trim(string2);
+}
+function addUnit(value = "auto", unit = "") {
+  if (!unit) {
+    unit = config.unit || "px";
+  }
+  if (unit == "rpx" && number(String(value))) {
+    value = value * 2;
+  }
+  value = String(value);
+  return number(value) ? `${value}${unit}` : value;
+}
+function deepClone(obj) {
+  if ([null, void 0, NaN, false].includes(obj))
+    return obj;
+  if (typeof obj !== "object" && typeof obj !== "function") {
+    return obj;
+  }
+  const o2 = array(obj) ? [] : {};
+  for (const i2 in obj) {
+    if (obj.hasOwnProperty(i2)) {
+      o2[i2] = typeof obj[i2] === "object" ? deepClone(obj[i2]) : obj[i2];
+    }
+  }
+  return o2;
+}
+function deepMerge$1(targetOrigin = {}, source = {}) {
+  let target = deepClone(targetOrigin);
+  if (typeof target !== "object" || typeof source !== "object")
+    return false;
+  for (const prop in source) {
+    if (!source.hasOwnProperty(prop))
+      continue;
+    if (prop in target) {
+      if (source[prop] == null) {
+        target[prop] = source[prop];
+      } else if (typeof target[prop] !== "object") {
+        target[prop] = source[prop];
+      } else if (typeof source[prop] !== "object") {
+        target[prop] = source[prop];
+      } else if (target[prop].concat && source[prop].concat) {
+        target[prop] = target[prop].concat(source[prop]);
+      } else {
+        target[prop] = deepMerge$1(target[prop], source[prop]);
+      }
+    } else {
+      target[prop] = source[prop];
+    }
+  }
+  return target;
+}
+function shallowMerge(target, source = {}) {
+  if (typeof target !== "object" || typeof source !== "object")
+    return false;
+  for (const prop in source) {
+    if (!source.hasOwnProperty(prop))
+      continue;
+    if (prop in target) {
+      if (source[prop] == null) {
+        target[prop] = source[prop];
+      } else if (typeof target[prop] !== "object") {
+        target[prop] = source[prop];
+      } else if (typeof source[prop] !== "object") {
+        target[prop] = source[prop];
+      } else if (target[prop].concat && source[prop].concat) {
+        target[prop] = target[prop].concat(source[prop]);
+      } else {
+        target[prop] = shallowMerge(target[prop], source[prop]);
+      }
+    } else {
+      target[prop] = source[prop];
+    }
+  }
+  return target;
+}
+function error(err) {
+  {
+    index$1.__f__("error", "at node_modules/uview-plus/libs/function/index.js:304", `uView提示：${err}`);
+  }
+}
+function randomArray(array2 = []) {
+  return array2.sort(() => Math.random() - 0.5);
+}
+if (!String.prototype.padStart) {
+  String.prototype.padStart = function(maxLength, fillString = " ") {
+    if (Object.prototype.toString.call(fillString) !== "[object String]") {
+      throw new TypeError(
+        "fillString must be String"
+      );
+    }
+    const str = this;
+    if (str.length >= maxLength)
+      return String(str);
+    const fillLength = maxLength - str.length;
+    let times2 = Math.ceil(fillLength / fillString.length);
+    while (times2 >>= 1) {
+      fillString += fillString;
+      if (times2 === 1) {
+        fillString += fillString;
+      }
+    }
+    return fillString.slice(0, fillLength) + str;
+  };
+}
+function timeFormat(dateTime = null, formatStr = "yyyy-mm-dd") {
+  let date2;
+  if (!dateTime) {
+    date2 = /* @__PURE__ */ new Date();
+  } else if (/^\d{10}$/.test(dateTime.toString().trim())) {
+    date2 = new Date(dateTime * 1e3);
+  } else if (typeof dateTime === "string" && /^\d+$/.test(dateTime.trim())) {
+    date2 = new Date(Number(dateTime));
+  } else {
+    date2 = new Date(
+      typeof dateTime === "string" ? dateTime.replace(/-/g, "/") : dateTime
+    );
+  }
+  const timeSource = {
+    "y": date2.getFullYear().toString(),
+    // 年
+    "m": (date2.getMonth() + 1).toString().padStart(2, "0"),
+    // 月
+    "d": date2.getDate().toString().padStart(2, "0"),
+    // 日
+    "h": date2.getHours().toString().padStart(2, "0"),
+    // 时
+    "M": date2.getMinutes().toString().padStart(2, "0"),
+    // 分
+    "s": date2.getSeconds().toString().padStart(2, "0")
+    // 秒
+    // 有其他格式化字符需求可以继续添加，必须转化成字符串
+  };
+  for (const key in timeSource) {
+    const [ret] = new RegExp(`${key}+`).exec(formatStr) || [];
+    if (ret) {
+      const beginIndex = key === "y" && ret.length === 2 ? 2 : 0;
+      formatStr = formatStr.replace(ret, timeSource[key].slice(beginIndex));
+    }
+  }
+  return formatStr;
+}
+function timeFrom(timestamp = null, format = "yyyy-mm-dd") {
+  if (timestamp == null)
+    timestamp = Number(/* @__PURE__ */ new Date());
+  timestamp = parseInt(timestamp);
+  if (timestamp.toString().length == 10)
+    timestamp *= 1e3;
+  let timer = (/* @__PURE__ */ new Date()).getTime() - timestamp;
+  timer = parseInt(timer / 1e3);
+  let tips = "";
+  switch (true) {
+    case timer < 300:
+      tips = "刚刚";
+      break;
+    case (timer >= 300 && timer < 3600):
+      tips = `${parseInt(timer / 60)}分钟前`;
+      break;
+    case (timer >= 3600 && timer < 86400):
+      tips = `${parseInt(timer / 3600)}小时前`;
+      break;
+    case (timer >= 86400 && timer < 2592e3):
+      tips = `${parseInt(timer / 86400)}天前`;
+      break;
+    default:
+      if (format === false) {
+        if (timer >= 2592e3 && timer < 365 * 86400) {
+          tips = `${parseInt(timer / (86400 * 30))}个月前`;
+        } else {
+          tips = `${parseInt(timer / (86400 * 365))}年前`;
+        }
+      } else {
+        tips = timeFormat(timestamp, format);
+      }
+  }
+  return tips;
+}
+function trim(str, pos = "both") {
+  str = String(str);
+  if (pos == "both") {
+    return str.replace(/^\s+|\s+$/g, "");
+  }
+  if (pos == "left") {
+    return str.replace(/^\s*/, "");
+  }
+  if (pos == "right") {
+    return str.replace(/(\s*$)/g, "");
+  }
+  if (pos == "all") {
+    return str.replace(/\s+/g, "");
+  }
+  return str;
+}
+function queryParams(data = {}, isPrefix = true, arrayFormat = "brackets") {
+  const prefix = isPrefix ? "?" : "";
+  const _result = [];
+  if (["indices", "brackets", "repeat", "comma"].indexOf(arrayFormat) == -1)
+    arrayFormat = "brackets";
+  for (const key in data) {
+    const value = data[key];
+    if (["", void 0, null].indexOf(value) >= 0) {
+      continue;
+    }
+    if (value.constructor === Array) {
+      switch (arrayFormat) {
+        case "indices":
+          for (let i2 = 0; i2 < value.length; i2++) {
+            _result.push(`${key}[${i2}]=${value[i2]}`);
+          }
+          break;
+        case "brackets":
+          value.forEach((_value) => {
+            _result.push(`${key}[]=${_value}`);
+          });
+          break;
+        case "repeat":
+          value.forEach((_value) => {
+            _result.push(`${key}=${_value}`);
+          });
+          break;
+        case "comma":
+          let commaStr = "";
+          value.forEach((_value) => {
+            commaStr += (commaStr ? "," : "") + _value;
+          });
+          _result.push(`${key}=${commaStr}`);
+          break;
+        default:
+          value.forEach((_value) => {
+            _result.push(`${key}[]=${_value}`);
+          });
+      }
+    } else {
+      _result.push(`${key}=${value}`);
+    }
+  }
+  return _result.length ? prefix + _result.join("&") : "";
+}
+function toast(title, duration = 2e3) {
+  index$1.showToast({
+    title: String(title),
+    icon: "none",
+    duration
+  });
+}
+function type2icon(type = "success", fill = false) {
+  if (["primary", "info", "error", "warning", "success"].indexOf(type) == -1)
+    type = "success";
+  let iconName = "";
+  switch (type) {
+    case "primary":
+      iconName = "info-circle";
+      break;
+    case "info":
+      iconName = "info-circle";
+      break;
+    case "error":
+      iconName = "close-circle";
+      break;
+    case "warning":
+      iconName = "error-circle";
+      break;
+    case "success":
+      iconName = "checkmark-circle";
+      break;
+    default:
+      iconName = "checkmark-circle";
+  }
+  if (fill)
+    iconName += "-fill";
+  return iconName;
+}
+function priceFormat(number2, decimals = 0, decimalPoint = ".", thousandsSeparator = ",") {
+  number2 = `${number2}`.replace(/[^0-9+-Ee.]/g, "");
+  const n2 = !isFinite(+number2) ? 0 : +number2;
+  const prec = !isFinite(+decimals) ? 0 : Math.abs(decimals);
+  const sep = typeof thousandsSeparator === "undefined" ? "," : thousandsSeparator;
+  const dec = typeof decimalPoint === "undefined" ? "." : decimalPoint;
+  let s2 = "";
+  s2 = (prec ? round(n2, prec) + "" : `${Math.round(n2)}`).split(".");
+  const re2 = /(-?\d+)(\d{3})/;
+  while (re2.test(s2[0])) {
+    s2[0] = s2[0].replace(re2, `$1${sep}$2`);
+  }
+  if ((s2[1] || "").length < prec) {
+    s2[1] = s2[1] || "";
+    s2[1] += new Array(prec - s2[1].length + 1).join("0");
+  }
+  return s2.join(dec);
+}
+function getDuration(value, unit = true) {
+  const valueNum = parseInt(value);
+  if (unit) {
+    if (/s$/.test(value))
+      return value;
+    return value > 30 ? `${value}ms` : `${value}s`;
+  }
+  if (/ms$/.test(value))
+    return valueNum;
+  if (/s$/.test(value))
+    return valueNum > 30 ? valueNum : valueNum * 1e3;
+  return valueNum;
+}
+function padZero(value) {
+  return `00${value}`.slice(-2);
+}
+function formValidate(instance, event) {
+  const formItem = $parent.call(instance, "u-form-item");
+  const form = $parent.call(instance, "u-form");
+  if (formItem && form) {
+    form.validateField(formItem.prop, () => {
+    }, event);
+  }
+}
+function getProperty(obj, key) {
+  if (typeof obj !== "object" || null == obj) {
+    return "";
+  }
+  if (typeof key !== "string" || key === "") {
+    return "";
+  }
+  if (key.indexOf(".") !== -1) {
+    const keys = key.split(".");
+    let firstObj = obj[keys[0]] || {};
+    for (let i2 = 1; i2 < keys.length; i2++) {
+      if (firstObj) {
+        firstObj = firstObj[keys[i2]];
+      }
+    }
+    return firstObj;
+  }
+  return obj[key];
+}
+function setProperty(obj, key, value) {
+  if (typeof obj !== "object" || null == obj) {
+    return;
+  }
+  const inFn = function(_obj, keys, v2) {
+    if (keys.length === 1) {
+      _obj[keys[0]] = v2;
+      return;
+    }
+    while (keys.length > 1) {
+      const k = keys[0];
+      if (!_obj[k] || typeof _obj[k] !== "object") {
+        _obj[k] = {};
+      }
+      keys.shift();
+      inFn(_obj[k], keys, v2);
+    }
+  };
+  if (typeof key !== "string" || key === "")
+    ;
+  else if (key.indexOf(".") !== -1) {
+    const keys = key.split(".");
+    inFn(obj, keys, value);
+  } else {
+    obj[key] = value;
+  }
+}
+function page() {
+  const pages2 = getCurrentPages();
+  return `/${pages2[pages2.length - 1].route || ""}`;
+}
+function pages$1() {
+  const pages2 = getCurrentPages();
+  return pages2;
+}
+function getValueByPath(obj, path) {
+  const pathArr = path.split(".");
+  return pathArr.reduce((acc, curr) => {
+    return acc && acc[curr] !== void 0 ? acc[curr] : void 0;
+  }, obj);
+}
+function genLightColor(textColor, lightness = 95) {
+  const rgb = parseColorWithoutDOM(textColor);
+  const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+  const bgHsl = {
+    h: hsl.h,
+    s: hsl.s,
+    l: Math.min(lightness, 95)
+  };
+  return hslToHex(bgHsl.h, bgHsl.s, bgHsl.l);
+}
+function parseColorWithoutDOM(colorStr) {
+  const str = colorStr.toLowerCase().trim();
+  if (str.startsWith("#")) {
+    const hex = str.replace("#", "");
+    const fullHex = hex.length === 3 ? hex.split("").map((c2) => c2 + c2).join("") : hex;
+    return {
+      r: parseInt(fullHex.substring(0, 2), 16),
+      g: parseInt(fullHex.substring(2, 4), 16),
+      b: parseInt(fullHex.substring(4, 6), 16)
+    };
+  }
+  const rgbMatch = str.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+  if (rgbMatch) {
+    return {
+      r: +rgbMatch[1],
+      g: +rgbMatch[2],
+      b: +rgbMatch[3]
+    };
+  }
+  throw new Error("Invalid color format");
+}
+function rgbToHsl(r2, g2, b2) {
+  r2 /= 255, g2 /= 255, b2 /= 255;
+  const max = Math.max(r2, g2, b2), min = Math.min(r2, g2, b2);
+  let h2, s2, l2 = (max + min) / 2;
+  if (max === min) {
+    h2 = s2 = 0;
+  } else {
+    const d2 = max - min;
+    s2 = l2 > 0.5 ? d2 / (2 - max - min) : d2 / (max + min);
+    switch (max) {
+      case r2:
+        h2 = (g2 - b2) / d2 + (g2 < b2 ? 6 : 0);
+        break;
+      case g2:
+        h2 = (b2 - r2) / d2 + 2;
+        break;
+      case b2:
+        h2 = (r2 - g2) / d2 + 4;
+        break;
+    }
+    h2 = (h2 * 60).toFixed(1);
+  }
+  return { h: +h2, s: +(s2 * 100).toFixed(1), l: +(l2 * 100).toFixed(1) };
+}
+function hslToHex(h2, s2, l2) {
+  l2 /= 100;
+  const a2 = s2 * Math.min(l2, 1 - l2) / 100;
+  const f2 = (n2) => {
+    const k = (n2 + h2 / 30) % 12;
+    const color2 = l2 - a2 * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+    return Math.round(255 * color2).toString(16).padStart(2, "0");
+  };
+  return `#${f2(0)}${f2(8)}${f2(4)}`;
+}
+const index = {
+  range,
+  getPx,
+  sleep,
+  os: os$1,
+  sys,
+  getWindowInfo,
+  random,
+  guid,
+  $parent,
+  addStyle,
+  addUnit,
+  deepClone,
+  deepMerge: deepMerge$1,
+  shallowMerge,
+  error,
+  randomArray,
+  timeFormat,
+  timeFrom,
+  trim,
+  queryParams,
+  toast,
+  type2icon,
+  priceFormat,
+  getDuration,
+  padZero,
+  formValidate,
+  getProperty,
+  setProperty,
+  page,
+  pages: pages$1,
+  getValueByPath,
+  genLightColor
+};
+class Router {
+  constructor() {
+    this.config = {
+      type: "navigateTo",
+      url: "",
+      delta: 1,
+      // navigateBack页面后退时,回退的层数
+      params: {},
+      // 传递的参数
+      animationType: "pop-in",
+      // 窗口动画,只在APP有效
+      animationDuration: 300,
+      // 窗口动画持续时间,单位毫秒,只在APP有效
+      intercept: false
+      // 是否需要拦截
+    };
+    this.route = this.route.bind(this);
+  }
+  // 判断url前面是否有"/"，如果没有则加上，否则无法跳转
+  addRootPath(url2) {
+    return url2[0] === "/" ? url2 : `/${url2}`;
+  }
+  // 整合路由参数
+  mixinParam(url2, params) {
+    url2 = url2 && this.addRootPath(url2);
+    let query = "";
+    if (/.*\/.*\?.*=.*/.test(url2)) {
+      query = queryParams(params, false);
+      return url2 += `&${query}`;
+    }
+    query = queryParams(params);
+    return url2 += query;
+  }
+  // 对外的方法名称
+  async route(options = {}, params = {}) {
+    let mergeConfig2 = {};
+    if (typeof options === "string") {
+      mergeConfig2.url = this.mixinParam(options, params);
+      mergeConfig2.type = "navigateTo";
+    } else {
+      mergeConfig2 = deepMerge$1(this.config, options);
+      mergeConfig2.url = this.mixinParam(options.url, options.params);
+    }
+    if (mergeConfig2.url === page())
+      return;
+    if (params.intercept) {
+      this.config.intercept = params.intercept;
+    }
+    mergeConfig2.params = params;
+    mergeConfig2 = deepMerge$1(this.config, mergeConfig2);
+    if (typeof index$1.$u.routeIntercept === "function") {
+      const isNext = await new Promise((resolve2, reject) => {
+        index$1.$u.routeIntercept(mergeConfig2, resolve2);
+      });
+      isNext && this.openPage(mergeConfig2);
+    } else {
+      this.openPage(mergeConfig2);
+    }
+  }
+  // 执行路由跳转
+  openPage(config2) {
+    const {
+      url: url2,
+      type,
+      delta,
+      animationType,
+      animationDuration
+    } = config2;
+    if (config2.type == "navigateTo" || config2.type == "to") {
+      index$1.navigateTo({
+        url: url2,
+        animationType,
+        animationDuration
+      });
+    }
+    if (config2.type == "redirectTo" || config2.type == "redirect") {
+      index$1.redirectTo({
+        url: url2
+      });
+    }
+    if (config2.type == "switchTab" || config2.type == "tab") {
+      index$1.switchTab({
+        url: url2
+      });
+    }
+    if (config2.type == "reLaunch" || config2.type == "launch") {
+      index$1.reLaunch({
+        url: url2
+      });
+    }
+    if (config2.type == "navigateBack" || config2.type == "back") {
+      index$1.navigateBack({
+        delta
+      });
+    }
+  }
+}
+const route = new Router().route;
+const mixin = defineMixin({
+  // 定义每个组件都可能需要用到的外部样式以及类名
+  props: {
+    // 每个组件都有的父组件传递的样式，可以为字符串或者对象形式
+    customStyle: {
+      type: [Object, String],
+      default: () => ({})
+    },
+    customClass: {
+      type: String,
+      default: ""
+    },
+    // 跳转的页面路径
+    url: {
+      type: String,
+      default: ""
+    },
+    // 页面跳转的类型
+    linkType: {
+      type: String,
+      default: "navigateTo"
+    }
+  },
+  data() {
+    return {};
+  },
+  onLoad() {
+    this.$u.getRect = this.$uGetRect;
+  },
+  created() {
+    this.$u.getRect = this.$uGetRect;
+  },
+  computed: {
+    // 在2.x版本中，将会把$u挂载到uni对象下，导致在模板中无法使用uni.$u.xxx形式
+    // 所以这里通过computed计算属性将其附加到this.$u上，就可以在模板或者js中使用uni.$u.xxx
+    // 只在nvue环境通过此方式引入完整的$u，其他平台会出现性能问题，非nvue则按需引入（主要原因是props过大）
+    $u() {
+      return deepMerge$1(index$1.$u, {
+        props: void 0,
+        http: void 0,
+        mixin: void 0
+      });
+    },
+    /**
+     * 生成bem规则类名
+     * 由于微信小程序，H5，nvue之间绑定class的差异，无法通过:class="[bem()]"的形式进行同用
+     * 故采用如下折中做法，最后返回的是数组（一般平台）或字符串（支付宝和字节跳动平台），类似['a', 'b', 'c']或'a b c'的形式
+     * @param {String} name 组件名称
+     * @param {Array} fixed 一直会存在的类名
+     * @param {Array} change 会根据变量值为true或者false而出现或者隐藏的类名
+     * @returns {Array|string}
+     */
+    bem() {
+      return function(name, fixed, change) {
+        const prefix = `u-${name}--`;
+        const classes = {};
+        if (fixed) {
+          fixed.map((item) => {
+            classes[prefix + this[item]] = true;
+          });
+        }
+        if (change) {
+          change.map((item) => {
+            this[item] ? classes[prefix + item] = this[item] : delete classes[prefix + item];
+          });
+        }
+        return Object.keys(classes);
+      };
+    }
+  },
+  methods: {
+    // 跳转某一个页面
+    openPage(urlKey = "url") {
+      const url2 = this[urlKey];
+      if (url2) {
+        route({ type: this.linkType, url: url2 });
+      }
+    },
+    navTo(url2 = "", linkType = "navigateTo") {
+      route({ type: this.linkType, url: url2 });
+    },
+    // 查询节点信息
+    // 目前此方法在支付宝小程序中无法获取组件跟接点的尺寸，为支付宝的bug(2020-07-21)
+    // 解决办法为在组件根部再套一个没有任何作用的view元素
+    $uGetRect(selector, all) {
+      return new Promise((resolve2) => {
+        index$1.createSelectorQuery().in(this)[all ? "selectAll" : "select"](selector).boundingClientRect((rect) => {
+          if (all && Array.isArray(rect) && rect.length) {
+            resolve2(rect);
+          }
+          if (!all && rect) {
+            resolve2(rect);
+          }
+        }).exec();
+      });
+    },
+    getParentData(parentName = "") {
+      if (!this.parent)
+        this.parent = {};
+      this.parent = $parent.call(this, parentName);
+      if (this.parent.children) {
+        this.parent.children.indexOf(this) === -1 && this.parent.children.push(this);
+      }
+      if (this.parent && this.parentData) {
+        Object.keys(this.parentData).map((key) => {
+          this.parentData[key] = this.parent[key];
+        });
+      }
+    },
+    // 阻止事件冒泡
+    preventEvent(e2) {
+      e2 && typeof e2.stopPropagation === "function" && e2.stopPropagation();
+    },
+    // 空操作
+    noop(e2) {
+      this.preventEvent(e2);
+    }
+  },
+  onReachBottom() {
+    index$1.$emit("uOnReachBottom");
+  },
+  beforeUnmount() {
+    if (this.parent && test.array(this.parent.children)) {
+      const childrenList = this.parent.children;
+      childrenList.map((child, index2) => {
+        if (child === this) {
+          childrenList.splice(index2, 1);
+        }
+      });
+    }
+  }
+});
+const mpMixin = defineMixin({
+  // 将自定义节点设置成虚拟的，更加接近Vue组件的表现，能更好的使用flex属性
+  options: {
+    virtualHost: true
+  }
+});
+function colorGradient(startColor = "rgb(0, 0, 0)", endColor = "rgb(255, 255, 255)", step = 10) {
+  const startRGB = hexToRgb(startColor, false);
+  const startR = startRGB[0];
+  const startG = startRGB[1];
+  const startB = startRGB[2];
+  const endRGB = hexToRgb(endColor, false);
+  const endR = endRGB[0];
+  const endG = endRGB[1];
+  const endB = endRGB[2];
+  const sR = (endR - startR) / step;
+  const sG = (endG - startG) / step;
+  const sB = (endB - startB) / step;
+  const colorArr = [];
+  for (let i2 = 0; i2 < step; i2++) {
+    let hex = rgbToHex(`rgb(${Math.round(sR * i2 + startR)},${Math.round(sG * i2 + startG)},${Math.round(sB * i2 + startB)})`);
+    if (i2 === 0)
+      hex = rgbToHex(startColor);
+    if (i2 === step - 1)
+      hex = rgbToHex(endColor);
+    colorArr.push(hex);
+  }
+  return colorArr;
+}
+function hexToRgb(sColor, str = true) {
+  const reg = /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/;
+  sColor = String(sColor).toLowerCase();
+  if (sColor && reg.test(sColor)) {
+    if (sColor.length === 4) {
+      let sColorNew = "#";
+      for (let i2 = 1; i2 < 4; i2 += 1) {
+        sColorNew += sColor.slice(i2, i2 + 1).concat(sColor.slice(i2, i2 + 1));
+      }
+      sColor = sColorNew;
+    }
+    const sColorChange = [];
+    for (let i2 = 1; i2 < 7; i2 += 2) {
+      sColorChange.push(parseInt(`0x${sColor.slice(i2, i2 + 2)}`));
+    }
+    if (!str) {
+      return sColorChange;
+    }
+    return `rgb(${sColorChange[0]},${sColorChange[1]},${sColorChange[2]})`;
+  }
+  if (/^(rgb|RGB)/.test(sColor)) {
+    const arr = sColor.replace(/(?:\(|\)|rgb|RGB)*/g, "").split(",");
+    return arr.map((val) => Number(val));
+  }
+  return sColor;
+}
+function rgbToHex(rgb) {
+  const _this = rgb;
+  const reg = /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/;
+  if (/^(rgb|RGB)/.test(_this)) {
+    const aColor = _this.replace(/(?:\(|\)|rgb|RGB)*/g, "").split(",");
+    let strHex = "#";
+    for (let i2 = 0; i2 < aColor.length; i2++) {
+      let hex = Number(aColor[i2]).toString(16);
+      hex = String(hex).length == 1 ? `${0}${hex}` : hex;
+      if (hex === "0") {
+        hex += hex;
+      }
+      strHex += hex;
+    }
+    if (strHex.length !== 7) {
+      strHex = _this;
+    }
+    return strHex;
+  }
+  if (reg.test(_this)) {
+    const aNum = _this.replace(/#/, "").split("");
+    if (aNum.length === 6) {
+      return _this;
+    }
+    if (aNum.length === 3) {
+      let numHex = "#";
+      for (let i2 = 0; i2 < aNum.length; i2 += 1) {
+        numHex += aNum[i2] + aNum[i2];
+      }
+      return numHex;
+    }
+  } else {
+    return _this;
+  }
+}
+function colorToRgba(color2, alpha) {
+  color2 = rgbToHex(color2);
+  const reg = /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/;
+  let sColor = String(color2).toLowerCase();
+  if (sColor && reg.test(sColor)) {
+    if (sColor.length === 4) {
+      let sColorNew = "#";
+      for (let i2 = 1; i2 < 4; i2 += 1) {
+        sColorNew += sColor.slice(i2, i2 + 1).concat(sColor.slice(i2, i2 + 1));
+      }
+      sColor = sColorNew;
+    }
+    const sColorChange = [];
+    for (let i2 = 1; i2 < 7; i2 += 2) {
+      sColorChange.push(parseInt(`0x${sColor.slice(i2, i2 + 2)}`));
+    }
+    return `rgba(${sColorChange.join(",")},${alpha})`;
+  }
+  return sColor;
+}
+const colorGradient$1 = {
+  colorGradient,
+  hexToRgb,
+  rgbToHex,
+  colorToRgba
+};
+let timeout = null;
+function debounce(func2, wait = 500, immediate = false) {
+  if (timeout !== null)
+    clearTimeout(timeout);
+  if (immediate) {
+    const callNow = !timeout;
+    timeout = setTimeout(() => {
+      timeout = null;
+    }, wait);
+    if (callNow)
+      typeof func2 === "function" && func2();
+  } else {
+    timeout = setTimeout(() => {
+      typeof func2 === "function" && func2();
+    }, wait);
+  }
+}
+let flag;
+function throttle(func2, wait = 500, immediate = true) {
+  if (immediate) {
+    if (!flag) {
+      flag = true;
+      typeof func2 === "function" && func2();
+      setTimeout(() => {
+        flag = false;
+      }, wait);
+    }
+  } else if (!flag) {
+    flag = true;
+    setTimeout(() => {
+      flag = false;
+      typeof func2 === "function" && func2();
+    }, wait);
+  }
+}
+function add(arg1, arg2) {
+  var r1, r2, m2;
+  try {
+    r1 = arg1.toString().split(".")[1].length;
+  } catch (e2) {
+    r1 = 0;
+  }
+  try {
+    r2 = arg2.toString().split(".")[1].length;
+  } catch (e2) {
+    r2 = 0;
+  }
+  m2 = Math.pow(10, Math.max(r1, r2));
+  return (arg1 * m2 + arg2 * m2) / m2;
+}
+function sub(arg1, arg2) {
+  var r1, r2, m2, n2;
+  try {
+    r1 = arg1.toString().split(".")[1].length;
+  } catch (e2) {
+    r1 = 0;
+  }
+  try {
+    r2 = arg2.toString().split(".")[1].length;
+  } catch (e2) {
+    r2 = 0;
+  }
+  m2 = Math.pow(10, Math.max(r1, r2));
+  n2 = r1 >= r2 ? r1 : r2;
+  return Math.abs(((arg1 * m2 - arg2 * m2) / m2).toFixed(n2));
+}
+function mul(a2, b2) {
+  var c2 = 0, d2 = a2.toString(), e2 = b2.toString();
+  try {
+    c2 += d2.split(".")[1].length;
+  } catch (f2) {
+  }
+  try {
+    c2 += e2.split(".")[1].length;
+  } catch (f2) {
+  }
+  return Number(d2.replace(".", "")) * Number(e2.replace(".", "")) / Math.pow(10, c2);
+}
+function div(a2, b2) {
+  var c2, d2, e2 = 0, f2 = 0;
+  try {
+    e2 = a2.toString().split(".")[1].length;
+  } catch (g2) {
+  }
+  try {
+    f2 = b2.toString().split(".")[1].length;
+  } catch (g2) {
+  }
+  return c2 = Number(a2.toString().replace(".", "")), d2 = Number(b2.toString().replace(".", "")), xyutil.mul(c2 / d2, Math.pow(10, f2 - e2));
+}
+const calc = {
+  add,
+  sub,
+  mul,
+  div
+};
+const zIndex = {
+  toast: 10090,
+  noNetwork: 10080,
+  // popup包含popup，actionsheet，keyboard，picker的值
+  popup: 10075,
+  mask: 10070,
+  navbar: 980,
+  topTips: 975,
+  sticky: 970,
+  indexListSticky: 965
+};
+const color$3 = {
+  primary: "#3c9cff",
+  info: "#909399",
+  default: "#909399",
+  warning: "#f9ae3d",
+  error: "#f56c6c",
+  success: "#5ac725",
+  mainColor: "#303133",
+  contentColor: "#606266",
+  tipsColor: "#909399",
+  lightColor: "#c0c4cc",
+  borderColor: "#e4e7ed"
+};
+const { toString } = Object.prototype;
+function isArray(val) {
+  return toString.call(val) === "[object Array]";
+}
+function isObject(val) {
+  return val !== null && typeof val === "object";
+}
+function isDate(val) {
+  return toString.call(val) === "[object Date]";
+}
+function isURLSearchParams(val) {
+  return typeof URLSearchParams !== "undefined" && val instanceof URLSearchParams;
+}
+function forEach(obj, fn) {
+  if (obj === null || typeof obj === "undefined") {
+    return;
+  }
+  if (typeof obj !== "object") {
+    obj = [obj];
+  }
+  if (isArray(obj)) {
+    for (let i2 = 0, l2 = obj.length; i2 < l2; i2++) {
+      fn.call(null, obj[i2], i2, obj);
+    }
+  } else {
+    for (const key in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        fn.call(null, obj[key], key, obj);
+      }
+    }
+  }
+}
+function isPlainObject(obj) {
+  return Object.prototype.toString.call(obj) === "[object Object]";
+}
+function deepMerge() {
+  const result = {};
+  function assignValue(val, key) {
+    if (typeof result[key] === "object" && typeof val === "object") {
+      result[key] = deepMerge(result[key], val);
+    } else if (typeof val === "object") {
+      result[key] = deepMerge({}, val);
+    } else {
+      result[key] = val;
+    }
+  }
+  for (let i2 = 0, l2 = arguments.length; i2 < l2; i2++) {
+    forEach(arguments[i2], assignValue);
+  }
+  return result;
+}
+function isUndefined(val) {
+  return typeof val === "undefined";
+}
+function encode(val) {
+  return encodeURIComponent(val).replace(/%40/gi, "@").replace(/%3A/gi, ":").replace(/%24/g, "$").replace(/%2C/gi, ",").replace(/%20/g, "+").replace(/%5B/gi, "[").replace(/%5D/gi, "]");
+}
+function buildURL(url2, params) {
+  if (!params) {
+    return url2;
+  }
+  let serializedParams;
+  if (isURLSearchParams(params)) {
+    serializedParams = params.toString();
+  } else {
+    const parts = [];
+    forEach(params, (val, key) => {
+      if (val === null || typeof val === "undefined") {
+        return;
+      }
+      if (isArray(val)) {
+        key = `${key}[]`;
+      } else {
+        val = [val];
+      }
+      forEach(val, (v2) => {
+        if (isDate(v2)) {
+          v2 = v2.toISOString();
+        } else if (isObject(v2)) {
+          v2 = JSON.stringify(v2);
+        }
+        parts.push(`${encode(key)}=${encode(v2)}`);
+      });
+    });
+    serializedParams = parts.join("&");
+  }
+  if (serializedParams) {
+    const hashmarkIndex = url2.indexOf("#");
+    if (hashmarkIndex !== -1) {
+      url2 = url2.slice(0, hashmarkIndex);
+    }
+    url2 += (url2.indexOf("?") === -1 ? "?" : "&") + serializedParams;
+  }
+  return url2;
+}
+function isAbsoluteURL(url2) {
+  return /^([a-z][a-z\d+\-.]*:)?\/\//i.test(url2);
+}
+function combineURLs(baseURL, relativeURL) {
+  return relativeURL ? `${baseURL.replace(/\/+$/, "")}/${relativeURL.replace(/^\/+/, "")}` : baseURL;
+}
+function buildFullPath(baseURL, requestedURL) {
+  if (baseURL && !isAbsoluteURL(requestedURL)) {
+    return combineURLs(baseURL, requestedURL);
+  }
+  return requestedURL;
+}
+function settle(resolve2, reject, response) {
+  const { validateStatus: validateStatus2 } = response.config;
+  const status = response.statusCode;
+  if (status && (!validateStatus2 || validateStatus2(status))) {
+    resolve2(response);
+  } else {
+    reject(response);
+  }
+}
+const mergeKeys$1 = (keys, config2) => {
+  const config3 = {};
+  keys.forEach((prop) => {
+    if (!isUndefined(config2[prop])) {
+      config3[prop] = config2[prop];
+    }
+  });
+  return config3;
+};
+const adapter = (config2) => new Promise((resolve2, reject) => {
+  const fullPath = buildURL(buildFullPath(config2.baseURL, config2.url), config2.params);
+  const _config = {
+    url: fullPath,
+    header: config2.header,
+    complete: (response) => {
+      config2.fullPath = fullPath;
+      response.config = config2;
+      try {
+        if (typeof response.data === "string") {
+          response.data = JSON.parse(response.data);
+        }
+      } catch (e2) {
+      }
+      settle(resolve2, reject, response);
+    }
+  };
+  let requestTask;
+  if (config2.method === "UPLOAD") {
+    delete _config.header["content-type"];
+    delete _config.header["Content-Type"];
+    const otherConfig = {
+      filePath: config2.filePath,
+      name: config2.name
+    };
+    const optionalKeys = [
+      "formData"
+    ];
+    requestTask = index$1.uploadFile({ ..._config, ...otherConfig, ...mergeKeys$1(optionalKeys, config2) });
+  } else if (config2.method === "DOWNLOAD") {
+    requestTask = index$1.downloadFile(_config);
+  } else {
+    const optionalKeys = [
+      "data",
+      "method",
+      "timeout",
+      "dataType",
+      "responseType"
+    ];
+    requestTask = index$1.request({ ..._config, ...mergeKeys$1(optionalKeys, config2) });
+  }
+  if (config2.getTask) {
+    config2.getTask(requestTask, config2);
+  }
+});
+const dispatchRequest = (config2) => adapter(config2);
+function InterceptorManager() {
+  this.handlers = [];
+}
+InterceptorManager.prototype.use = function use(fulfilled, rejected) {
+  this.handlers.push({
+    fulfilled,
+    rejected
+  });
+  return this.handlers.length - 1;
+};
+InterceptorManager.prototype.eject = function eject(id) {
+  if (this.handlers[id]) {
+    this.handlers[id] = null;
+  }
+};
+InterceptorManager.prototype.forEach = function forEach2(fn) {
+  this.handlers.forEach((h2) => {
+    if (h2 !== null) {
+      fn(h2);
+    }
+  });
+};
+const mergeKeys = (keys, globalsConfig, config2) => {
+  const config3 = {};
+  keys.forEach((prop) => {
+    if (!isUndefined(config2[prop])) {
+      config3[prop] = config2[prop];
+    } else if (!isUndefined(globalsConfig[prop])) {
+      config3[prop] = globalsConfig[prop];
+    }
+  });
+  return config3;
+};
+const mergeConfig = (globalsConfig, config2 = {}) => {
+  const method = config2.method || globalsConfig.method || "GET";
+  let config3 = {
+    baseURL: globalsConfig.baseURL || "",
+    method,
+    url: config2.url || "",
+    params: config2.params || {},
+    custom: { ...globalsConfig.custom || {}, ...config2.custom || {} },
+    header: deepMerge(globalsConfig.header || {}, config2.header || {})
+  };
+  const defaultToConfig2Keys = ["getTask", "validateStatus"];
+  config3 = { ...config3, ...mergeKeys(defaultToConfig2Keys, globalsConfig, config2) };
+  if (method === "DOWNLOAD")
+    ;
+  else if (method === "UPLOAD") {
+    delete config3.header["content-type"];
+    delete config3.header["Content-Type"];
+    const uploadKeys = [
+      "filePath",
+      "name",
+      "formData"
+    ];
+    uploadKeys.forEach((prop) => {
+      if (!isUndefined(config2[prop])) {
+        config3[prop] = config2[prop];
+      }
+    });
+  } else {
+    const defaultsKeys = [
+      "data",
+      "timeout",
+      "dataType",
+      "responseType"
+    ];
+    config3 = { ...config3, ...mergeKeys(defaultsKeys, globalsConfig, config2) };
+  }
+  return config3;
+};
+const defaults = {
+  baseURL: "",
+  header: {},
+  method: "GET",
+  dataType: "json",
+  responseType: "text",
+  custom: {},
+  timeout: 6e4,
+  validateStatus: function validateStatus(status) {
+    return status >= 200 && status < 300;
+  }
+};
+var clone = function() {
+  function _instanceof(obj, type) {
+    return type != null && obj instanceof type;
+  }
+  var nativeMap;
+  try {
+    nativeMap = Map;
+  } catch (_2) {
+    nativeMap = function() {
+    };
+  }
+  var nativeSet;
+  try {
+    nativeSet = Set;
+  } catch (_2) {
+    nativeSet = function() {
+    };
+  }
+  var nativePromise;
+  try {
+    nativePromise = Promise;
+  } catch (_2) {
+    nativePromise = function() {
+    };
+  }
+  function clone2(parent, circular, depth, prototype, includeNonEnumerable) {
+    if (typeof circular === "object") {
+      depth = circular.depth;
+      prototype = circular.prototype;
+      includeNonEnumerable = circular.includeNonEnumerable;
+      circular = circular.circular;
+    }
+    var allParents = [];
+    var allChildren = [];
+    var useBuffer = typeof Buffer != "undefined";
+    if (typeof circular == "undefined")
+      circular = true;
+    if (typeof depth == "undefined")
+      depth = Infinity;
+    function _clone(parent2, depth2) {
+      if (parent2 === null)
+        return null;
+      if (depth2 === 0)
+        return parent2;
+      var child;
+      var proto;
+      if (typeof parent2 != "object") {
+        return parent2;
+      }
+      if (_instanceof(parent2, nativeMap)) {
+        child = new nativeMap();
+      } else if (_instanceof(parent2, nativeSet)) {
+        child = new nativeSet();
+      } else if (_instanceof(parent2, nativePromise)) {
+        child = new nativePromise(function(resolve2, reject) {
+          parent2.then(function(value) {
+            resolve2(_clone(value, depth2 - 1));
+          }, function(err) {
+            reject(_clone(err, depth2 - 1));
+          });
+        });
+      } else if (clone2.__isArray(parent2)) {
+        child = [];
+      } else if (clone2.__isRegExp(parent2)) {
+        child = new RegExp(parent2.source, __getRegExpFlags(parent2));
+        if (parent2.lastIndex)
+          child.lastIndex = parent2.lastIndex;
+      } else if (clone2.__isDate(parent2)) {
+        child = new Date(parent2.getTime());
+      } else if (useBuffer && Buffer.isBuffer(parent2)) {
+        if (Buffer.from) {
+          child = Buffer.from(parent2);
+        } else {
+          child = new Buffer(parent2.length);
+          parent2.copy(child);
+        }
+        return child;
+      } else if (_instanceof(parent2, Error)) {
+        child = Object.create(parent2);
+      } else {
+        if (typeof prototype == "undefined") {
+          proto = Object.getPrototypeOf(parent2);
+          child = Object.create(proto);
+        } else {
+          child = Object.create(prototype);
+          proto = prototype;
+        }
+      }
+      if (circular) {
+        var index2 = allParents.indexOf(parent2);
+        if (index2 != -1) {
+          return allChildren[index2];
+        }
+        allParents.push(parent2);
+        allChildren.push(child);
+      }
+      if (_instanceof(parent2, nativeMap)) {
+        parent2.forEach(function(value, key) {
+          var keyChild = _clone(key, depth2 - 1);
+          var valueChild = _clone(value, depth2 - 1);
+          child.set(keyChild, valueChild);
+        });
+      }
+      if (_instanceof(parent2, nativeSet)) {
+        parent2.forEach(function(value) {
+          var entryChild = _clone(value, depth2 - 1);
+          child.add(entryChild);
+        });
+      }
+      for (var i2 in parent2) {
+        var attrs = Object.getOwnPropertyDescriptor(parent2, i2);
+        if (attrs) {
+          child[i2] = _clone(parent2[i2], depth2 - 1);
+        }
+        try {
+          var objProperty = Object.getOwnPropertyDescriptor(parent2, i2);
+          if (objProperty.set === "undefined") {
+            continue;
+          }
+          child[i2] = _clone(parent2[i2], depth2 - 1);
+        } catch (e2) {
+          if (e2 instanceof TypeError) {
+            continue;
+          } else if (e2 instanceof ReferenceError) {
+            continue;
+          }
+        }
+      }
+      if (Object.getOwnPropertySymbols) {
+        var symbols = Object.getOwnPropertySymbols(parent2);
+        for (var i2 = 0; i2 < symbols.length; i2++) {
+          var symbol = symbols[i2];
+          var descriptor = Object.getOwnPropertyDescriptor(parent2, symbol);
+          if (descriptor && !descriptor.enumerable && !includeNonEnumerable) {
+            continue;
+          }
+          child[symbol] = _clone(parent2[symbol], depth2 - 1);
+          Object.defineProperty(child, symbol, descriptor);
+        }
+      }
+      if (includeNonEnumerable) {
+        var allPropertyNames = Object.getOwnPropertyNames(parent2);
+        for (var i2 = 0; i2 < allPropertyNames.length; i2++) {
+          var propertyName = allPropertyNames[i2];
+          var descriptor = Object.getOwnPropertyDescriptor(parent2, propertyName);
+          if (descriptor && descriptor.enumerable) {
+            continue;
+          }
+          child[propertyName] = _clone(parent2[propertyName], depth2 - 1);
+          Object.defineProperty(child, propertyName, descriptor);
+        }
+      }
+      return child;
+    }
+    return _clone(parent, depth);
+  }
+  clone2.clonePrototype = function clonePrototype(parent) {
+    if (parent === null)
+      return null;
+    var c2 = function() {
+    };
+    c2.prototype = parent;
+    return new c2();
+  };
+  function __objToStr(o2) {
+    return Object.prototype.toString.call(o2);
+  }
+  clone2.__objToStr = __objToStr;
+  function __isDate(o2) {
+    return typeof o2 === "object" && __objToStr(o2) === "[object Date]";
+  }
+  clone2.__isDate = __isDate;
+  function __isArray(o2) {
+    return typeof o2 === "object" && __objToStr(o2) === "[object Array]";
+  }
+  clone2.__isArray = __isArray;
+  function __isRegExp(o2) {
+    return typeof o2 === "object" && __objToStr(o2) === "[object RegExp]";
+  }
+  clone2.__isRegExp = __isRegExp;
+  function __getRegExpFlags(re2) {
+    var flags = "";
+    if (re2.global)
+      flags += "g";
+    if (re2.ignoreCase)
+      flags += "i";
+    if (re2.multiline)
+      flags += "m";
+    return flags;
+  }
+  clone2.__getRegExpFlags = __getRegExpFlags;
+  return clone2;
+}();
+class Request {
+  /**
+  * @param {Object} arg - 全局配置
+  * @param {String} arg.baseURL - 全局根路径
+  * @param {Object} arg.header - 全局header
+  * @param {String} arg.method = [GET|POST|PUT|DELETE|CONNECT|HEAD|OPTIONS|TRACE] - 全局默认请求方式
+  * @param {String} arg.dataType = [json] - 全局默认的dataType
+  * @param {String} arg.responseType = [text|arraybuffer] - 全局默认的responseType。支付宝小程序不支持
+  * @param {Object} arg.custom - 全局默认的自定义参数
+  * @param {Number} arg.timeout - 全局默认的超时时间，单位 ms。默认60000。H5(HBuilderX 2.9.9+)、APP(HBuilderX 2.9.9+)、微信小程序（2.10.0）、支付宝小程序
+  * @param {Boolean} arg.sslVerify - 全局默认的是否验证 ssl 证书。默认true.仅App安卓端支持（HBuilderX 2.3.3+）
+  * @param {Boolean} arg.withCredentials - 全局默认的跨域请求时是否携带凭证（cookies）。默认false。仅H5支持（HBuilderX 2.6.15+）
+  * @param {Boolean} arg.firstIpv4 - 全DNS解析时优先使用ipv4。默认false。仅 App-Android 支持 (HBuilderX 2.8.0+)
+  * @param {Function(statusCode):Boolean} arg.validateStatus - 全局默认的自定义验证器。默认statusCode >= 200 && statusCode < 300
+  */
+  constructor(arg = {}) {
+    if (!isPlainObject(arg)) {
+      arg = {};
+      index$1.__f__("warn", "at node_modules/uview-plus/libs/luch-request/core/Request.js:40", "设置全局参数必须接收一个Object");
+    }
+    this.config = clone({ ...defaults, ...arg });
+    this.interceptors = {
+      request: new InterceptorManager(),
+      response: new InterceptorManager()
+    };
+  }
+  /**
+  * @Function
+  * @param {Request~setConfigCallback} f - 设置全局默认配置
+  */
+  setConfig(f2) {
+    this.config = f2(this.config);
+  }
+  middleware(config2) {
+    config2 = mergeConfig(this.config, config2);
+    const chain = [dispatchRequest, void 0];
+    let promise2 = Promise.resolve(config2);
+    this.interceptors.request.forEach((interceptor) => {
+      chain.unshift(interceptor.fulfilled, interceptor.rejected);
+    });
+    this.interceptors.response.forEach((interceptor) => {
+      chain.push(interceptor.fulfilled, interceptor.rejected);
+    });
+    while (chain.length) {
+      promise2 = promise2.then(chain.shift(), chain.shift());
+    }
+    return promise2;
+  }
+  /**
+  * @Function
+  * @param {Object} config - 请求配置项
+  * @prop {String} options.url - 请求路径
+  * @prop {Object} options.data - 请求参数
+  * @prop {Object} [options.responseType = config.responseType] [text|arraybuffer] - 响应的数据类型
+  * @prop {Object} [options.dataType = config.dataType] - 如果设为 json，会尝试对返回的数据做一次 JSON.parse
+  * @prop {Object} [options.header = config.header] - 请求header
+  * @prop {Object} [options.method = config.method] - 请求方法
+  * @returns {Promise<unknown>}
+  */
+  request(config2 = {}) {
+    return this.middleware(config2);
+  }
+  get(url2, options = {}) {
+    return this.middleware({
+      url: url2,
+      method: "GET",
+      ...options
+    });
+  }
+  post(url2, data, options = {}) {
+    return this.middleware({
+      url: url2,
+      data,
+      method: "POST",
+      ...options
+    });
+  }
+  put(url2, data, options = {}) {
+    return this.middleware({
+      url: url2,
+      data,
+      method: "PUT",
+      ...options
+    });
+  }
+  delete(url2, data, options = {}) {
+    return this.middleware({
+      url: url2,
+      data,
+      method: "DELETE",
+      ...options
+    });
+  }
+  connect(url2, data, options = {}) {
+    return this.middleware({
+      url: url2,
+      data,
+      method: "CONNECT",
+      ...options
+    });
+  }
+  head(url2, data, options = {}) {
+    return this.middleware({
+      url: url2,
+      data,
+      method: "HEAD",
+      ...options
+    });
+  }
+  options(url2, data, options = {}) {
+    return this.middleware({
+      url: url2,
+      data,
+      method: "OPTIONS",
+      ...options
+    });
+  }
+  trace(url2, data, options = {}) {
+    return this.middleware({
+      url: url2,
+      data,
+      method: "TRACE",
+      ...options
+    });
+  }
+  upload(url2, config2 = {}) {
+    config2.url = url2;
+    config2.method = "UPLOAD";
+    return this.middleware(config2);
+  }
+  download(url2, config2 = {}) {
+    config2.url = url2;
+    config2.method = "DOWNLOAD";
+    return this.middleware(config2);
+  }
+}
+const http = new Request();
+const ActionSheet = {
+  // action-sheet组件
+  actionSheet: {
+    show: false,
+    title: "",
+    description: "",
+    actions: [],
+    index: "",
+    cancelText: "",
+    closeOnClickAction: true,
+    safeAreaInsetBottom: true,
+    openType: "",
+    closeOnClickOverlay: true,
+    round: 0,
+    wrapMaxHeight: "600px"
+  }
+};
+const Album = {
+  // album 组件
+  album: {
+    urls: [],
+    keyName: "",
+    singleSize: 180,
+    multipleSize: 70,
+    space: 6,
+    singleMode: "scaleToFill",
+    multipleMode: "aspectFill",
+    maxCount: 9,
+    previewFullImage: true,
+    rowCount: 3,
+    showMore: true,
+    autoWrap: false,
+    unit: "px",
+    stop: true
+  }
+};
+const Alert = {
+  // alert警告组件
+  alert: {
+    title: "",
+    type: "warning",
+    description: "",
+    closable: false,
+    showIcon: false,
+    effect: "light",
+    center: false,
+    fontSize: 14
+  }
+};
+const Avatar = {
+  // avatar 组件
+  avatar: {
+    src: "",
+    shape: "circle",
+    size: 40,
+    mode: "scaleToFill",
+    text: "",
+    bgColor: "#c0c4cc",
+    color: "#ffffff",
+    fontSize: 18,
+    icon: "",
+    mpAvatar: false,
+    randomBgColor: false,
+    defaultUrl: "",
+    colorIndex: "",
+    name: ""
+  }
+};
+const AvatarGroup = {
+  // avatarGroup 组件
+  avatarGroup: {
+    urls: [],
+    maxCount: 5,
+    shape: "circle",
+    mode: "scaleToFill",
+    showMore: true,
+    size: 40,
+    keyName: "",
+    gap: 0.5,
+    extraValue: 0
+  }
+};
+const Backtop = {
+  // backtop组件
+  backtop: {
+    mode: "circle",
+    icon: "arrow-upward",
+    text: "",
+    duration: 100,
+    scrollTop: 0,
+    top: 400,
+    bottom: 100,
+    right: 20,
+    zIndex: 9,
+    iconStyle: {
+      color: "#909399",
+      fontSize: "19px"
+    }
+  }
+};
+const Badge = {
+  // 徽标数组件
+  badge: {
+    isDot: false,
+    value: "",
+    show: true,
+    max: 999,
+    type: "error",
+    showZero: false,
+    bgColor: null,
+    color: null,
+    shape: "circle",
+    numberType: "overflow",
+    offset: [],
+    inverted: false,
+    absolute: false
+  }
+};
+const Button = {
+  // button组件
+  button: {
+    hairline: false,
+    type: "info",
+    size: "normal",
+    shape: "square",
+    plain: false,
+    disabled: false,
+    loading: false,
+    loadingText: "",
+    loadingMode: "spinner",
+    loadingSize: 15,
+    openType: "",
+    formType: "",
+    appParameter: "",
+    hoverStopPropagation: true,
+    lang: "en",
+    sessionFrom: "",
+    sendMessageTitle: "",
+    sendMessagePath: "",
+    sendMessageImg: "",
+    showMessageCard: false,
+    dataName: "",
+    throttleTime: 0,
+    hoverStartTime: 0,
+    hoverStayTime: 200,
+    text: "",
+    icon: "",
+    iconColor: "",
+    color: "",
+    stop: true
+  }
+};
+const Calendar = {
+  // calendar 组件
+  calendar: {
+    title: "日期选择",
+    showTitle: true,
+    showSubtitle: true,
+    mode: "single",
+    startText: "开始",
+    endText: "结束",
+    customList: [],
+    color: "#3c9cff",
+    minDate: 0,
+    maxDate: 0,
+    defaultDate: null,
+    maxCount: Number.MAX_SAFE_INTEGER,
+    // Infinity
+    rowHeight: 56,
+    formatter: null,
+    showLunar: false,
+    showMark: true,
+    confirmText: "确定",
+    confirmDisabledText: "确定",
+    show: false,
+    closeOnClickOverlay: false,
+    readonly: false,
+    showConfirm: true,
+    maxRange: Number.MAX_SAFE_INTEGER,
+    // Infinity
+    rangePrompt: "",
+    showRangePrompt: true,
+    allowSameDay: false,
+    round: 0,
+    monthNum: 3,
+    weekText: ["一", "二", "三", "四", "五", "六", "日"],
+    forbidDays: [],
+    forbidDaysToast: "该日期已禁用"
+  }
+};
+const CarKeyboard = {
+  // 车牌号键盘
+  carKeyboard: {
+    random: false
+  }
+};
+const Card = {
+  // card组件的props
+  card: {
+    full: false,
+    title: "",
+    titleColor: "#303133",
+    titleSize: "15px",
+    subTitle: "",
+    subTitleColor: "#909399",
+    subTitleSize: "13px",
+    border: true,
+    index: "",
+    margin: "15px",
+    borderRadius: "8px",
+    headStyle: {},
+    bodyStyle: {},
+    footStyle: {},
+    headBorderBottom: true,
+    footBorderTop: true,
+    thumb: "",
+    thumbWidth: "30px",
+    thumbCircle: false,
+    padding: "15px",
+    paddingHead: "",
+    paddingBody: "",
+    paddingFoot: "",
+    showHead: true,
+    showFoot: true,
+    boxShadow: "none"
+  }
+};
+const Cell = {
+  // cell组件的props
+  cell: {
+    customClass: "",
+    title: "",
+    label: "",
+    value: "",
+    icon: "",
+    disabled: false,
+    border: true,
+    center: false,
+    url: "",
+    linkType: "navigateTo",
+    clickable: false,
+    isLink: false,
+    required: false,
+    arrowDirection: "",
+    iconStyle: {},
+    rightIconStyle: {},
+    rightIcon: "arrow-right",
+    titleStyle: {},
+    size: "",
+    stop: true,
+    name: ""
+  }
+};
+const CellGroup = {
+  // cell-group组件的props
+  cellGroup: {
+    title: "",
+    border: true,
+    customStyle: {}
+  }
+};
+const Checkbox = {
+  // checkbox组件
+  checkbox: {
+    name: "",
+    shape: "",
+    size: "",
+    checkbox: false,
+    disabled: "",
+    activeColor: "",
+    inactiveColor: "",
+    iconSize: "",
+    iconColor: "",
+    label: "",
+    labelSize: "",
+    labelColor: "",
+    labelDisabled: ""
+  }
+};
+const CheckboxGroup = {
+  // checkbox-group组件
+  checkboxGroup: {
+    name: "",
+    value: [],
+    shape: "square",
+    disabled: false,
+    activeColor: "#2979ff",
+    inactiveColor: "#c8c9cc",
+    size: 18,
+    placement: "row",
+    labelSize: 14,
+    labelColor: "#303133",
+    labelDisabled: false,
+    iconColor: "#ffffff",
+    iconSize: 12,
+    iconPlacement: "left",
+    borderBottom: false
+  }
+};
+const CircleProgress = {
+  // circleProgress 组件
+  circleProgress: {
+    percentage: 30
+  }
+};
+const Code = {
+  // code 组件
+  code: {
+    seconds: 60,
+    startText: "获取验证码",
+    changeText: "X秒重新获取",
+    endText: "重新获取",
+    keepRunning: false,
+    uniqueKey: ""
+  }
+};
+const CodeInput = {
+  // codeInput 组件
+  codeInput: {
+    adjustPosition: true,
+    maxlength: 6,
+    dot: false,
+    mode: "box",
+    hairline: false,
+    space: 10,
+    value: "",
+    focus: false,
+    bold: false,
+    color: "#606266",
+    fontSize: 18,
+    size: 35,
+    disabledKeyboard: false,
+    borderColor: "#c9cacc",
+    disabledDot: true
+  }
+};
+const Col = {
+  // col 组件
+  col: {
+    span: 12,
+    offset: 0,
+    justify: "start",
+    align: "stretch",
+    textAlign: "left"
+  }
+};
+const Collapse = {
+  // collapse 组件
+  collapse: {
+    value: null,
+    accordion: false,
+    border: true
+  }
+};
+const CollapseItem = {
+  // collapseItem 组件
+  collapseItem: {
+    title: "",
+    value: "",
+    label: "",
+    disabled: false,
+    isLink: true,
+    clickable: true,
+    border: true,
+    align: "left",
+    name: "",
+    icon: "",
+    duration: 300,
+    showRight: true,
+    titleStyle: {},
+    iconStyle: {},
+    rightIconStyle: {},
+    cellCustomStyle: {},
+    cellCustomClass: ""
+  }
+};
+const ColumnNotice = {
+  // columnNotice 组件
+  columnNotice: {
+    text: "",
+    icon: "volume",
+    mode: "",
+    color: "#f9ae3d",
+    bgColor: "#fdf6ec",
+    fontSize: 14,
+    speed: 80,
+    step: false,
+    duration: 1500,
+    disableTouch: true,
+    justifyContent: "flex-start"
+  }
+};
+const CountDown = {
+  // u-count-down 计时器组件
+  countDown: {
+    time: 0,
+    format: "HH:mm:ss",
+    autoStart: true,
+    millisecond: false
+  }
+};
+const CountTo = {
+  // countTo 组件
+  countTo: {
+    startVal: 0,
+    endVal: 0,
+    duration: 2e3,
+    autoplay: true,
+    decimals: 0,
+    useEasing: true,
+    decimal: ".",
+    color: "#606266",
+    fontSize: 22,
+    bold: false,
+    separator: ""
+  }
+};
+const DatetimePicker = {
+  // datetimePicker 组件
+  datetimePicker: {
+    show: false,
+    popupMode: "bottom",
+    showToolbar: true,
+    value: "",
+    title: "",
+    mode: "datetime",
+    maxDate: new Date((/* @__PURE__ */ new Date()).getFullYear() + 10, 0, 1).getTime(),
+    minDate: new Date((/* @__PURE__ */ new Date()).getFullYear() - 10, 0, 1).getTime(),
+    minHour: 0,
+    maxHour: 23,
+    minMinute: 0,
+    maxMinute: 59,
+    filter: null,
+    formatter: null,
+    loading: false,
+    itemHeight: 44,
+    cancelText: "取消",
+    confirmText: "确认",
+    cancelColor: "#909193",
+    confirmColor: "#3c9cff",
+    visibleItemCount: 5,
+    closeOnClickOverlay: false,
+    defaultIndex: [],
+    inputBorder: "surround",
+    disabled: false,
+    disabledColor: "",
+    placeholder: "请选择",
+    inputProps: {}
+  }
+};
+const Divider = {
+  // divider组件
+  divider: {
+    dashed: false,
+    hairline: true,
+    dot: false,
+    textPosition: "center",
+    text: "",
+    textSize: 14,
+    textColor: "#909399",
+    lineColor: "#dcdfe6"
+  }
+};
+const Empty = {
+  // empty组件
+  empty: {
+    icon: "",
+    text: "",
+    textColor: "#c0c4cc",
+    textSize: 14,
+    iconColor: "#c0c4cc",
+    iconSize: 90,
+    mode: "data",
+    width: 160,
+    height: 160,
+    show: true,
+    marginTop: 0
+  }
+};
+const Form = {
+  // form 组件
+  form: {
+    model: {},
+    rules: {},
+    errorType: "message",
+    borderBottom: true,
+    labelPosition: "left",
+    labelWidth: 45,
+    labelAlign: "left",
+    labelStyle: {}
+  }
+};
+const GormItem = {
+  // formItem 组件
+  formItem: {
+    label: "",
+    prop: "",
+    rules: [],
+    borderBottom: "",
+    labelPosition: "",
+    labelWidth: "",
+    rightIcon: "",
+    leftIcon: "",
+    required: false,
+    leftIconStyle: ""
+  }
+};
+const Gap = {
+  // gap组件
+  gap: {
+    bgColor: "transparent",
+    height: 20,
+    marginTop: 0,
+    marginBottom: 0,
+    customStyle: {}
+  }
+};
+const Grid = {
+  // grid组件
+  grid: {
+    col: 3,
+    border: false,
+    align: "left"
+  }
+};
+const GridItem = {
+  // grid-item组件
+  gridItem: {
+    name: null,
+    bgColor: "transparent"
+  }
+};
+const {
+  color: color$2
+} = config;
+const Icon = {
+  // icon组件
+  icon: {
+    name: "",
+    color: color$2["u-content-color"],
+    size: "16px",
+    bold: false,
+    index: "",
+    hoverClass: "",
+    customPrefix: "uicon",
+    label: "",
+    labelPos: "right",
+    labelSize: "15px",
+    labelColor: color$2["u-content-color"],
+    space: "3px",
+    imgMode: "",
+    width: "",
+    height: "",
+    top: 0,
+    stop: false
+  }
+};
+const Image = {
+  // image组件
+  image: {
+    src: "",
+    mode: "aspectFill",
+    width: "300",
+    height: "225",
+    shape: "square",
+    radius: 0,
+    lazyLoad: true,
+    showMenuByLongpress: true,
+    loadingIcon: "photo",
+    errorIcon: "error-circle",
+    showLoading: true,
+    showError: true,
+    fade: true,
+    webp: false,
+    duration: 500,
+    bgColor: "#f3f4f6"
+  }
+};
+const IndexAnchor = {
+  // indexAnchor 组件
+  indexAnchor: {
+    text: "",
+    color: "#606266",
+    size: 14,
+    bgColor: "#dedede",
+    height: 32
+  }
+};
+const IndexList = {
+  // indexList 组件
+  indexList: {
+    inactiveColor: "#606266",
+    activeColor: "#5677fc",
+    indexList: [],
+    sticky: true,
+    customNavHeight: 0,
+    safeBottomFix: false
+  }
+};
+const Input = {
+  // index 组件
+  input: {
+    value: "",
+    type: "text",
+    fixed: false,
+    disabled: false,
+    disabledColor: "#f5f7fa",
+    clearable: false,
+    password: false,
+    maxlength: 140,
+    placeholder: null,
+    placeholderClass: "input-placeholder",
+    placeholderStyle: "color: #c0c4cc",
+    showWordLimit: false,
+    confirmType: "done",
+    confirmHold: false,
+    holdKeyboard: false,
+    focus: false,
+    autoBlur: false,
+    disableDefaultPadding: false,
+    cursor: -1,
+    cursorSpacing: 30,
+    selectionStart: -1,
+    selectionEnd: -1,
+    adjustPosition: true,
+    inputAlign: "left",
+    fontSize: "15px",
+    color: "#303133",
+    prefixIcon: "",
+    prefixIconStyle: "",
+    suffixIcon: "",
+    suffixIconStyle: "",
+    border: "surround",
+    readonly: false,
+    shape: "square",
+    formatter: null
+  }
+};
+const Keyboard = {
+  // 键盘组件
+  keyboard: {
+    mode: "number",
+    dotDisabled: false,
+    tooltip: true,
+    showTips: true,
+    tips: "",
+    showCancel: true,
+    showConfirm: true,
+    random: false,
+    safeAreaInsetBottom: true,
+    closeOnClickOverlay: true,
+    show: false,
+    overlay: true,
+    zIndex: 10075,
+    cancelText: "取消",
+    confirmText: "确定",
+    autoChange: false
+  }
+};
+const Line = {
+  // line组件
+  line: {
+    color: "#d6d7d9",
+    length: "100%",
+    direction: "row",
+    hairline: true,
+    margin: 0,
+    dashed: false
+  }
+};
+const LineProgress = {
+  // lineProgress 组件
+  lineProgress: {
+    activeColor: "#19be6b",
+    inactiveColor: "#ececec",
+    percentage: 0,
+    showText: true,
+    height: 12,
+    fromRight: false
+  }
+};
+const {
+  color: color$1
+} = config;
+const Link = {
+  // link超链接组件props参数
+  link: {
+    color: color$1["u-primary"],
+    fontSize: 15,
+    underLine: false,
+    href: "",
+    mpTips: "链接已复制，请在浏览器打开",
+    lineColor: "",
+    text: ""
+  }
+};
+const List = {
+  // list 组件
+  list: {
+    showScrollbar: false,
+    lowerThreshold: 50,
+    upperThreshold: 0,
+    scrollTop: 0,
+    offsetAccuracy: 10,
+    enableFlex: false,
+    pagingEnabled: false,
+    scrollable: true,
+    scrollIntoView: "",
+    scrollWithAnimation: false,
+    enableBackToTop: false,
+    height: 0,
+    width: 0,
+    preLoadScreen: 1
+  }
+};
+const ListItem = {
+  // listItem 组件
+  listItem: {
+    anchor: ""
+  }
+};
+const {
+  color
+} = config;
+const LoadingIcon = {
+  // loading-icon加载中图标组件
+  loadingIcon: {
+    show: true,
+    color: color["u-tips-color"],
+    textColor: color["u-tips-color"],
+    vertical: false,
+    mode: "spinner",
+    size: 24,
+    textSize: 15,
+    text: "",
+    timingFunction: "ease-in-out",
+    duration: 1200,
+    inactiveColor: ""
+  }
+};
+const LoadingPage = {
+  // loading-page组件
+  loadingPage: {
+    loadingText: "正在加载",
+    image: "",
+    loadingMode: "circle",
+    loading: false,
+    bgColor: "#ffffff",
+    color: "#C8C8C8",
+    fontSize: 19,
+    iconSize: 28,
+    loadingColor: "#C8C8C8",
+    zIndex: 10
+  }
+};
+const Loadmore = {
+  // loadmore 组件
+  loadmore: {
+    status: "loadmore",
+    bgColor: "transparent",
+    icon: true,
+    fontSize: 14,
+    iconSize: 17,
+    color: "#606266",
+    loadingIcon: "spinner",
+    loadmoreText: "加载更多",
+    loadingText: "正在加载...",
+    nomoreText: "没有更多了",
+    isDot: false,
+    iconColor: "#b7b7b7",
+    marginTop: 10,
+    marginBottom: 10,
+    height: "auto",
+    line: false,
+    lineColor: "#E6E8EB",
+    dashed: false
+  }
+};
+const Modal = {
+  // modal 组件
+  modal: {
+    show: false,
+    title: "",
+    content: "",
+    confirmText: "确认",
+    cancelText: "取消",
+    showConfirmButton: true,
+    showCancelButton: false,
+    confirmColor: "#2979ff",
+    cancelColor: "#606266",
+    buttonReverse: false,
+    zoom: true,
+    asyncClose: false,
+    closeOnClickOverlay: false,
+    negativeTop: 0,
+    width: "650rpx",
+    confirmButtonShape: "",
+    duration: 400,
+    contentTextAlign: "left",
+    asyncCloseTip: "操作中...",
+    asyncCancelClose: false,
+    contentStyle: {}
+  }
+};
+const Navbar = {
+  // navbar 组件
+  navbar: {
+    safeAreaInsetTop: true,
+    placeholder: false,
+    fixed: true,
+    border: false,
+    leftIcon: "arrow-left",
+    leftText: "",
+    rightText: "",
+    rightIcon: "",
+    title: "",
+    titleColor: "",
+    bgColor: "#ffffff",
+    titleWidth: "400rpx",
+    height: "44px",
+    leftIconSize: 20,
+    leftIconColor: color$3.mainColor,
+    autoBack: false,
+    titleStyle: ""
+  }
+};
+const NoNetwork = {
+  // noNetwork
+  noNetwork: {
+    tips: "哎呀，网络信号丢失",
+    zIndex: "",
+    image: "data:image/png;base64,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"
+  }
+};
+const NoticeBar = {
+  // noticeBar
+  noticeBar: {
+    text: [],
+    direction: "row",
+    step: false,
+    icon: "volume",
+    mode: "",
+    color: "#f9ae3d",
+    bgColor: "#fdf6ec",
+    speed: 80,
+    fontSize: 14,
+    duration: 2e3,
+    disableTouch: true,
+    url: "",
+    linkType: "navigateTo",
+    justifyContent: "flex-start"
+  }
+};
+const Notify = {
+  // notify组件
+  notify: {
+    top: 0,
+    type: "primary",
+    color: "#ffffff",
+    bgColor: "",
+    message: "",
+    duration: 3e3,
+    fontSize: 15,
+    safeAreaInsetTop: false
+  }
+};
+const NumberBox = {
+  // 步进器组件
+  numberBox: {
+    name: "",
+    value: 0,
+    min: 1,
+    max: Number.MAX_SAFE_INTEGER,
+    step: 1,
+    integer: false,
+    disabled: false,
+    disabledInput: false,
+    asyncChange: false,
+    inputWidth: 35,
+    showMinus: true,
+    showPlus: true,
+    decimalLength: null,
+    longPress: true,
+    color: "#323233",
+    buttonWidth: 30,
+    buttonSize: 30,
+    buttonRadius: "0px",
+    bgColor: "#EBECEE",
+    inputBgColor: "#EBECEE",
+    cursorSpacing: 100,
+    disableMinus: false,
+    disablePlus: false,
+    iconStyle: "",
+    miniMode: false
+  }
+};
+const NumberKeyboard = {
+  // 数字键盘
+  numberKeyboard: {
+    mode: "number",
+    dotDisabled: false,
+    random: false
+  }
+};
+const Overlay = {
+  // overlay组件
+  overlay: {
+    show: false,
+    zIndex: 10070,
+    duration: 300,
+    opacity: 0.5
+  }
+};
+const Parse = {
+  // parse
+  parse: {
+    copyLink: true,
+    errorImg: "",
+    lazyLoad: false,
+    loadingImg: "",
+    pauseVideo: true,
+    previewImg: true,
+    setTitle: true,
+    showImgMenu: true
+  }
+};
+const Picker = {
+  // picker
+  picker: {
+    show: false,
+    popupMode: "bottom",
+    showToolbar: true,
+    title: "",
+    columns: [],
+    loading: false,
+    itemHeight: 44,
+    cancelText: "取消",
+    confirmText: "确定",
+    cancelColor: "#909193",
+    confirmColor: "",
+    visibleItemCount: 5,
+    keyName: "text",
+    valueName: "value",
+    closeOnClickOverlay: false,
+    defaultIndex: [],
+    immediateChange: true,
+    zIndex: 10076,
+    disabled: false,
+    disabledColor: "",
+    placeholder: "请选择",
+    inputProps: {}
+  }
+};
+const Popup = {
+  // popup组件
+  popup: {
+    show: false,
+    overlay: true,
+    mode: "bottom",
+    duration: 300,
+    closeable: false,
+    overlayStyle: {},
+    closeOnClickOverlay: true,
+    zIndex: 10075,
+    safeAreaInsetBottom: true,
+    safeAreaInsetTop: false,
+    closeIconPos: "top-right",
+    round: 0,
+    zoom: true,
+    bgColor: "",
+    overlayOpacity: 0.5
+  }
+};
+const Radio = {
+  // radio组件
+  radio: {
+    name: "",
+    shape: "",
+    disabled: "",
+    labelDisabled: "",
+    activeColor: "",
+    inactiveColor: "",
+    iconSize: "",
+    labelSize: "",
+    label: "",
+    labelColor: "",
+    size: "",
+    iconColor: "",
+    placement: ""
+  }
+};
+const RadioGroup = {
+  // radio-group组件
+  radioGroup: {
+    value: "",
+    disabled: false,
+    shape: "circle",
+    activeColor: "#2979ff",
+    inactiveColor: "#c8c9cc",
+    name: "",
+    size: 18,
+    placement: "row",
+    label: "",
+    labelColor: "#303133",
+    labelSize: 14,
+    labelDisabled: false,
+    iconColor: "#ffffff",
+    iconSize: 12,
+    borderBottom: false,
+    iconPlacement: "left",
+    gap: "10px"
+  }
+};
+const Rate = {
+  // rate组件
+  rate: {
+    value: 1,
+    count: 5,
+    disabled: false,
+    size: 18,
+    inactiveColor: "#b2b2b2",
+    activeColor: "#FA3534",
+    gutter: 4,
+    minCount: 1,
+    allowHalf: false,
+    activeIcon: "star-fill",
+    inactiveIcon: "star",
+    touchable: true
+  }
+};
+const ReadMore = {
+  // readMore
+  readMore: {
+    showHeight: 400,
+    toggle: false,
+    closeText: "展开阅读全文",
+    openText: "收起",
+    color: "#2979ff",
+    fontSize: 14,
+    textIndent: "2em",
+    name: ""
+  }
+};
+const Row = {
+  // row
+  row: {
+    gutter: 0,
+    justify: "start",
+    align: "center"
+  }
+};
+const RowNotice = {
+  // rowNotice
+  rowNotice: {
+    text: "",
+    icon: "volume",
+    mode: "",
+    color: "#f9ae3d",
+    bgColor: "#fdf6ec",
+    fontSize: 14,
+    speed: 80
+  }
+};
+const ScrollList = {
+  // scrollList
+  scrollList: {
+    indicatorWidth: 50,
+    indicatorBarWidth: 20,
+    indicator: true,
+    indicatorColor: "#f2f2f2",
+    indicatorActiveColor: "#3c9cff",
+    indicatorStyle: ""
+  }
+};
+const Search = {
+  // search
+  search: {
+    shape: "round",
+    bgColor: "#f2f2f2",
+    placeholder: "请输入关键字",
+    clearabled: true,
+    focus: false,
+    showAction: true,
+    actionStyle: {},
+    actionText: "搜索",
+    inputAlign: "left",
+    inputStyle: {},
+    disabled: false,
+    borderColor: "transparent",
+    searchIconColor: "#909399",
+    searchIconSize: 22,
+    color: "#606266",
+    placeholderColor: "#909399",
+    searchIcon: "search",
+    iconPosition: "left",
+    margin: "0",
+    animation: false,
+    value: "",
+    maxlength: "-1",
+    height: 32,
+    label: null
+  }
+};
+const Section = {
+  // u-section组件
+  section: {
+    title: "",
+    subTitle: "更多",
+    right: true,
+    fontSize: 15,
+    bold: true,
+    color: "#303133",
+    subColor: "#909399",
+    showLine: true,
+    lineColor: "",
+    arrow: true
+  }
+};
+const Skeleton = {
+  // skeleton
+  skeleton: {
+    loading: true,
+    animate: true,
+    rows: 0,
+    rowsWidth: "100%",
+    rowsHeight: 18,
+    title: true,
+    titleWidth: "50%",
+    titleHeight: 18,
+    avatar: false,
+    avatarSize: 32,
+    avatarShape: "circle"
+  }
+};
+const Slider = {
+  // slider组件
+  slider: {
+    value: 0,
+    blockSize: 18,
+    min: 0,
+    max: 100,
+    step: 1,
+    activeColor: "#2979ff",
+    inactiveColor: "#c0c4cc",
+    blockColor: "#ffffff",
+    showValue: false,
+    disabled: false,
+    blockStyle: {},
+    useNative: false,
+    height: "2px"
+  }
+};
+const StatusBar = {
+  // statusBar
+  statusBar: {
+    bgColor: "transparent",
+    height: 0
+  }
+};
+const Steps = {
+  // steps组件
+  steps: {
+    direction: "row",
+    current: 0,
+    activeColor: "#3c9cff",
+    inactiveColor: "#969799",
+    activeIcon: "",
+    inactiveIcon: "",
+    dot: false
+  }
+};
+const StepsItem = {
+  // steps-item组件
+  stepsItem: {
+    title: "",
+    desc: "",
+    iconSize: 17,
+    error: false
+  }
+};
+const Sticky = {
+  // sticky组件
+  sticky: {
+    offsetTop: 0,
+    customNavHeight: 0,
+    disabled: false,
+    bgColor: "transparent",
+    zIndex: "",
+    index: ""
+  }
+};
+const Subsection = {
+  // subsection组件
+  subsection: {
+    list: [],
+    current: 0,
+    activeColor: "#3c9cff",
+    inactiveColor: "#303133",
+    mode: "button",
+    fontSize: 12,
+    bold: true,
+    bgColor: "#eeeeef",
+    keyName: "name"
+  }
+};
+const SwipeAction = {
+  // swipe-action组件
+  swipeAction: {
+    autoClose: true
+  }
+};
+const SwipeActionItem = {
+  // swipeActionItem 组件
+  swipeActionItem: {
+    show: false,
+    closeOnClick: true,
+    name: "",
+    disabled: false,
+    threshold: 20,
+    autoClose: true,
+    options: [],
+    duration: 300
+  }
+};
+const Swiper = {
+  // swiper 组件
+  swiper: {
+    list: [],
+    indicator: false,
+    indicatorActiveColor: "#FFFFFF",
+    indicatorInactiveColor: "rgba(255, 255, 255, 0.35)",
+    indicatorStyle: "",
+    indicatorMode: "line",
+    autoplay: true,
+    current: 0,
+    currentItemId: "",
+    interval: 3e3,
+    duration: 300,
+    circular: false,
+    previousMargin: 0,
+    nextMargin: 0,
+    acceleration: false,
+    displayMultipleItems: 1,
+    easingFunction: "default",
+    keyName: "url",
+    imgMode: "aspectFill",
+    height: 130,
+    bgColor: "#f3f4f6",
+    radius: 4,
+    loading: false,
+    showTitle: false
+  }
+};
+const SwipterIndicator = {
+  // swiperIndicator 组件
+  swiperIndicator: {
+    length: 0,
+    current: 0,
+    indicatorActiveColor: "",
+    indicatorInactiveColor: "",
+    indicatorMode: "line"
+  }
+};
+const Switch = {
+  // switch
+  switch: {
+    loading: false,
+    disabled: false,
+    size: 25,
+    activeColor: "#2979ff",
+    inactiveColor: "#ffffff",
+    value: false,
+    activeValue: true,
+    inactiveValue: false,
+    asyncChange: false,
+    space: 0
+  }
+};
+const Tabbar = {
+  // tabbar
+  tabbar: {
+    value: null,
+    safeAreaInsetBottom: true,
+    border: true,
+    zIndex: 1,
+    activeColor: "#1989fa",
+    inactiveColor: "#7d7e80",
+    fixed: true,
+    placeholder: true
+  }
+};
+const TabbarItem = {
+  //
+  tabbarItem: {
+    name: null,
+    icon: "",
+    badge: null,
+    dot: false,
+    text: "",
+    badgeStyle: "top: 6px;right:2px;"
+  }
+};
+const Tabs = {
+  //
+  tabs: {
+    duration: 300,
+    list: [],
+    lineColor: "#3c9cff",
+    activeStyle: {
+      color: "#303133"
+    },
+    inactiveStyle: {
+      color: "#606266"
+    },
+    lineWidth: 20,
+    lineHeight: 3,
+    lineBgSize: "cover",
+    itemStyle: {
+      height: "44px"
+    },
+    scrollable: true,
+    current: 0,
+    keyName: "name",
+    iconStyle: {}
+  }
+};
+const Tag = {
+  // tag 组件
+  tag: {
+    type: "primary",
+    disabled: false,
+    size: "medium",
+    shape: "square",
+    text: "",
+    bgColor: "",
+    color: "",
+    borderColor: "",
+    closeColor: "#C6C7CB",
+    name: "",
+    plainFill: false,
+    plain: false,
+    closable: false,
+    show: true,
+    icon: "",
+    iconColor: "",
+    textSize: "",
+    height: "",
+    padding: "",
+    borderRadius: "",
+    autoBgColor: 0
+  }
+};
+const Text = {
+  // text 组件
+  text: {
+    type: "",
+    show: true,
+    text: "",
+    prefixIcon: "",
+    suffixIcon: "",
+    mode: "",
+    href: "",
+    format: "",
+    call: false,
+    openType: "",
+    bold: false,
+    block: false,
+    lines: "",
+    color: "#303133",
+    size: 15,
+    iconStyle: {
+      fontSize: "15px"
+    },
+    decoration: "none",
+    margin: 0,
+    lineHeight: "",
+    align: "left",
+    wordWrap: "normal",
+    flex1: true
+  }
+};
+const Textarea = {
+  // textarea 组件
+  textarea: {
+    value: "",
+    placeholder: "",
+    placeholderClass: "textarea-placeholder",
+    placeholderStyle: "color: #c0c4cc",
+    height: 70,
+    confirmType: "done",
+    disabled: false,
+    count: false,
+    focus: false,
+    autoHeight: false,
+    fixed: false,
+    cursorSpacing: 0,
+    cursor: "",
+    showConfirmBar: true,
+    selectionStart: -1,
+    selectionEnd: -1,
+    adjustPosition: true,
+    disableDefaultPadding: false,
+    holdKeyboard: false,
+    maxlength: 140,
+    border: "surround",
+    formatter: null
+  }
+};
+const Toast = {
+  // toast组件
+  toast: {
+    zIndex: 10090,
+    loading: false,
+    message: "",
+    icon: "",
+    type: "",
+    loadingMode: "",
+    show: "",
+    overlay: false,
+    position: "center",
+    params: {},
+    duration: 2e3,
+    isTab: false,
+    url: "",
+    callback: null,
+    back: false
+  }
+};
+const Toolbar = {
+  // toolbar 组件
+  toolbar: {
+    show: true,
+    cancelText: "取消",
+    confirmText: "确认",
+    cancelColor: "#909193",
+    confirmColor: "",
+    title: ""
+  }
+};
+const Tooltip = {
+  // tooltip 组件
+  tooltip: {
+    text: "",
+    copyText: "",
+    size: 14,
+    color: "#606266",
+    bgColor: "transparent",
+    direction: "top",
+    zIndex: 10071,
+    showCopy: true,
+    buttons: [],
+    overlay: true,
+    showToast: true
+  }
+};
+const Transition = {
+  // transition动画组件的props
+  transition: {
+    show: false,
+    mode: "fade",
+    duration: "300",
+    timingFunction: "ease-out"
+  }
+};
+const Upload = {
+  // upload组件
+  upload: {
+    accept: "image",
+    extension: [],
+    capture: ["album", "camera"],
+    compressed: true,
+    camera: "back",
+    maxDuration: 60,
+    uploadIcon: "camera-fill",
+    uploadIconColor: "#D3D4D6",
+    useBeforeRead: false,
+    previewFullImage: true,
+    maxCount: 52,
+    disabled: false,
+    imageMode: "aspectFill",
+    name: "",
+    sizeType: ["original", "compressed"],
+    multiple: false,
+    deletable: true,
+    maxSize: Number.MAX_VALUE,
+    fileList: [],
+    uploadText: "",
+    width: 80,
+    height: 80,
+    previewImage: true,
+    autoDelete: false,
+    autoUpload: false,
+    autoUploadApi: "",
+    autoUploadAuthUrl: "",
+    autoUploadDriver: "",
+    autoUploadHeader: {},
+    getVideoThumb: false,
+    customAfterAutoUpload: false
+  }
+};
+const props$h = {
+  ...ActionSheet,
+  ...Album,
+  ...Alert,
+  ...Avatar,
+  ...AvatarGroup,
+  ...Backtop,
+  ...Badge,
+  ...Button,
+  ...Calendar,
+  ...CarKeyboard,
+  ...Card,
+  ...Cell,
+  ...CellGroup,
+  ...Checkbox,
+  ...CheckboxGroup,
+  ...CircleProgress,
+  ...Code,
+  ...CodeInput,
+  ...Col,
+  ...Collapse,
+  ...CollapseItem,
+  ...ColumnNotice,
+  ...CountDown,
+  ...CountTo,
+  ...DatetimePicker,
+  ...Divider,
+  ...Empty,
+  ...Form,
+  ...GormItem,
+  ...Gap,
+  ...Grid,
+  ...GridItem,
+  ...Icon,
+  ...Image,
+  ...IndexAnchor,
+  ...IndexList,
+  ...Input,
+  ...Keyboard,
+  ...Line,
+  ...LineProgress,
+  ...Link,
+  ...List,
+  ...ListItem,
+  ...LoadingIcon,
+  ...LoadingPage,
+  ...Loadmore,
+  ...Modal,
+  ...Navbar,
+  ...NoNetwork,
+  ...NoticeBar,
+  ...Notify,
+  ...NumberBox,
+  ...NumberKeyboard,
+  ...Overlay,
+  ...Parse,
+  ...Picker,
+  ...Popup,
+  ...Radio,
+  ...RadioGroup,
+  ...Rate,
+  ...ReadMore,
+  ...Row,
+  ...RowNotice,
+  ...ScrollList,
+  ...Search,
+  ...Section,
+  ...Skeleton,
+  ...Slider,
+  ...StatusBar,
+  ...Steps,
+  ...StepsItem,
+  ...Sticky,
+  ...Subsection,
+  ...SwipeAction,
+  ...SwipeActionItem,
+  ...Swiper,
+  ...SwipterIndicator,
+  ...Switch,
+  ...Tabbar,
+  ...TabbarItem,
+  ...Tabs,
+  ...Tag,
+  ...Text,
+  ...Textarea,
+  ...Toast,
+  ...Toolbar,
+  ...Tooltip,
+  ...Transition,
+  ...Upload
+};
+function setConfig$1(configs) {
+  shallowMerge(config, configs.config || {});
+  shallowMerge(props$h, configs.props || {});
+  shallowMerge(color$3, configs.color || {});
+  shallowMerge(zIndex, configs.zIndex || {});
+}
+if (index$1 && index$1.upuiParams) {
+  index$1.__f__("log", "at node_modules/uview-plus/libs/config/props.js:206", "setting uview-plus");
+  let temp = index$1.upuiParams();
+  if (temp.httpIns) {
+    temp.httpIns(http);
+  }
+  if (temp.options) {
+    setConfig$1(temp.options);
+  }
+}
+let platform = "none";
+platform = "vue3";
+platform = "mp";
+platform = "weixin";
+const platform$1 = platform;
+let themeType = ["primary", "success", "error", "warning", "info"];
+function setConfig(configs) {
+  index.shallowMerge(config, configs.config || {});
+  index.shallowMerge(props$h, configs.props || {});
+  index.shallowMerge(color$3, configs.color || {});
+  index.shallowMerge(zIndex, configs.zIndex || {});
+}
+index.setConfig = setConfig;
+const $u = {
+  route,
+  date: index.timeFormat,
+  // 另名date
+  colorGradient: colorGradient$1.colorGradient,
+  hexToRgb: colorGradient$1.hexToRgb,
+  rgbToHex: colorGradient$1.rgbToHex,
+  colorToRgba: colorGradient$1.colorToRgba,
+  test,
+  type: themeType,
+  http,
+  config,
+  // uview-plus配置信息相关，比如版本号
+  zIndex,
+  debounce,
+  throttle,
+  calc,
+  mixin,
+  mpMixin,
+  props: props$h,
+  ...index,
+  color: color$3,
+  platform: platform$1
+};
+const install = (Vue, upuiParams = "") => {
+  if (upuiParams) {
+    index$1.upuiParams = upuiParams;
+    let temp = upuiParams();
+    if (temp.httpIns) {
+      temp.httpIns(http);
+    }
+    if (temp.options) {
+      setConfig(temp.options);
+    }
+  }
+  index$1.$u = $u;
+  Vue.config.globalProperties.$u = $u;
+  Vue.mixin(mixin);
+};
+const uviewPlus = {
+  install
+};
+const pages = [
+  {
+    path: "pages/Index/Index",
+    style: {
+      navigationBarTitleText: "首页"
+    }
+  },
+  {
+    path: "pages/Shops/Shops",
+    style: {
+      navigationBarTitleText: "商城"
+    }
+  },
+  {
+    path: "pages/Evaluate/Evaluate",
+    style: {
+      navigationBarTitleText: "科学评价"
+    }
+  },
+  {
+    path: "pages/Forum/Forum",
+    style: {
+      navigationBarTitleText: "宠物论坛",
+      enablePullDownRefresh: true,
+      backgroundColor: "#f5f5f5"
+    }
+  },
+  {
+    path: "pages/Forum/Detail",
+    style: {
+      navigationBarTitleText: "帖子详情",
+      backgroundColor: "#f5f5f5"
+    }
+  },
+  {
+    path: "pages/Forum/Post",
+    style: {
+      navigationBarTitleText: "发布帖子",
+      navigationBarBackgroundColor: "#ffffff",
+      navigationBarTextStyle: "black"
+    }
+  },
+  {
+    path: "pages/Forum/SearchResult",
+    style: {
+      navigationBarTitleText: "搜索结果",
+      navigationBarBackgroundColor: "#ffffff",
+      navigationBarTextStyle: "black"
+    }
+  },
+  {
+    path: "pages/My/My",
+    style: {
+      navigationStyle: "custom",
+      navigationBarTitleText: "我的"
+    }
+  },
+  {
+    path: "pages/My/profile/index",
+    style: {
+      navigationBarTitleText: "个人资料",
+      navigationStyle: "custom"
+    }
+  },
+  {
+    path: "pages/My/address/index",
+    style: {
+      navigationBarTitleText: "地址管理"
+    }
+  },
+  {
+    path: "pages/My/address/edit",
+    style: {
+      navigationBarTitleText: "地址编辑"
+    }
+  },
+  {
+    path: "pages/My/posts/index",
+    style: {
+      navigationBarTitleText: "我的贴子"
+    }
+  },
+  {
+    path: "pages/My/favorites/index",
+    style: {
+      navigationBarTitleText: "我的收藏"
+    }
+  },
+  {
+    path: "pages/My/promotion/index",
+    style: {
+      navigationBarTitleText: "成为推广商"
+    }
+  },
+  {
+    path: "pages/My/exchange/index",
+    style: {
+      navigationBarTitleText: "兑换中心"
+    }
+  },
+  {
+    path: "pages/My/feedback/index",
+    style: {
+      navigationBarTitleText: "问题反馈"
+    }
+  },
+  {
+    path: "pages/My/join/index",
+    style: {
+      navigationBarTitleText: "加盟咨询"
+    }
+  },
+  {
+    path: "pages/My/about/index",
+    style: {
+      navigationBarTitleText: "关于我们"
+    }
+  },
+  {
+    path: "pages/Shops/Search",
+    style: {
+      navigationBarTitleText: "搜索",
+      navigationBarBackgroundColor: "#ffffff",
+      navigationBarTextStyle: "black"
+    }
+  },
+  {
+    path: "pages/Shops/SearchResult",
+    style: {
+      navigationBarTitleText: "搜索结果",
+      navigationBarBackgroundColor: "#ffffff",
+      navigationBarTextStyle: "black"
+    }
+  },
+  {
+    path: "pages/Shops/Order/Order",
+    style: {
+      navigationBarTitleText: "订单确认"
+    }
+  }
+];
+const globalStyle = {
+  navigationBarTextStyle: "black",
+  navigationBarTitleText: "uni-app",
+  navigationBarBackgroundColor: "#F8F8F8",
+  backgroundColor: "#F8F8F8"
+};
+const tabBar = {
+  color: "#999999",
+  selectedColor: "#007AFF",
+  backgroundColor: "#FFFFFF",
+  borderStyle: "black",
+  list: [
+    {
+      pagePath: "pages/Index/Index",
+      text: "首页",
+      iconPath: "/static/tabbar/Index.png",
+      selectedIconPath: "/static/tabbar/Index-active.png"
+    },
+    {
+      pagePath: "pages/Shops/Shops",
+      text: "点单",
+      iconPath: "/static/tabbar/Shops.png",
+      selectedIconPath: "/static/tabbar/Shops-active.png"
+    },
+    {
+      pagePath: "pages/Evaluate/Evaluate",
+      text: "科学评价",
+      iconPath: "/static/tabbar/Evaluate.png",
+      selectedIconPath: "/static/tabbar/Evaluate-active.png"
+    },
+    {
+      pagePath: "pages/Forum/Forum",
+      text: "论坛",
+      iconPath: "/static/tabbar/Forum.png",
+      selectedIconPath: "/static/tabbar/Forum-active.png"
+    },
+    {
+      pagePath: "pages/My/My",
+      text: "我的",
+      iconPath: "/static/tabbar/My.png",
+      selectedIconPath: "/static/tabbar/My-active.png"
+    }
+  ]
+};
+const uniIdRouter = {};
+const easycom = {
+  autoscan: true,
+  custom: {
+    "^u--(.*)": "uview-plus/components/u-$1/u-$1.vue",
+    "^up-(.*)": "uview-plus/components/u-$1/u-$1.vue",
+    "^u-([^-].*)": "uview-plus/components/u-$1/u-$1.vue",
+    "^Pagination$": "components/common/Pagination/index.vue"
+  }
+};
+const e = {
+  pages,
+  globalStyle,
+  tabBar,
+  uniIdRouter,
+  easycom
+};
+var define_process_env_UNI_SECURE_NETWORK_CONFIG_default = [];
+function t(e2) {
+  return e2 && e2.__esModule && Object.prototype.hasOwnProperty.call(e2, "default") ? e2.default : e2;
+}
+function n(e2, t2, n2) {
+  return e2(n2 = { path: t2, exports: {}, require: function(e3, t3) {
+    return function() {
+      throw new Error("Dynamic requires are not currently supported by @rollup/plugin-commonjs");
+    }(null == t3 && n2.path);
+  } }, n2.exports), n2.exports;
+}
+var s = n(function(e2, t2) {
+  var n2;
+  e2.exports = (n2 = n2 || function(e3, t3) {
+    var n3 = Object.create || /* @__PURE__ */ function() {
+      function e4() {
+      }
+      return function(t4) {
+        var n4;
+        return e4.prototype = t4, n4 = new e4(), e4.prototype = null, n4;
+      };
+    }(), s2 = {}, r2 = s2.lib = {}, i2 = r2.Base = { extend: function(e4) {
+      var t4 = n3(this);
+      return e4 && t4.mixIn(e4), t4.hasOwnProperty("init") && this.init !== t4.init || (t4.init = function() {
+        t4.$super.init.apply(this, arguments);
+      }), t4.init.prototype = t4, t4.$super = this, t4;
+    }, create: function() {
+      var e4 = this.extend();
+      return e4.init.apply(e4, arguments), e4;
+    }, init: function() {
+    }, mixIn: function(e4) {
+      for (var t4 in e4)
+        e4.hasOwnProperty(t4) && (this[t4] = e4[t4]);
+      e4.hasOwnProperty("toString") && (this.toString = e4.toString);
+    }, clone: function() {
+      return this.init.prototype.extend(this);
+    } }, o2 = r2.WordArray = i2.extend({ init: function(e4, n4) {
+      e4 = this.words = e4 || [], this.sigBytes = n4 != t3 ? n4 : 4 * e4.length;
+    }, toString: function(e4) {
+      return (e4 || c2).stringify(this);
+    }, concat: function(e4) {
+      var t4 = this.words, n4 = e4.words, s3 = this.sigBytes, r3 = e4.sigBytes;
+      if (this.clamp(), s3 % 4)
+        for (var i3 = 0; i3 < r3; i3++) {
+          var o3 = n4[i3 >>> 2] >>> 24 - i3 % 4 * 8 & 255;
+          t4[s3 + i3 >>> 2] |= o3 << 24 - (s3 + i3) % 4 * 8;
+        }
+      else
+        for (i3 = 0; i3 < r3; i3 += 4)
+          t4[s3 + i3 >>> 2] = n4[i3 >>> 2];
+      return this.sigBytes += r3, this;
+    }, clamp: function() {
+      var t4 = this.words, n4 = this.sigBytes;
+      t4[n4 >>> 2] &= 4294967295 << 32 - n4 % 4 * 8, t4.length = e3.ceil(n4 / 4);
+    }, clone: function() {
+      var e4 = i2.clone.call(this);
+      return e4.words = this.words.slice(0), e4;
+    }, random: function(t4) {
+      for (var n4, s3 = [], r3 = function(t5) {
+        t5 = t5;
+        var n5 = 987654321, s4 = 4294967295;
+        return function() {
+          var r4 = ((n5 = 36969 * (65535 & n5) + (n5 >> 16) & s4) << 16) + (t5 = 18e3 * (65535 & t5) + (t5 >> 16) & s4) & s4;
+          return r4 /= 4294967296, (r4 += 0.5) * (e3.random() > 0.5 ? 1 : -1);
+        };
+      }, i3 = 0; i3 < t4; i3 += 4) {
+        var a3 = r3(4294967296 * (n4 || e3.random()));
+        n4 = 987654071 * a3(), s3.push(4294967296 * a3() | 0);
+      }
+      return new o2.init(s3, t4);
+    } }), a2 = s2.enc = {}, c2 = a2.Hex = { stringify: function(e4) {
+      for (var t4 = e4.words, n4 = e4.sigBytes, s3 = [], r3 = 0; r3 < n4; r3++) {
+        var i3 = t4[r3 >>> 2] >>> 24 - r3 % 4 * 8 & 255;
+        s3.push((i3 >>> 4).toString(16)), s3.push((15 & i3).toString(16));
+      }
+      return s3.join("");
+    }, parse: function(e4) {
+      for (var t4 = e4.length, n4 = [], s3 = 0; s3 < t4; s3 += 2)
+        n4[s3 >>> 3] |= parseInt(e4.substr(s3, 2), 16) << 24 - s3 % 8 * 4;
+      return new o2.init(n4, t4 / 2);
+    } }, u2 = a2.Latin1 = { stringify: function(e4) {
+      for (var t4 = e4.words, n4 = e4.sigBytes, s3 = [], r3 = 0; r3 < n4; r3++) {
+        var i3 = t4[r3 >>> 2] >>> 24 - r3 % 4 * 8 & 255;
+        s3.push(String.fromCharCode(i3));
+      }
+      return s3.join("");
+    }, parse: function(e4) {
+      for (var t4 = e4.length, n4 = [], s3 = 0; s3 < t4; s3++)
+        n4[s3 >>> 2] |= (255 & e4.charCodeAt(s3)) << 24 - s3 % 4 * 8;
+      return new o2.init(n4, t4);
+    } }, h2 = a2.Utf8 = { stringify: function(e4) {
+      try {
+        return decodeURIComponent(escape(u2.stringify(e4)));
+      } catch (e5) {
+        throw new Error("Malformed UTF-8 data");
+      }
+    }, parse: function(e4) {
+      return u2.parse(unescape(encodeURIComponent(e4)));
+    } }, l2 = r2.BufferedBlockAlgorithm = i2.extend({ reset: function() {
+      this._data = new o2.init(), this._nDataBytes = 0;
+    }, _append: function(e4) {
+      "string" == typeof e4 && (e4 = h2.parse(e4)), this._data.concat(e4), this._nDataBytes += e4.sigBytes;
+    }, _process: function(t4) {
+      var n4 = this._data, s3 = n4.words, r3 = n4.sigBytes, i3 = this.blockSize, a3 = r3 / (4 * i3), c3 = (a3 = t4 ? e3.ceil(a3) : e3.max((0 | a3) - this._minBufferSize, 0)) * i3, u3 = e3.min(4 * c3, r3);
+      if (c3) {
+        for (var h3 = 0; h3 < c3; h3 += i3)
+          this._doProcessBlock(s3, h3);
+        var l3 = s3.splice(0, c3);
+        n4.sigBytes -= u3;
+      }
+      return new o2.init(l3, u3);
+    }, clone: function() {
+      var e4 = i2.clone.call(this);
+      return e4._data = this._data.clone(), e4;
+    }, _minBufferSize: 0 });
+    r2.Hasher = l2.extend({ cfg: i2.extend(), init: function(e4) {
+      this.cfg = this.cfg.extend(e4), this.reset();
+    }, reset: function() {
+      l2.reset.call(this), this._doReset();
+    }, update: function(e4) {
+      return this._append(e4), this._process(), this;
+    }, finalize: function(e4) {
+      return e4 && this._append(e4), this._doFinalize();
+    }, blockSize: 16, _createHelper: function(e4) {
+      return function(t4, n4) {
+        return new e4.init(n4).finalize(t4);
+      };
+    }, _createHmacHelper: function(e4) {
+      return function(t4, n4) {
+        return new d2.HMAC.init(e4, n4).finalize(t4);
+      };
+    } });
+    var d2 = s2.algo = {};
+    return s2;
+  }(Math), n2);
+}), r = s, i = (n(function(e2, t2) {
+  var n2;
+  e2.exports = (n2 = r, function(e3) {
+    var t3 = n2, s2 = t3.lib, r2 = s2.WordArray, i2 = s2.Hasher, o2 = t3.algo, a2 = [];
+    !function() {
+      for (var t4 = 0; t4 < 64; t4++)
+        a2[t4] = 4294967296 * e3.abs(e3.sin(t4 + 1)) | 0;
+    }();
+    var c2 = o2.MD5 = i2.extend({ _doReset: function() {
+      this._hash = new r2.init([1732584193, 4023233417, 2562383102, 271733878]);
+    }, _doProcessBlock: function(e4, t4) {
+      for (var n3 = 0; n3 < 16; n3++) {
+        var s3 = t4 + n3, r3 = e4[s3];
+        e4[s3] = 16711935 & (r3 << 8 | r3 >>> 24) | 4278255360 & (r3 << 24 | r3 >>> 8);
+      }
+      var i3 = this._hash.words, o3 = e4[t4 + 0], c3 = e4[t4 + 1], p2 = e4[t4 + 2], f2 = e4[t4 + 3], g2 = e4[t4 + 4], m2 = e4[t4 + 5], y2 = e4[t4 + 6], _2 = e4[t4 + 7], w2 = e4[t4 + 8], v2 = e4[t4 + 9], I2 = e4[t4 + 10], S2 = e4[t4 + 11], b2 = e4[t4 + 12], k2 = e4[t4 + 13], T2 = e4[t4 + 14], A2 = e4[t4 + 15], P2 = i3[0], C2 = i3[1], x2 = i3[2], O2 = i3[3];
+      P2 = u2(P2, C2, x2, O2, o3, 7, a2[0]), O2 = u2(O2, P2, C2, x2, c3, 12, a2[1]), x2 = u2(x2, O2, P2, C2, p2, 17, a2[2]), C2 = u2(C2, x2, O2, P2, f2, 22, a2[3]), P2 = u2(P2, C2, x2, O2, g2, 7, a2[4]), O2 = u2(O2, P2, C2, x2, m2, 12, a2[5]), x2 = u2(x2, O2, P2, C2, y2, 17, a2[6]), C2 = u2(C2, x2, O2, P2, _2, 22, a2[7]), P2 = u2(P2, C2, x2, O2, w2, 7, a2[8]), O2 = u2(O2, P2, C2, x2, v2, 12, a2[9]), x2 = u2(x2, O2, P2, C2, I2, 17, a2[10]), C2 = u2(C2, x2, O2, P2, S2, 22, a2[11]), P2 = u2(P2, C2, x2, O2, b2, 7, a2[12]), O2 = u2(O2, P2, C2, x2, k2, 12, a2[13]), x2 = u2(x2, O2, P2, C2, T2, 17, a2[14]), P2 = h2(P2, C2 = u2(C2, x2, O2, P2, A2, 22, a2[15]), x2, O2, c3, 5, a2[16]), O2 = h2(O2, P2, C2, x2, y2, 9, a2[17]), x2 = h2(x2, O2, P2, C2, S2, 14, a2[18]), C2 = h2(C2, x2, O2, P2, o3, 20, a2[19]), P2 = h2(P2, C2, x2, O2, m2, 5, a2[20]), O2 = h2(O2, P2, C2, x2, I2, 9, a2[21]), x2 = h2(x2, O2, P2, C2, A2, 14, a2[22]), C2 = h2(C2, x2, O2, P2, g2, 20, a2[23]), P2 = h2(P2, C2, x2, O2, v2, 5, a2[24]), O2 = h2(O2, P2, C2, x2, T2, 9, a2[25]), x2 = h2(x2, O2, P2, C2, f2, 14, a2[26]), C2 = h2(C2, x2, O2, P2, w2, 20, a2[27]), P2 = h2(P2, C2, x2, O2, k2, 5, a2[28]), O2 = h2(O2, P2, C2, x2, p2, 9, a2[29]), x2 = h2(x2, O2, P2, C2, _2, 14, a2[30]), P2 = l2(P2, C2 = h2(C2, x2, O2, P2, b2, 20, a2[31]), x2, O2, m2, 4, a2[32]), O2 = l2(O2, P2, C2, x2, w2, 11, a2[33]), x2 = l2(x2, O2, P2, C2, S2, 16, a2[34]), C2 = l2(C2, x2, O2, P2, T2, 23, a2[35]), P2 = l2(P2, C2, x2, O2, c3, 4, a2[36]), O2 = l2(O2, P2, C2, x2, g2, 11, a2[37]), x2 = l2(x2, O2, P2, C2, _2, 16, a2[38]), C2 = l2(C2, x2, O2, P2, I2, 23, a2[39]), P2 = l2(P2, C2, x2, O2, k2, 4, a2[40]), O2 = l2(O2, P2, C2, x2, o3, 11, a2[41]), x2 = l2(x2, O2, P2, C2, f2, 16, a2[42]), C2 = l2(C2, x2, O2, P2, y2, 23, a2[43]), P2 = l2(P2, C2, x2, O2, v2, 4, a2[44]), O2 = l2(O2, P2, C2, x2, b2, 11, a2[45]), x2 = l2(x2, O2, P2, C2, A2, 16, a2[46]), P2 = d2(P2, C2 = l2(C2, x2, O2, P2, p2, 23, a2[47]), x2, O2, o3, 6, a2[48]), O2 = d2(O2, P2, C2, x2, _2, 10, a2[49]), x2 = d2(x2, O2, P2, C2, T2, 15, a2[50]), C2 = d2(C2, x2, O2, P2, m2, 21, a2[51]), P2 = d2(P2, C2, x2, O2, b2, 6, a2[52]), O2 = d2(O2, P2, C2, x2, f2, 10, a2[53]), x2 = d2(x2, O2, P2, C2, I2, 15, a2[54]), C2 = d2(C2, x2, O2, P2, c3, 21, a2[55]), P2 = d2(P2, C2, x2, O2, w2, 6, a2[56]), O2 = d2(O2, P2, C2, x2, A2, 10, a2[57]), x2 = d2(x2, O2, P2, C2, y2, 15, a2[58]), C2 = d2(C2, x2, O2, P2, k2, 21, a2[59]), P2 = d2(P2, C2, x2, O2, g2, 6, a2[60]), O2 = d2(O2, P2, C2, x2, S2, 10, a2[61]), x2 = d2(x2, O2, P2, C2, p2, 15, a2[62]), C2 = d2(C2, x2, O2, P2, v2, 21, a2[63]), i3[0] = i3[0] + P2 | 0, i3[1] = i3[1] + C2 | 0, i3[2] = i3[2] + x2 | 0, i3[3] = i3[3] + O2 | 0;
+    }, _doFinalize: function() {
+      var t4 = this._data, n3 = t4.words, s3 = 8 * this._nDataBytes, r3 = 8 * t4.sigBytes;
+      n3[r3 >>> 5] |= 128 << 24 - r3 % 32;
+      var i3 = e3.floor(s3 / 4294967296), o3 = s3;
+      n3[15 + (r3 + 64 >>> 9 << 4)] = 16711935 & (i3 << 8 | i3 >>> 24) | 4278255360 & (i3 << 24 | i3 >>> 8), n3[14 + (r3 + 64 >>> 9 << 4)] = 16711935 & (o3 << 8 | o3 >>> 24) | 4278255360 & (o3 << 24 | o3 >>> 8), t4.sigBytes = 4 * (n3.length + 1), this._process();
+      for (var a3 = this._hash, c3 = a3.words, u3 = 0; u3 < 4; u3++) {
+        var h3 = c3[u3];
+        c3[u3] = 16711935 & (h3 << 8 | h3 >>> 24) | 4278255360 & (h3 << 24 | h3 >>> 8);
+      }
+      return a3;
+    }, clone: function() {
+      var e4 = i2.clone.call(this);
+      return e4._hash = this._hash.clone(), e4;
+    } });
+    function u2(e4, t4, n3, s3, r3, i3, o3) {
+      var a3 = e4 + (t4 & n3 | ~t4 & s3) + r3 + o3;
+      return (a3 << i3 | a3 >>> 32 - i3) + t4;
+    }
+    function h2(e4, t4, n3, s3, r3, i3, o3) {
+      var a3 = e4 + (t4 & s3 | n3 & ~s3) + r3 + o3;
+      return (a3 << i3 | a3 >>> 32 - i3) + t4;
+    }
+    function l2(e4, t4, n3, s3, r3, i3, o3) {
+      var a3 = e4 + (t4 ^ n3 ^ s3) + r3 + o3;
+      return (a3 << i3 | a3 >>> 32 - i3) + t4;
+    }
+    function d2(e4, t4, n3, s3, r3, i3, o3) {
+      var a3 = e4 + (n3 ^ (t4 | ~s3)) + r3 + o3;
+      return (a3 << i3 | a3 >>> 32 - i3) + t4;
+    }
+    t3.MD5 = i2._createHelper(c2), t3.HmacMD5 = i2._createHmacHelper(c2);
+  }(Math), n2.MD5);
+}), n(function(e2, t2) {
+  var n2;
+  e2.exports = (n2 = r, void function() {
+    var e3 = n2, t3 = e3.lib.Base, s2 = e3.enc.Utf8;
+    e3.algo.HMAC = t3.extend({ init: function(e4, t4) {
+      e4 = this._hasher = new e4.init(), "string" == typeof t4 && (t4 = s2.parse(t4));
+      var n3 = e4.blockSize, r2 = 4 * n3;
+      t4.sigBytes > r2 && (t4 = e4.finalize(t4)), t4.clamp();
+      for (var i2 = this._oKey = t4.clone(), o2 = this._iKey = t4.clone(), a2 = i2.words, c2 = o2.words, u2 = 0; u2 < n3; u2++)
+        a2[u2] ^= 1549556828, c2[u2] ^= 909522486;
+      i2.sigBytes = o2.sigBytes = r2, this.reset();
+    }, reset: function() {
+      var e4 = this._hasher;
+      e4.reset(), e4.update(this._iKey);
+    }, update: function(e4) {
+      return this._hasher.update(e4), this;
+    }, finalize: function(e4) {
+      var t4 = this._hasher, n3 = t4.finalize(e4);
+      return t4.reset(), t4.finalize(this._oKey.clone().concat(n3));
+    } });
+  }());
+}), n(function(e2, t2) {
+  e2.exports = r.HmacMD5;
+})), o = n(function(e2, t2) {
+  e2.exports = r.enc.Utf8;
+}), a = n(function(e2, t2) {
+  var n2;
+  e2.exports = (n2 = r, function() {
+    var e3 = n2, t3 = e3.lib.WordArray;
+    function s2(e4, n3, s3) {
+      for (var r2 = [], i2 = 0, o2 = 0; o2 < n3; o2++)
+        if (o2 % 4) {
+          var a2 = s3[e4.charCodeAt(o2 - 1)] << o2 % 4 * 2, c2 = s3[e4.charCodeAt(o2)] >>> 6 - o2 % 4 * 2;
+          r2[i2 >>> 2] |= (a2 | c2) << 24 - i2 % 4 * 8, i2++;
+        }
+      return t3.create(r2, i2);
+    }
+    e3.enc.Base64 = { stringify: function(e4) {
+      var t4 = e4.words, n3 = e4.sigBytes, s3 = this._map;
+      e4.clamp();
+      for (var r2 = [], i2 = 0; i2 < n3; i2 += 3)
+        for (var o2 = (t4[i2 >>> 2] >>> 24 - i2 % 4 * 8 & 255) << 16 | (t4[i2 + 1 >>> 2] >>> 24 - (i2 + 1) % 4 * 8 & 255) << 8 | t4[i2 + 2 >>> 2] >>> 24 - (i2 + 2) % 4 * 8 & 255, a2 = 0; a2 < 4 && i2 + 0.75 * a2 < n3; a2++)
+          r2.push(s3.charAt(o2 >>> 6 * (3 - a2) & 63));
+      var c2 = s3.charAt(64);
+      if (c2)
+        for (; r2.length % 4; )
+          r2.push(c2);
+      return r2.join("");
+    }, parse: function(e4) {
+      var t4 = e4.length, n3 = this._map, r2 = this._reverseMap;
+      if (!r2) {
+        r2 = this._reverseMap = [];
+        for (var i2 = 0; i2 < n3.length; i2++)
+          r2[n3.charCodeAt(i2)] = i2;
+      }
+      var o2 = n3.charAt(64);
+      if (o2) {
+        var a2 = e4.indexOf(o2);
+        -1 !== a2 && (t4 = a2);
+      }
+      return s2(e4, t4, r2);
+    }, _map: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=" };
+  }(), n2.enc.Base64);
+});
+const c = "FUNCTION", u = "OBJECT", h = "CLIENT_DB", l = "pending", d = "fulfilled", p = "rejected";
+function f(e2) {
+  return Object.prototype.toString.call(e2).slice(8, -1).toLowerCase();
+}
+function g(e2) {
+  return "object" === f(e2);
+}
+function m(e2) {
+  return "function" == typeof e2;
+}
+function y(e2) {
+  return function() {
+    try {
+      return e2.apply(e2, arguments);
+    } catch (e3) {
+      console.error(e3);
+    }
+  };
+}
+const _ = "REJECTED", w = "NOT_PENDING";
+class v {
+  constructor({ createPromise: e2, retryRule: t2 = _ } = {}) {
+    this.createPromise = e2, this.status = null, this.promise = null, this.retryRule = t2;
+  }
+  get needRetry() {
+    if (!this.status)
+      return true;
+    switch (this.retryRule) {
+      case _:
+        return this.status === p;
+      case w:
+        return this.status !== l;
+    }
+  }
+  exec() {
+    return this.needRetry ? (this.status = l, this.promise = this.createPromise().then((e2) => (this.status = d, Promise.resolve(e2)), (e2) => (this.status = p, Promise.reject(e2))), this.promise) : this.promise;
+  }
+}
+function I(e2) {
+  return e2 && "string" == typeof e2 ? JSON.parse(e2) : e2;
+}
+const S = true, b = "mp-weixin", T = I(define_process_env_UNI_SECURE_NETWORK_CONFIG_default), A = b, P = I('{"address":["127.0.0.1","192.168.1.14"],"servePort":7000,"debugPort":9000,"initialLaunchType":"local","skipFiles":["<node_internals>/**","D:/HBuilderX/HBuilderX/plugins/unicloud/**/*.js"]}'), C = I('[{"provider":"aliyun","spaceName":"catanddog","spaceId":"mp-4a6e8f25-9d84-4913-93ea-8d2d63f1e453","clientSecret":"dObp4K82Tgv9ldQKaDejNg==","endpoint":"https://api.next.bspapp.com"}]') || [];
+let O = "";
+try {
+  O = "__UNI__YOURCATDOG";
+} catch (e2) {
+}
+let L = {};
+function R(e2, t2 = {}) {
+  var n2, s2;
+  return n2 = L, s2 = e2, Object.prototype.hasOwnProperty.call(n2, s2) || (L[e2] = t2), L[e2];
+}
+const N = ["invoke", "success", "fail", "complete"], D = R("_globalUniCloudInterceptor");
+function M(e2, t2) {
+  D[e2] || (D[e2] = {}), g(t2) && Object.keys(t2).forEach((n2) => {
+    N.indexOf(n2) > -1 && function(e3, t3, n3) {
+      let s2 = D[e3][t3];
+      s2 || (s2 = D[e3][t3] = []), -1 === s2.indexOf(n3) && m(n3) && s2.push(n3);
+    }(e2, n2, t2[n2]);
+  });
+}
+function q(e2, t2) {
+  D[e2] || (D[e2] = {}), g(t2) ? Object.keys(t2).forEach((n2) => {
+    N.indexOf(n2) > -1 && function(e3, t3, n3) {
+      const s2 = D[e3][t3];
+      if (!s2)
+        return;
+      const r2 = s2.indexOf(n3);
+      r2 > -1 && s2.splice(r2, 1);
+    }(e2, n2, t2[n2]);
+  }) : delete D[e2];
+}
+function K(e2, t2) {
+  return e2 && 0 !== e2.length ? e2.reduce((e3, n2) => e3.then(() => n2(t2)), Promise.resolve()) : Promise.resolve();
+}
+function F(e2, t2) {
+  return D[e2] && D[e2][t2] || [];
+}
+function j(e2) {
+  M("callObject", e2);
+}
+const $ = R("_globalUniCloudListener"), B = "response", W = "needLogin", H = "refreshToken", J = "clientdb", z = "cloudfunction", V = "cloudobject";
+function G(e2) {
+  return $[e2] || ($[e2] = []), $[e2];
+}
+function Y(e2, t2) {
+  const n2 = G(e2);
+  n2.includes(t2) || n2.push(t2);
+}
+function Q(e2, t2) {
+  const n2 = G(e2), s2 = n2.indexOf(t2);
+  -1 !== s2 && n2.splice(s2, 1);
+}
+function X(e2, t2) {
+  const n2 = G(e2);
+  for (let e3 = 0; e3 < n2.length; e3++) {
+    (0, n2[e3])(t2);
+  }
+}
+let Z, ee = false;
+function te() {
+  return Z || (Z = new Promise((e2) => {
+    ee && e2(), function t2() {
+      if ("function" == typeof getCurrentPages) {
+        const t3 = getCurrentPages();
+        t3 && t3[0] && (ee = true, e2());
+      }
+      ee || setTimeout(() => {
+        t2();
+      }, 30);
+    }();
+  }), Z);
+}
+function ne(e2) {
+  const t2 = {};
+  for (const n2 in e2) {
+    const s2 = e2[n2];
+    m(s2) && (t2[n2] = y(s2));
+  }
+  return t2;
+}
+class se extends Error {
+  constructor(e2) {
+    super(e2.message), this.errMsg = e2.message || e2.errMsg || "unknown system error", this.code = this.errCode = e2.code || e2.errCode || "SYSTEM_ERROR", this.errSubject = this.subject = e2.subject || e2.errSubject, this.cause = e2.cause, this.requestId = e2.requestId;
+  }
+  toJson(e2 = 0) {
+    if (!(e2 >= 10))
+      return e2++, { errCode: this.errCode, errMsg: this.errMsg, errSubject: this.errSubject, cause: this.cause && this.cause.toJson ? this.cause.toJson(e2) : this.cause };
+  }
+}
+var re = { request: (e2) => index$1.request(e2), uploadFile: (e2) => index$1.uploadFile(e2), setStorageSync: (e2, t2) => index$1.setStorageSync(e2, t2), getStorageSync: (e2) => index$1.getStorageSync(e2), removeStorageSync: (e2) => index$1.removeStorageSync(e2), clearStorageSync: () => index$1.clearStorageSync(), connectSocket: (e2) => index$1.connectSocket(e2) };
+function ie(e2) {
+  return e2 && ie(e2.__v_raw) || e2;
+}
+function oe() {
+  return { token: re.getStorageSync("uni_id_token") || re.getStorageSync("uniIdToken"), tokenExpired: re.getStorageSync("uni_id_token_expired") };
+}
+function ae({ token: e2, tokenExpired: t2 } = {}) {
+  e2 && re.setStorageSync("uni_id_token", e2), t2 && re.setStorageSync("uni_id_token_expired", t2);
+}
+let ce, ue;
+function he() {
+  return ce || (ce = index$1.getSystemInfoSync()), ce;
+}
+function le() {
+  let e2, t2;
+  try {
+    if (index$1.getLaunchOptionsSync) {
+      if (index$1.getLaunchOptionsSync.toString().indexOf("not yet implemented") > -1)
+        return;
+      const { scene: n2, channel: s2 } = index$1.getLaunchOptionsSync();
+      e2 = s2, t2 = n2;
+    }
+  } catch (e3) {
+  }
+  return { channel: e2, scene: t2 };
+}
+let de = {};
+function pe() {
+  const e2 = index$1.getLocale && index$1.getLocale() || "en";
+  if (ue)
+    return { ...de, ...ue, locale: e2, LOCALE: e2 };
+  const t2 = he(), { deviceId: n2, osName: s2, uniPlatform: r2, appId: i2 } = t2, o2 = ["appId", "appLanguage", "appName", "appVersion", "appVersionCode", "appWgtVersion", "browserName", "browserVersion", "deviceBrand", "deviceId", "deviceModel", "deviceType", "osName", "osVersion", "romName", "romVersion", "ua", "hostName", "hostVersion", "uniPlatform", "uniRuntimeVersion", "uniRuntimeVersionCode", "uniCompilerVersion", "uniCompilerVersionCode"];
+  for (const e3 in t2)
+    Object.hasOwnProperty.call(t2, e3) && -1 === o2.indexOf(e3) && delete t2[e3];
+  return ue = { PLATFORM: r2, OS: s2, APPID: i2, DEVICEID: n2, ...le(), ...t2 }, { ...de, ...ue, locale: e2, LOCALE: e2 };
+}
+var fe = { sign: function(e2, t2) {
+  let n2 = "";
+  return Object.keys(e2).sort().forEach(function(t3) {
+    e2[t3] && (n2 = n2 + "&" + t3 + "=" + e2[t3]);
+  }), n2 = n2.slice(1), i(n2, t2).toString();
+}, wrappedRequest: function(e2, t2) {
+  return new Promise((n2, s2) => {
+    t2(Object.assign(e2, { complete(e3) {
+      e3 || (e3 = {});
+      const t3 = e3.data && e3.data.header && e3.data.header["x-serverless-request-id"] || e3.header && e3.header["request-id"];
+      if (!e3.statusCode || e3.statusCode >= 400) {
+        const n3 = e3.data && e3.data.error && e3.data.error.code || "SYS_ERR", r3 = e3.data && e3.data.error && e3.data.error.message || e3.errMsg || "request:fail";
+        return s2(new se({ code: n3, message: r3, requestId: t3 }));
+      }
+      const r2 = e3.data;
+      if (r2.error)
+        return s2(new se({ code: r2.error.code, message: r2.error.message, requestId: t3 }));
+      r2.result = r2.data, r2.requestId = t3, delete r2.data, n2(r2);
+    } }));
+  });
+}, toBase64: function(e2) {
+  return a.stringify(o.parse(e2));
+} };
+var ge = class {
+  constructor(e2) {
+    ["spaceId", "clientSecret"].forEach((t2) => {
+      if (!Object.prototype.hasOwnProperty.call(e2, t2))
+        throw new Error(`${t2} required`);
+    }), this.config = Object.assign({}, { endpoint: 0 === e2.spaceId.indexOf("mp-") ? "https://api.next.bspapp.com" : "https://api.bspapp.com" }, e2), this.config.provider = "aliyun", this.config.requestUrl = this.config.endpoint + "/client", this.config.envType = this.config.envType || "public", this.config.accessTokenKey = "access_token_" + this.config.spaceId, this.adapter = re, this._getAccessTokenPromiseHub = new v({ createPromise: () => this.requestAuth(this.setupRequest({ method: "serverless.auth.user.anonymousAuthorize", params: "{}" }, "auth")).then((e3) => {
+      if (!e3.result || !e3.result.accessToken)
+        throw new se({ code: "AUTH_FAILED", message: "获取accessToken失败" });
+      this.setAccessToken(e3.result.accessToken);
+    }), retryRule: w });
+  }
+  get hasAccessToken() {
+    return !!this.accessToken;
+  }
+  setAccessToken(e2) {
+    this.accessToken = e2;
+  }
+  requestWrapped(e2) {
+    return fe.wrappedRequest(e2, this.adapter.request);
+  }
+  requestAuth(e2) {
+    return this.requestWrapped(e2);
+  }
+  request(e2, t2) {
+    return Promise.resolve().then(() => this.hasAccessToken ? t2 ? this.requestWrapped(e2) : this.requestWrapped(e2).catch((t3) => new Promise((e3, n2) => {
+      !t3 || "GATEWAY_INVALID_TOKEN" !== t3.code && "InvalidParameter.InvalidToken" !== t3.code ? n2(t3) : e3();
+    }).then(() => this.getAccessToken()).then(() => {
+      const t4 = this.rebuildRequest(e2);
+      return this.request(t4, true);
+    })) : this.getAccessToken().then(() => {
+      const t3 = this.rebuildRequest(e2);
+      return this.request(t3, true);
+    }));
+  }
+  rebuildRequest(e2) {
+    const t2 = Object.assign({}, e2);
+    return t2.data.token = this.accessToken, t2.header["x-basement-token"] = this.accessToken, t2.header["x-serverless-sign"] = fe.sign(t2.data, this.config.clientSecret), t2;
+  }
+  setupRequest(e2, t2) {
+    const n2 = Object.assign({}, e2, { spaceId: this.config.spaceId, timestamp: Date.now() }), s2 = { "Content-Type": "application/json" };
+    return "auth" !== t2 && (n2.token = this.accessToken, s2["x-basement-token"] = this.accessToken), s2["x-serverless-sign"] = fe.sign(n2, this.config.clientSecret), { url: this.config.requestUrl, method: "POST", data: n2, dataType: "json", header: s2 };
+  }
+  getAccessToken() {
+    return this._getAccessTokenPromiseHub.exec();
+  }
+  async authorize() {
+    await this.getAccessToken();
+  }
+  callFunction(e2) {
+    const t2 = { method: "serverless.function.runtime.invoke", params: JSON.stringify({ functionTarget: e2.name, functionArgs: e2.data || {} }) };
+    return this.request({ ...this.setupRequest(t2), timeout: e2.timeout });
+  }
+  getOSSUploadOptionsFromPath(e2) {
+    const t2 = { method: "serverless.file.resource.generateProximalSign", params: JSON.stringify(e2) };
+    return this.request(this.setupRequest(t2));
+  }
+  uploadFileToOSS({ url: e2, formData: t2, name: n2, filePath: s2, fileType: r2, onUploadProgress: i2 }) {
+    return new Promise((o2, a2) => {
+      const c2 = this.adapter.uploadFile({ url: e2, formData: t2, name: n2, filePath: s2, fileType: r2, header: { "X-OSS-server-side-encrpytion": "AES256" }, success(e3) {
+        e3 && e3.statusCode < 400 ? o2(e3) : a2(new se({ code: "UPLOAD_FAILED", message: "文件上传失败" }));
+      }, fail(e3) {
+        a2(new se({ code: e3.code || "UPLOAD_FAILED", message: e3.message || e3.errMsg || "文件上传失败" }));
+      } });
+      "function" == typeof i2 && c2 && "function" == typeof c2.onProgressUpdate && c2.onProgressUpdate((e3) => {
+        i2({ loaded: e3.totalBytesSent, total: e3.totalBytesExpectedToSend });
+      });
+    });
+  }
+  reportOSSUpload(e2) {
+    const t2 = { method: "serverless.file.resource.report", params: JSON.stringify(e2) };
+    return this.request(this.setupRequest(t2));
+  }
+  async uploadFile({ filePath: e2, cloudPath: t2, fileType: n2 = "image", cloudPathAsRealPath: s2 = false, onUploadProgress: r2, config: i2 }) {
+    if ("string" !== f(t2))
+      throw new se({ code: "INVALID_PARAM", message: "cloudPath必须为字符串类型" });
+    if (!(t2 = t2.trim()))
+      throw new se({ code: "INVALID_PARAM", message: "cloudPath不可为空" });
+    if (/:\/\//.test(t2))
+      throw new se({ code: "INVALID_PARAM", message: "cloudPath不合法" });
+    const o2 = i2 && i2.envType || this.config.envType;
+    if (s2 && ("/" !== t2[0] && (t2 = "/" + t2), t2.indexOf("\\") > -1))
+      throw new se({ code: "INVALID_PARAM", message: "使用cloudPath作为路径时，cloudPath不可包含“\\”" });
+    const a2 = (await this.getOSSUploadOptionsFromPath({ env: o2, filename: s2 ? t2.split("/").pop() : t2, fileId: s2 ? t2 : void 0 })).result, c2 = "https://" + a2.cdnDomain + "/" + a2.ossPath, { securityToken: u2, accessKeyId: h2, signature: l2, host: d2, ossPath: p2, id: g2, policy: m2, ossCallbackUrl: y2 } = a2, _2 = { "Cache-Control": "max-age=2592000", "Content-Disposition": "attachment", OSSAccessKeyId: h2, Signature: l2, host: d2, id: g2, key: p2, policy: m2, success_action_status: 200 };
+    if (u2 && (_2["x-oss-security-token"] = u2), y2) {
+      const e3 = JSON.stringify({ callbackUrl: y2, callbackBody: JSON.stringify({ fileId: g2, spaceId: this.config.spaceId }), callbackBodyType: "application/json" });
+      _2.callback = fe.toBase64(e3);
+    }
+    const w2 = { url: "https://" + a2.host, formData: _2, fileName: "file", name: "file", filePath: e2, fileType: n2 };
+    if (await this.uploadFileToOSS(Object.assign({}, w2, { onUploadProgress: r2 })), y2)
+      return { success: true, filePath: e2, fileID: c2 };
+    if ((await this.reportOSSUpload({ id: g2 })).success)
+      return { success: true, filePath: e2, fileID: c2 };
+    throw new se({ code: "UPLOAD_FAILED", message: "文件上传失败" });
+  }
+  getTempFileURL({ fileList: e2 } = {}) {
+    return new Promise((t2, n2) => {
+      Array.isArray(e2) && 0 !== e2.length || n2(new se({ code: "INVALID_PARAM", message: "fileList的元素必须是非空的字符串" })), t2({ fileList: e2.map((e3) => ({ fileID: e3, tempFileURL: e3 })) });
+    });
+  }
+  async getFileInfo({ fileList: e2 } = {}) {
+    if (!Array.isArray(e2) || 0 === e2.length)
+      throw new se({ code: "INVALID_PARAM", message: "fileList的元素必须是非空的字符串" });
+    const t2 = { method: "serverless.file.resource.info", params: JSON.stringify({ id: e2.map((e3) => e3.split("?")[0]).join(",") }) };
+    return { fileList: (await this.request(this.setupRequest(t2))).result };
+  }
+};
+var me = { init(e2) {
+  const t2 = new ge(e2), n2 = { signInAnonymously: function() {
+    return t2.authorize();
+  }, getLoginState: function() {
+    return Promise.resolve(false);
+  } };
+  return t2.auth = function() {
+    return n2;
+  }, t2.customAuth = t2.auth, t2;
+} };
+const ye = "undefined" != typeof location && "http:" === location.protocol ? "http:" : "https:";
+var _e;
+!function(e2) {
+  e2.local = "local", e2.none = "none", e2.session = "session";
+}(_e || (_e = {}));
+var we = function() {
+}, ve = n(function(e2, t2) {
+  var n2;
+  e2.exports = (n2 = r, function(e3) {
+    var t3 = n2, s2 = t3.lib, r2 = s2.WordArray, i2 = s2.Hasher, o2 = t3.algo, a2 = [], c2 = [];
+    !function() {
+      function t4(t5) {
+        for (var n4 = e3.sqrt(t5), s4 = 2; s4 <= n4; s4++)
+          if (!(t5 % s4))
+            return false;
+        return true;
+      }
+      function n3(e4) {
+        return 4294967296 * (e4 - (0 | e4)) | 0;
+      }
+      for (var s3 = 2, r3 = 0; r3 < 64; )
+        t4(s3) && (r3 < 8 && (a2[r3] = n3(e3.pow(s3, 0.5))), c2[r3] = n3(e3.pow(s3, 1 / 3)), r3++), s3++;
+    }();
+    var u2 = [], h2 = o2.SHA256 = i2.extend({ _doReset: function() {
+      this._hash = new r2.init(a2.slice(0));
+    }, _doProcessBlock: function(e4, t4) {
+      for (var n3 = this._hash.words, s3 = n3[0], r3 = n3[1], i3 = n3[2], o3 = n3[3], a3 = n3[4], h3 = n3[5], l2 = n3[6], d2 = n3[7], p2 = 0; p2 < 64; p2++) {
+        if (p2 < 16)
+          u2[p2] = 0 | e4[t4 + p2];
+        else {
+          var f2 = u2[p2 - 15], g2 = (f2 << 25 | f2 >>> 7) ^ (f2 << 14 | f2 >>> 18) ^ f2 >>> 3, m2 = u2[p2 - 2], y2 = (m2 << 15 | m2 >>> 17) ^ (m2 << 13 | m2 >>> 19) ^ m2 >>> 10;
+          u2[p2] = g2 + u2[p2 - 7] + y2 + u2[p2 - 16];
+        }
+        var _2 = s3 & r3 ^ s3 & i3 ^ r3 & i3, w2 = (s3 << 30 | s3 >>> 2) ^ (s3 << 19 | s3 >>> 13) ^ (s3 << 10 | s3 >>> 22), v2 = d2 + ((a3 << 26 | a3 >>> 6) ^ (a3 << 21 | a3 >>> 11) ^ (a3 << 7 | a3 >>> 25)) + (a3 & h3 ^ ~a3 & l2) + c2[p2] + u2[p2];
+        d2 = l2, l2 = h3, h3 = a3, a3 = o3 + v2 | 0, o3 = i3, i3 = r3, r3 = s3, s3 = v2 + (w2 + _2) | 0;
+      }
+      n3[0] = n3[0] + s3 | 0, n3[1] = n3[1] + r3 | 0, n3[2] = n3[2] + i3 | 0, n3[3] = n3[3] + o3 | 0, n3[4] = n3[4] + a3 | 0, n3[5] = n3[5] + h3 | 0, n3[6] = n3[6] + l2 | 0, n3[7] = n3[7] + d2 | 0;
+    }, _doFinalize: function() {
+      var t4 = this._data, n3 = t4.words, s3 = 8 * this._nDataBytes, r3 = 8 * t4.sigBytes;
+      return n3[r3 >>> 5] |= 128 << 24 - r3 % 32, n3[14 + (r3 + 64 >>> 9 << 4)] = e3.floor(s3 / 4294967296), n3[15 + (r3 + 64 >>> 9 << 4)] = s3, t4.sigBytes = 4 * n3.length, this._process(), this._hash;
+    }, clone: function() {
+      var e4 = i2.clone.call(this);
+      return e4._hash = this._hash.clone(), e4;
+    } });
+    t3.SHA256 = i2._createHelper(h2), t3.HmacSHA256 = i2._createHmacHelper(h2);
+  }(Math), n2.SHA256);
+}), Ie = ve, Se = n(function(e2, t2) {
+  e2.exports = r.HmacSHA256;
+});
+const be = () => {
+  let e2;
+  if (!Promise) {
+    e2 = () => {
+    }, e2.promise = {};
+    const t3 = () => {
+      throw new se({ message: 'Your Node runtime does support ES6 Promises. Set "global.Promise" to your preferred implementation of promises.' });
+    };
+    return Object.defineProperty(e2.promise, "then", { get: t3 }), Object.defineProperty(e2.promise, "catch", { get: t3 }), e2;
+  }
+  const t2 = new Promise((t3, n2) => {
+    e2 = (e3, s2) => e3 ? n2(e3) : t3(s2);
+  });
+  return e2.promise = t2, e2;
+};
+function ke(e2) {
+  return void 0 === e2;
+}
+function Te(e2) {
+  return "[object Null]" === Object.prototype.toString.call(e2);
+}
+function Ae(e2 = "") {
+  return e2.replace(/([\s\S]+)\s+(请前往云开发AI小助手查看问题：.*)/, "$1");
+}
+function Pe(e2 = 32) {
+  const t2 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789", n2 = t2.length;
+  let s2 = "";
+  for (let r2 = 0; r2 < e2; r2++)
+    s2 += t2.charAt(Math.floor(Math.random() * n2));
+  return s2;
+}
+var Ce;
+function xe(e2) {
+  const t2 = (n2 = e2, "[object Array]" === Object.prototype.toString.call(n2) ? e2 : [e2]);
+  var n2;
+  for (const e3 of t2) {
+    const { isMatch: t3, genAdapter: n3, runtime: s2 } = e3;
+    if (t3())
+      return { adapter: n3(), runtime: s2 };
+  }
+}
+!function(e2) {
+  e2.WEB = "web", e2.WX_MP = "wx_mp";
+}(Ce || (Ce = {}));
+const Oe = { adapter: null, runtime: void 0 }, Ee = ["anonymousUuidKey"];
+class Le extends we {
+  constructor() {
+    super(), Oe.adapter.root.tcbObject || (Oe.adapter.root.tcbObject = {});
+  }
+  setItem(e2, t2) {
+    Oe.adapter.root.tcbObject[e2] = t2;
+  }
+  getItem(e2) {
+    return Oe.adapter.root.tcbObject[e2];
+  }
+  removeItem(e2) {
+    delete Oe.adapter.root.tcbObject[e2];
+  }
+  clear() {
+    delete Oe.adapter.root.tcbObject;
+  }
+}
+function Re(e2, t2) {
+  switch (e2) {
+    case "local":
+      return t2.localStorage || new Le();
+    case "none":
+      return new Le();
+    default:
+      return t2.sessionStorage || new Le();
+  }
+}
+class Ue {
+  constructor(e2) {
+    if (!this._storage) {
+      this._persistence = Oe.adapter.primaryStorage || e2.persistence, this._storage = Re(this._persistence, Oe.adapter);
+      const t2 = `access_token_${e2.env}`, n2 = `access_token_expire_${e2.env}`, s2 = `refresh_token_${e2.env}`, r2 = `anonymous_uuid_${e2.env}`, i2 = `login_type_${e2.env}`, o2 = "device_id", a2 = `token_type_${e2.env}`, c2 = `user_info_${e2.env}`;
+      this.keys = { accessTokenKey: t2, accessTokenExpireKey: n2, refreshTokenKey: s2, anonymousUuidKey: r2, loginTypeKey: i2, userInfoKey: c2, deviceIdKey: o2, tokenTypeKey: a2 };
+    }
+  }
+  updatePersistence(e2) {
+    if (e2 === this._persistence)
+      return;
+    const t2 = "local" === this._persistence;
+    this._persistence = e2;
+    const n2 = Re(e2, Oe.adapter);
+    for (const e3 in this.keys) {
+      const s2 = this.keys[e3];
+      if (t2 && Ee.includes(e3))
+        continue;
+      const r2 = this._storage.getItem(s2);
+      ke(r2) || Te(r2) || (n2.setItem(s2, r2), this._storage.removeItem(s2));
+    }
+    this._storage = n2;
+  }
+  setStore(e2, t2, n2) {
+    if (!this._storage)
+      return;
+    const s2 = { version: n2 || "localCachev1", content: t2 }, r2 = JSON.stringify(s2);
+    try {
+      this._storage.setItem(e2, r2);
+    } catch (e3) {
+      throw e3;
+    }
+  }
+  getStore(e2, t2) {
+    try {
+      if (!this._storage)
+        return;
+    } catch (e3) {
+      return "";
+    }
+    t2 = t2 || "localCachev1";
+    const n2 = this._storage.getItem(e2);
+    if (!n2)
+      return "";
+    if (n2.indexOf(t2) >= 0) {
+      return JSON.parse(n2).content;
+    }
+    return "";
+  }
+  removeStore(e2) {
+    this._storage.removeItem(e2);
+  }
+}
+const Ne = {}, De = {};
+function Me(e2) {
+  return Ne[e2];
+}
+class qe {
+  constructor(e2, t2) {
+    this.data = t2 || null, this.name = e2;
+  }
+}
+class Ke extends qe {
+  constructor(e2, t2) {
+    super("error", { error: e2, data: t2 }), this.error = e2;
+  }
+}
+const Fe = new class {
+  constructor() {
+    this._listeners = {};
+  }
+  on(e2, t2) {
+    return function(e3, t3, n2) {
+      n2[e3] = n2[e3] || [], n2[e3].push(t3);
+    }(e2, t2, this._listeners), this;
+  }
+  off(e2, t2) {
+    return function(e3, t3, n2) {
+      if (n2 && n2[e3]) {
+        const s2 = n2[e3].indexOf(t3);
+        -1 !== s2 && n2[e3].splice(s2, 1);
+      }
+    }(e2, t2, this._listeners), this;
+  }
+  fire(e2, t2) {
+    if (e2 instanceof Ke)
+      return console.error(e2.error), this;
+    const n2 = "string" == typeof e2 ? new qe(e2, t2 || {}) : e2;
+    const s2 = n2.name;
+    if (this._listens(s2)) {
+      n2.target = this;
+      const e3 = this._listeners[s2] ? [...this._listeners[s2]] : [];
+      for (const t3 of e3)
+        t3.call(this, n2);
+    }
+    return this;
+  }
+  _listens(e2) {
+    return this._listeners[e2] && this._listeners[e2].length > 0;
+  }
+}();
+function je(e2, t2) {
+  Fe.on(e2, t2);
+}
+function $e(e2, t2 = {}) {
+  Fe.fire(e2, t2);
+}
+function Be(e2, t2) {
+  Fe.off(e2, t2);
+}
+const We = "loginStateChanged", He = "loginStateExpire", Je = "loginTypeChanged", ze = "anonymousConverted", Ve = "refreshAccessToken";
+var Ge;
+!function(e2) {
+  e2.ANONYMOUS = "ANONYMOUS", e2.WECHAT = "WECHAT", e2.WECHAT_PUBLIC = "WECHAT-PUBLIC", e2.WECHAT_OPEN = "WECHAT-OPEN", e2.CUSTOM = "CUSTOM", e2.EMAIL = "EMAIL", e2.USERNAME = "USERNAME", e2.NULL = "NULL";
+}(Ge || (Ge = {}));
+class Ye {
+  constructor() {
+    this._fnPromiseMap = /* @__PURE__ */ new Map();
+  }
+  async run(e2, t2) {
+    let n2 = this._fnPromiseMap.get(e2);
+    return n2 || (n2 = new Promise(async (n3, s2) => {
+      try {
+        await this._runIdlePromise();
+        const s3 = t2();
+        n3(await s3);
+      } catch (e3) {
+        s2(e3);
+      } finally {
+        this._fnPromiseMap.delete(e2);
+      }
+    }), this._fnPromiseMap.set(e2, n2)), n2;
+  }
+  _runIdlePromise() {
+    return Promise.resolve();
+  }
+}
+class Qe {
+  constructor(e2) {
+    this._singlePromise = new Ye(), this._cache = Me(e2.env), this._baseURL = `https://${e2.env}.ap-shanghai.tcb-api.tencentcloudapi.com`, this._reqClass = new Oe.adapter.reqClass({ timeout: e2.timeout, timeoutMsg: `请求在${e2.timeout / 1e3}s内未完成，已中断`, restrictedMethods: ["post"] });
+  }
+  _getDeviceId() {
+    if (this._deviceID)
+      return this._deviceID;
+    const { deviceIdKey: e2 } = this._cache.keys;
+    let t2 = this._cache.getStore(e2);
+    return "string" == typeof t2 && t2.length >= 16 && t2.length <= 48 || (t2 = Pe(), this._cache.setStore(e2, t2)), this._deviceID = t2, t2;
+  }
+  async _request(e2, t2, n2 = {}) {
+    const s2 = { "x-request-id": Pe(), "x-device-id": this._getDeviceId() };
+    if (n2.withAccessToken) {
+      const { tokenTypeKey: e3 } = this._cache.keys, t3 = await this.getAccessToken(), n3 = this._cache.getStore(e3);
+      s2.authorization = `${n3} ${t3}`;
+    }
+    return this._reqClass["get" === n2.method ? "get" : "post"]({ url: `${this._baseURL}${e2}`, data: t2, headers: s2 });
+  }
+  async _fetchAccessToken() {
+    const { loginTypeKey: e2, accessTokenKey: t2, accessTokenExpireKey: n2, tokenTypeKey: s2 } = this._cache.keys, r2 = this._cache.getStore(e2);
+    if (r2 && r2 !== Ge.ANONYMOUS)
+      throw new se({ code: "INVALID_OPERATION", message: "非匿名登录不支持刷新 access token" });
+    const i2 = await this._singlePromise.run("fetchAccessToken", async () => (await this._request("/auth/v1/signin/anonymously", {}, { method: "post" })).data), { access_token: o2, expires_in: a2, token_type: c2 } = i2;
+    return this._cache.setStore(s2, c2), this._cache.setStore(t2, o2), this._cache.setStore(n2, Date.now() + 1e3 * a2), o2;
+  }
+  isAccessTokenExpired(e2, t2) {
+    let n2 = true;
+    return e2 && t2 && (n2 = t2 < Date.now()), n2;
+  }
+  async getAccessToken() {
+    const { accessTokenKey: e2, accessTokenExpireKey: t2 } = this._cache.keys, n2 = this._cache.getStore(e2), s2 = this._cache.getStore(t2);
+    return this.isAccessTokenExpired(n2, s2) ? this._fetchAccessToken() : n2;
+  }
+  async refreshAccessToken() {
+    const { accessTokenKey: e2, accessTokenExpireKey: t2, loginTypeKey: n2 } = this._cache.keys;
+    return this._cache.removeStore(e2), this._cache.removeStore(t2), this._cache.setStore(n2, Ge.ANONYMOUS), this.getAccessToken();
+  }
+  async getUserInfo() {
+    return this._singlePromise.run("getUserInfo", async () => (await this._request("/auth/v1/user/me", {}, { withAccessToken: true, method: "get" })).data);
+  }
+}
+const Xe = ["auth.getJwt", "auth.logout", "auth.signInWithTicket", "auth.signInAnonymously", "auth.signIn", "auth.fetchAccessTokenWithRefreshToken", "auth.signUpWithEmailAndPassword", "auth.activateEndUserMail", "auth.sendPasswordResetEmail", "auth.resetPasswordWithToken", "auth.isUsernameRegistered"], Ze = { "X-SDK-Version": "1.3.5" };
+function et(e2, t2, n2) {
+  const s2 = e2[t2];
+  e2[t2] = function(t3) {
+    const r2 = {}, i2 = {};
+    n2.forEach((n3) => {
+      const { data: s3, headers: o3 } = n3.call(e2, t3);
+      Object.assign(r2, s3), Object.assign(i2, o3);
+    });
+    const o2 = t3.data;
+    return o2 && (() => {
+      var e3;
+      if (e3 = o2, "[object FormData]" !== Object.prototype.toString.call(e3))
+        t3.data = { ...o2, ...r2 };
+      else
+        for (const e4 in r2)
+          o2.append(e4, r2[e4]);
+    })(), t3.headers = { ...t3.headers || {}, ...i2 }, s2.call(e2, t3);
+  };
+}
+function tt$1() {
+  const e2 = Math.random().toString(16).slice(2);
+  return { data: { seqId: e2 }, headers: { ...Ze, "x-seqid": e2 } };
+}
+class nt {
+  constructor(e2 = {}) {
+    var t2;
+    this.config = e2, this._reqClass = new Oe.adapter.reqClass({ timeout: this.config.timeout, timeoutMsg: `请求在${this.config.timeout / 1e3}s内未完成，已中断`, restrictedMethods: ["post"] }), this._cache = Me(this.config.env), this._localCache = (t2 = this.config.env, De[t2]), this.oauth = new Qe(this.config), et(this._reqClass, "post", [tt$1]), et(this._reqClass, "upload", [tt$1]), et(this._reqClass, "download", [tt$1]);
+  }
+  async post(e2) {
+    return await this._reqClass.post(e2);
+  }
+  async upload(e2) {
+    return await this._reqClass.upload(e2);
+  }
+  async download(e2) {
+    return await this._reqClass.download(e2);
+  }
+  async refreshAccessToken() {
+    let e2, t2;
+    this._refreshAccessTokenPromise || (this._refreshAccessTokenPromise = this._refreshAccessToken());
+    try {
+      e2 = await this._refreshAccessTokenPromise;
+    } catch (e3) {
+      t2 = e3;
+    }
+    if (this._refreshAccessTokenPromise = null, this._shouldRefreshAccessTokenHook = null, t2)
+      throw t2;
+    return e2;
+  }
+  async _refreshAccessToken() {
+    const { accessTokenKey: e2, accessTokenExpireKey: t2, refreshTokenKey: n2, loginTypeKey: s2, anonymousUuidKey: r2 } = this._cache.keys;
+    this._cache.removeStore(e2), this._cache.removeStore(t2);
+    let i2 = this._cache.getStore(n2);
+    if (!i2)
+      throw new se({ message: "未登录CloudBase" });
+    const o2 = { refresh_token: i2 }, a2 = await this.request("auth.fetchAccessTokenWithRefreshToken", o2);
+    if (a2.data.code) {
+      const { code: e3 } = a2.data;
+      if ("SIGN_PARAM_INVALID" === e3 || "REFRESH_TOKEN_EXPIRED" === e3 || "INVALID_REFRESH_TOKEN" === e3) {
+        if (this._cache.getStore(s2) === Ge.ANONYMOUS && "INVALID_REFRESH_TOKEN" === e3) {
+          const e4 = this._cache.getStore(r2), t3 = this._cache.getStore(n2), s3 = await this.send("auth.signInAnonymously", { anonymous_uuid: e4, refresh_token: t3 });
+          return this.setRefreshToken(s3.refresh_token), this._refreshAccessToken();
+        }
+        $e(He), this._cache.removeStore(n2);
+      }
+      throw new se({ code: a2.data.code, message: `刷新access token失败：${a2.data.code}` });
+    }
+    if (a2.data.access_token)
+      return $e(Ve), this._cache.setStore(e2, a2.data.access_token), this._cache.setStore(t2, a2.data.access_token_expire + Date.now()), { accessToken: a2.data.access_token, accessTokenExpire: a2.data.access_token_expire };
+    a2.data.refresh_token && (this._cache.removeStore(n2), this._cache.setStore(n2, a2.data.refresh_token), this._refreshAccessToken());
+  }
+  async getAccessToken() {
+    const { accessTokenKey: e2, accessTokenExpireKey: t2, refreshTokenKey: n2 } = this._cache.keys;
+    if (!this._cache.getStore(n2))
+      throw new se({ message: "refresh token不存在，登录状态异常" });
+    let s2 = this._cache.getStore(e2), r2 = this._cache.getStore(t2), i2 = true;
+    return this._shouldRefreshAccessTokenHook && !await this._shouldRefreshAccessTokenHook(s2, r2) && (i2 = false), (!s2 || !r2 || r2 < Date.now()) && i2 ? this.refreshAccessToken() : { accessToken: s2, accessTokenExpire: r2 };
+  }
+  async request(e2, t2, n2) {
+    const s2 = `x-tcb-trace_${this.config.env}`;
+    let r2 = "application/x-www-form-urlencoded";
+    const i2 = { action: e2, env: this.config.env, dataVersion: "2019-08-16", ...t2 };
+    let o2;
+    if (-1 === Xe.indexOf(e2) && (this._cache.keys, i2.access_token = await this.oauth.getAccessToken()), "storage.uploadFile" === e2) {
+      o2 = new FormData();
+      for (let e3 in o2)
+        o2.hasOwnProperty(e3) && void 0 !== o2[e3] && o2.append(e3, i2[e3]);
+      r2 = "multipart/form-data";
+    } else {
+      r2 = "application/json", o2 = {};
+      for (let e3 in i2)
+        void 0 !== i2[e3] && (o2[e3] = i2[e3]);
+    }
+    let a2 = { headers: { "content-type": r2 } };
+    n2 && n2.timeout && (a2.timeout = n2.timeout), n2 && n2.onUploadProgress && (a2.onUploadProgress = n2.onUploadProgress);
+    const c2 = this._localCache.getStore(s2);
+    c2 && (a2.headers["X-TCB-Trace"] = c2);
+    const { parse: u2, inQuery: h2, search: l2 } = t2;
+    let d2 = { env: this.config.env };
+    u2 && (d2.parse = true), h2 && (d2 = { ...h2, ...d2 });
+    let p2 = function(e3, t3, n3 = {}) {
+      const s3 = /\?/.test(t3);
+      let r3 = "";
+      for (let e4 in n3)
+        "" === r3 ? !s3 && (t3 += "?") : r3 += "&", r3 += `${e4}=${encodeURIComponent(n3[e4])}`;
+      return /^http(s)?\:\/\//.test(t3 += r3) ? t3 : `${e3}${t3}`;
+    }(ye, "//tcb-api.tencentcloudapi.com/web", d2);
+    l2 && (p2 += l2);
+    const f2 = await this.post({ url: p2, data: o2, ...a2 }), g2 = f2.header && f2.header["x-tcb-trace"];
+    if (g2 && this._localCache.setStore(s2, g2), 200 !== Number(f2.status) && 200 !== Number(f2.statusCode) || !f2.data)
+      throw new se({ code: "NETWORK_ERROR", message: "network request error" });
+    return f2;
+  }
+  async send(e2, t2 = {}, n2 = {}) {
+    const s2 = await this.request(e2, t2, { ...n2, onUploadProgress: t2.onUploadProgress });
+    if (("ACCESS_TOKEN_DISABLED" === s2.data.code || "ACCESS_TOKEN_EXPIRED" === s2.data.code) && -1 === Xe.indexOf(e2)) {
+      await this.oauth.refreshAccessToken();
+      const s3 = await this.request(e2, t2, { ...n2, onUploadProgress: t2.onUploadProgress });
+      if (s3.data.code)
+        throw new se({ code: s3.data.code, message: Ae(s3.data.message) });
+      return s3.data;
+    }
+    if (s2.data.code)
+      throw new se({ code: s2.data.code, message: Ae(s2.data.message) });
+    return s2.data;
+  }
+  setRefreshToken(e2) {
+    const { accessTokenKey: t2, accessTokenExpireKey: n2, refreshTokenKey: s2 } = this._cache.keys;
+    this._cache.removeStore(t2), this._cache.removeStore(n2), this._cache.setStore(s2, e2);
+  }
+}
+const st = {};
+function rt(e2) {
+  return st[e2];
+}
+class it {
+  constructor(e2) {
+    this.config = e2, this._cache = Me(e2.env), this._request = rt(e2.env);
+  }
+  setRefreshToken(e2) {
+    const { accessTokenKey: t2, accessTokenExpireKey: n2, refreshTokenKey: s2 } = this._cache.keys;
+    this._cache.removeStore(t2), this._cache.removeStore(n2), this._cache.setStore(s2, e2);
+  }
+  setAccessToken(e2, t2) {
+    const { accessTokenKey: n2, accessTokenExpireKey: s2 } = this._cache.keys;
+    this._cache.setStore(n2, e2), this._cache.setStore(s2, t2);
+  }
+  async refreshUserInfo() {
+    const { data: e2 } = await this._request.send("auth.getUserInfo", {});
+    return this.setLocalUserInfo(e2), e2;
+  }
+  setLocalUserInfo(e2) {
+    const { userInfoKey: t2 } = this._cache.keys;
+    this._cache.setStore(t2, e2);
+  }
+}
+class ot {
+  constructor(e2) {
+    if (!e2)
+      throw new se({ code: "PARAM_ERROR", message: "envId is not defined" });
+    this._envId = e2, this._cache = Me(this._envId), this._request = rt(this._envId), this.setUserInfo();
+  }
+  linkWithTicket(e2) {
+    if ("string" != typeof e2)
+      throw new se({ code: "PARAM_ERROR", message: "ticket must be string" });
+    return this._request.send("auth.linkWithTicket", { ticket: e2 });
+  }
+  linkWithRedirect(e2) {
+    e2.signInWithRedirect();
+  }
+  updatePassword(e2, t2) {
+    return this._request.send("auth.updatePassword", { oldPassword: t2, newPassword: e2 });
+  }
+  updateEmail(e2) {
+    return this._request.send("auth.updateEmail", { newEmail: e2 });
+  }
+  updateUsername(e2) {
+    if ("string" != typeof e2)
+      throw new se({ code: "PARAM_ERROR", message: "username must be a string" });
+    return this._request.send("auth.updateUsername", { username: e2 });
+  }
+  async getLinkedUidList() {
+    const { data: e2 } = await this._request.send("auth.getLinkedUidList", {});
+    let t2 = false;
+    const { users: n2 } = e2;
+    return n2.forEach((e3) => {
+      e3.wxOpenId && e3.wxPublicId && (t2 = true);
+    }), { users: n2, hasPrimaryUid: t2 };
+  }
+  setPrimaryUid(e2) {
+    return this._request.send("auth.setPrimaryUid", { uid: e2 });
+  }
+  unlink(e2) {
+    return this._request.send("auth.unlink", { platform: e2 });
+  }
+  async update(e2) {
+    const { nickName: t2, gender: n2, avatarUrl: s2, province: r2, country: i2, city: o2 } = e2, { data: a2 } = await this._request.send("auth.updateUserInfo", { nickName: t2, gender: n2, avatarUrl: s2, province: r2, country: i2, city: o2 });
+    this.setLocalUserInfo(a2);
+  }
+  async refresh() {
+    const e2 = await this._request.oauth.getUserInfo();
+    return this.setLocalUserInfo(e2), e2;
+  }
+  setUserInfo() {
+    const { userInfoKey: e2 } = this._cache.keys, t2 = this._cache.getStore(e2);
+    ["uid", "loginType", "openid", "wxOpenId", "wxPublicId", "unionId", "qqMiniOpenId", "email", "hasPassword", "customUserId", "nickName", "gender", "avatarUrl"].forEach((e3) => {
+      this[e3] = t2[e3];
+    }), this.location = { country: t2.country, province: t2.province, city: t2.city };
+  }
+  setLocalUserInfo(e2) {
+    const { userInfoKey: t2 } = this._cache.keys;
+    this._cache.setStore(t2, e2), this.setUserInfo();
+  }
+}
+class at {
+  constructor(e2) {
+    if (!e2)
+      throw new se({ code: "PARAM_ERROR", message: "envId is not defined" });
+    this._cache = Me(e2);
+    const { refreshTokenKey: t2, accessTokenKey: n2, accessTokenExpireKey: s2 } = this._cache.keys, r2 = this._cache.getStore(t2), i2 = this._cache.getStore(n2), o2 = this._cache.getStore(s2);
+    this.credential = { refreshToken: r2, accessToken: i2, accessTokenExpire: o2 }, this.user = new ot(e2);
+  }
+  get isAnonymousAuth() {
+    return this.loginType === Ge.ANONYMOUS;
+  }
+  get isCustomAuth() {
+    return this.loginType === Ge.CUSTOM;
+  }
+  get isWeixinAuth() {
+    return this.loginType === Ge.WECHAT || this.loginType === Ge.WECHAT_OPEN || this.loginType === Ge.WECHAT_PUBLIC;
+  }
+  get loginType() {
+    return this._cache.getStore(this._cache.keys.loginTypeKey);
+  }
+}
+class ct extends it {
+  async signIn() {
+    this._cache.updatePersistence("local"), await this._request.oauth.getAccessToken(), $e(We), $e(Je, { env: this.config.env, loginType: Ge.ANONYMOUS, persistence: "local" });
+    const e2 = new at(this.config.env);
+    return await e2.user.refresh(), e2;
+  }
+  async linkAndRetrieveDataWithTicket(e2) {
+    const { anonymousUuidKey: t2, refreshTokenKey: n2 } = this._cache.keys, s2 = this._cache.getStore(t2), r2 = this._cache.getStore(n2), i2 = await this._request.send("auth.linkAndRetrieveDataWithTicket", { anonymous_uuid: s2, refresh_token: r2, ticket: e2 });
+    if (i2.refresh_token)
+      return this._clearAnonymousUUID(), this.setRefreshToken(i2.refresh_token), await this._request.refreshAccessToken(), $e(ze, { env: this.config.env }), $e(Je, { loginType: Ge.CUSTOM, persistence: "local" }), { credential: { refreshToken: i2.refresh_token } };
+    throw new se({ message: "匿名转化失败" });
+  }
+  _setAnonymousUUID(e2) {
+    const { anonymousUuidKey: t2, loginTypeKey: n2 } = this._cache.keys;
+    this._cache.removeStore(t2), this._cache.setStore(t2, e2), this._cache.setStore(n2, Ge.ANONYMOUS);
+  }
+  _clearAnonymousUUID() {
+    this._cache.removeStore(this._cache.keys.anonymousUuidKey);
+  }
+}
+class ut extends it {
+  async signIn(e2) {
+    if ("string" != typeof e2)
+      throw new se({ code: "PARAM_ERROR", message: "ticket must be a string" });
+    const { refreshTokenKey: t2 } = this._cache.keys, n2 = await this._request.send("auth.signInWithTicket", { ticket: e2, refresh_token: this._cache.getStore(t2) || "" });
+    if (n2.refresh_token)
+      return this.setRefreshToken(n2.refresh_token), await this._request.refreshAccessToken(), $e(We), $e(Je, { env: this.config.env, loginType: Ge.CUSTOM, persistence: this.config.persistence }), await this.refreshUserInfo(), new at(this.config.env);
+    throw new se({ message: "自定义登录失败" });
+  }
+}
+class ht extends it {
+  async signIn(e2, t2) {
+    if ("string" != typeof e2)
+      throw new se({ code: "PARAM_ERROR", message: "email must be a string" });
+    const { refreshTokenKey: n2 } = this._cache.keys, s2 = await this._request.send("auth.signIn", { loginType: "EMAIL", email: e2, password: t2, refresh_token: this._cache.getStore(n2) || "" }), { refresh_token: r2, access_token: i2, access_token_expire: o2 } = s2;
+    if (r2)
+      return this.setRefreshToken(r2), i2 && o2 ? this.setAccessToken(i2, o2) : await this._request.refreshAccessToken(), await this.refreshUserInfo(), $e(We), $e(Je, { env: this.config.env, loginType: Ge.EMAIL, persistence: this.config.persistence }), new at(this.config.env);
+    throw s2.code ? new se({ code: s2.code, message: `邮箱登录失败: ${s2.message}` }) : new se({ message: "邮箱登录失败" });
+  }
+  async activate(e2) {
+    return this._request.send("auth.activateEndUserMail", { token: e2 });
+  }
+  async resetPasswordWithToken(e2, t2) {
+    return this._request.send("auth.resetPasswordWithToken", { token: e2, newPassword: t2 });
+  }
+}
+class lt extends it {
+  async signIn(e2, t2) {
+    if ("string" != typeof e2)
+      throw new se({ code: "PARAM_ERROR", message: "username must be a string" });
+    "string" != typeof t2 && (t2 = "", console.warn("password is empty"));
+    const { refreshTokenKey: n2 } = this._cache.keys, s2 = await this._request.send("auth.signIn", { loginType: Ge.USERNAME, username: e2, password: t2, refresh_token: this._cache.getStore(n2) || "" }), { refresh_token: r2, access_token_expire: i2, access_token: o2 } = s2;
+    if (r2)
+      return this.setRefreshToken(r2), o2 && i2 ? this.setAccessToken(o2, i2) : await this._request.refreshAccessToken(), await this.refreshUserInfo(), $e(We), $e(Je, { env: this.config.env, loginType: Ge.USERNAME, persistence: this.config.persistence }), new at(this.config.env);
+    throw s2.code ? new se({ code: s2.code, message: `用户名密码登录失败: ${s2.message}` }) : new se({ message: "用户名密码登录失败" });
+  }
+}
+class dt {
+  constructor(e2) {
+    this.config = e2, this._cache = Me(e2.env), this._request = rt(e2.env), this._onAnonymousConverted = this._onAnonymousConverted.bind(this), this._onLoginTypeChanged = this._onLoginTypeChanged.bind(this), je(Je, this._onLoginTypeChanged);
+  }
+  get currentUser() {
+    const e2 = this.hasLoginState();
+    return e2 && e2.user || null;
+  }
+  get loginType() {
+    return this._cache.getStore(this._cache.keys.loginTypeKey);
+  }
+  anonymousAuthProvider() {
+    return new ct(this.config);
+  }
+  customAuthProvider() {
+    return new ut(this.config);
+  }
+  emailAuthProvider() {
+    return new ht(this.config);
+  }
+  usernameAuthProvider() {
+    return new lt(this.config);
+  }
+  async signInAnonymously() {
+    return new ct(this.config).signIn();
+  }
+  async signInWithEmailAndPassword(e2, t2) {
+    return new ht(this.config).signIn(e2, t2);
+  }
+  signInWithUsernameAndPassword(e2, t2) {
+    return new lt(this.config).signIn(e2, t2);
+  }
+  async linkAndRetrieveDataWithTicket(e2) {
+    this._anonymousAuthProvider || (this._anonymousAuthProvider = new ct(this.config)), je(ze, this._onAnonymousConverted);
+    return await this._anonymousAuthProvider.linkAndRetrieveDataWithTicket(e2);
+  }
+  async signOut() {
+    if (this.loginType === Ge.ANONYMOUS)
+      throw new se({ message: "匿名用户不支持登出操作" });
+    const { refreshTokenKey: e2, accessTokenKey: t2, accessTokenExpireKey: n2 } = this._cache.keys, s2 = this._cache.getStore(e2);
+    if (!s2)
+      return;
+    const r2 = await this._request.send("auth.logout", { refresh_token: s2 });
+    return this._cache.removeStore(e2), this._cache.removeStore(t2), this._cache.removeStore(n2), $e(We), $e(Je, { env: this.config.env, loginType: Ge.NULL, persistence: this.config.persistence }), r2;
+  }
+  async signUpWithEmailAndPassword(e2, t2) {
+    return this._request.send("auth.signUpWithEmailAndPassword", { email: e2, password: t2 });
+  }
+  async sendPasswordResetEmail(e2) {
+    return this._request.send("auth.sendPasswordResetEmail", { email: e2 });
+  }
+  onLoginStateChanged(e2) {
+    je(We, () => {
+      const t3 = this.hasLoginState();
+      e2.call(this, t3);
+    });
+    const t2 = this.hasLoginState();
+    e2.call(this, t2);
+  }
+  onLoginStateExpired(e2) {
+    je(He, e2.bind(this));
+  }
+  onAccessTokenRefreshed(e2) {
+    je(Ve, e2.bind(this));
+  }
+  onAnonymousConverted(e2) {
+    je(ze, e2.bind(this));
+  }
+  onLoginTypeChanged(e2) {
+    je(Je, () => {
+      const t2 = this.hasLoginState();
+      e2.call(this, t2);
+    });
+  }
+  async getAccessToken() {
+    return { accessToken: (await this._request.getAccessToken()).accessToken, env: this.config.env };
+  }
+  hasLoginState() {
+    const { accessTokenKey: e2, accessTokenExpireKey: t2 } = this._cache.keys, n2 = this._cache.getStore(e2), s2 = this._cache.getStore(t2);
+    return this._request.oauth.isAccessTokenExpired(n2, s2) ? null : new at(this.config.env);
+  }
+  async isUsernameRegistered(e2) {
+    if ("string" != typeof e2)
+      throw new se({ code: "PARAM_ERROR", message: "username must be a string" });
+    const { data: t2 } = await this._request.send("auth.isUsernameRegistered", { username: e2 });
+    return t2 && t2.isRegistered;
+  }
+  getLoginState() {
+    return Promise.resolve(this.hasLoginState());
+  }
+  async signInWithTicket(e2) {
+    return new ut(this.config).signIn(e2);
+  }
+  shouldRefreshAccessToken(e2) {
+    this._request._shouldRefreshAccessTokenHook = e2.bind(this);
+  }
+  getUserInfo() {
+    return this._request.send("auth.getUserInfo", {}).then((e2) => e2.code ? e2 : { ...e2.data, requestId: e2.seqId });
+  }
+  getAuthHeader() {
+    const { refreshTokenKey: e2, accessTokenKey: t2 } = this._cache.keys, n2 = this._cache.getStore(e2);
+    return { "x-cloudbase-credentials": this._cache.getStore(t2) + "/@@/" + n2 };
+  }
+  _onAnonymousConverted(e2) {
+    const { env: t2 } = e2.data;
+    t2 === this.config.env && this._cache.updatePersistence(this.config.persistence);
+  }
+  _onLoginTypeChanged(e2) {
+    const { loginType: t2, persistence: n2, env: s2 } = e2.data;
+    s2 === this.config.env && (this._cache.updatePersistence(n2), this._cache.setStore(this._cache.keys.loginTypeKey, t2));
+  }
+}
+const pt = function(e2, t2) {
+  t2 = t2 || be();
+  const n2 = rt(this.config.env), { cloudPath: s2, filePath: r2, onUploadProgress: i2, fileType: o2 = "image" } = e2;
+  return n2.send("storage.getUploadMetadata", { path: s2 }).then((e3) => {
+    const { data: { url: a2, authorization: c2, token: u2, fileId: h2, cosFileId: l2 }, requestId: d2 } = e3, p2 = { key: s2, signature: c2, "x-cos-meta-fileid": l2, success_action_status: "201", "x-cos-security-token": u2 };
+    n2.upload({ url: a2, data: p2, file: r2, name: s2, fileType: o2, onUploadProgress: i2 }).then((e4) => {
+      201 === e4.statusCode ? t2(null, { fileID: h2, requestId: d2 }) : t2(new se({ code: "STORAGE_REQUEST_FAIL", message: `STORAGE_REQUEST_FAIL: ${e4.data}` }));
+    }).catch((e4) => {
+      t2(e4);
+    });
+  }).catch((e3) => {
+    t2(e3);
+  }), t2.promise;
+}, ft = function(e2, t2) {
+  t2 = t2 || be();
+  const n2 = rt(this.config.env), { cloudPath: s2 } = e2;
+  return n2.send("storage.getUploadMetadata", { path: s2 }).then((e3) => {
+    t2(null, e3);
+  }).catch((e3) => {
+    t2(e3);
+  }), t2.promise;
+}, gt = function({ fileList: e2 }, t2) {
+  if (t2 = t2 || be(), !e2 || !Array.isArray(e2))
+    return { code: "INVALID_PARAM", message: "fileList必须是非空的数组" };
+  for (let t3 of e2)
+    if (!t3 || "string" != typeof t3)
+      return { code: "INVALID_PARAM", message: "fileList的元素必须是非空的字符串" };
+  const n2 = { fileid_list: e2 };
+  return rt(this.config.env).send("storage.batchDeleteFile", n2).then((e3) => {
+    e3.code ? t2(null, e3) : t2(null, { fileList: e3.data.delete_list, requestId: e3.requestId });
+  }).catch((e3) => {
+    t2(e3);
+  }), t2.promise;
+}, mt = function({ fileList: e2 }, t2) {
+  t2 = t2 || be(), e2 && Array.isArray(e2) || t2(null, { code: "INVALID_PARAM", message: "fileList必须是非空的数组" });
+  let n2 = [];
+  for (let s3 of e2)
+    "object" == typeof s3 ? (s3.hasOwnProperty("fileID") && s3.hasOwnProperty("maxAge") || t2(null, { code: "INVALID_PARAM", message: "fileList的元素必须是包含fileID和maxAge的对象" }), n2.push({ fileid: s3.fileID, max_age: s3.maxAge })) : "string" == typeof s3 ? n2.push({ fileid: s3 }) : t2(null, { code: "INVALID_PARAM", message: "fileList的元素必须是字符串" });
+  const s2 = { file_list: n2 };
+  return rt(this.config.env).send("storage.batchGetDownloadUrl", s2).then((e3) => {
+    e3.code ? t2(null, e3) : t2(null, { fileList: e3.data.download_list, requestId: e3.requestId });
+  }).catch((e3) => {
+    t2(e3);
+  }), t2.promise;
+}, yt = async function({ fileID: e2 }, t2) {
+  const n2 = (await mt.call(this, { fileList: [{ fileID: e2, maxAge: 600 }] })).fileList[0];
+  if ("SUCCESS" !== n2.code)
+    return t2 ? t2(n2) : new Promise((e3) => {
+      e3(n2);
+    });
+  const s2 = rt(this.config.env);
+  let r2 = n2.download_url;
+  if (r2 = encodeURI(r2), !t2)
+    return s2.download({ url: r2 });
+  t2(await s2.download({ url: r2 }));
+}, _t = function({ name: e2, data: t2, query: n2, parse: s2, search: r2, timeout: i2 }, o2) {
+  const a2 = o2 || be();
+  let c2;
+  try {
+    c2 = t2 ? JSON.stringify(t2) : "";
+  } catch (e3) {
+    return Promise.reject(e3);
+  }
+  if (!e2)
+    return Promise.reject(new se({ code: "PARAM_ERROR", message: "函数名不能为空" }));
+  const u2 = { inQuery: n2, parse: s2, search: r2, function_name: e2, request_data: c2 };
+  return rt(this.config.env).send("functions.invokeFunction", u2, { timeout: i2 }).then((e3) => {
+    if (e3.code)
+      a2(null, e3);
+    else {
+      let t3 = e3.data.response_data;
+      if (s2)
+        a2(null, { result: t3, requestId: e3.requestId });
+      else
+        try {
+          t3 = JSON.parse(e3.data.response_data), a2(null, { result: t3, requestId: e3.requestId });
+        } catch (e4) {
+          a2(new se({ message: "response data must be json" }));
+        }
+    }
+    return a2.promise;
+  }).catch((e3) => {
+    a2(e3);
+  }), a2.promise;
+}, wt = { timeout: 15e3, persistence: "session" }, vt = {};
+class It {
+  constructor(e2) {
+    this.config = e2 || this.config, this.authObj = void 0;
+  }
+  init(e2) {
+    switch (Oe.adapter || (this.requestClient = new Oe.adapter.reqClass({ timeout: e2.timeout || 5e3, timeoutMsg: `请求在${(e2.timeout || 5e3) / 1e3}s内未完成，已中断` })), this.config = { ...wt, ...e2 }, true) {
+      case this.config.timeout > 6e5:
+        console.warn("timeout大于可配置上限[10分钟]，已重置为上限数值"), this.config.timeout = 6e5;
+        break;
+      case this.config.timeout < 100:
+        console.warn("timeout小于可配置下限[100ms]，已重置为下限数值"), this.config.timeout = 100;
+    }
+    return new It(this.config);
+  }
+  auth({ persistence: e2 } = {}) {
+    if (this.authObj)
+      return this.authObj;
+    const t2 = e2 || Oe.adapter.primaryStorage || wt.persistence;
+    var n2;
+    return t2 !== this.config.persistence && (this.config.persistence = t2), function(e3) {
+      const { env: t3 } = e3;
+      Ne[t3] = new Ue(e3), De[t3] = new Ue({ ...e3, persistence: "local" });
+    }(this.config), n2 = this.config, st[n2.env] = new nt(n2), this.authObj = new dt(this.config), this.authObj;
+  }
+  on(e2, t2) {
+    return je.apply(this, [e2, t2]);
+  }
+  off(e2, t2) {
+    return Be.apply(this, [e2, t2]);
+  }
+  callFunction(e2, t2) {
+    return _t.apply(this, [e2, t2]);
+  }
+  deleteFile(e2, t2) {
+    return gt.apply(this, [e2, t2]);
+  }
+  getTempFileURL(e2, t2) {
+    return mt.apply(this, [e2, t2]);
+  }
+  downloadFile(e2, t2) {
+    return yt.apply(this, [e2, t2]);
+  }
+  uploadFile(e2, t2) {
+    return pt.apply(this, [e2, t2]);
+  }
+  getUploadMetadata(e2, t2) {
+    return ft.apply(this, [e2, t2]);
+  }
+  registerExtension(e2) {
+    vt[e2.name] = e2;
+  }
+  async invokeExtension(e2, t2) {
+    const n2 = vt[e2];
+    if (!n2)
+      throw new se({ message: `扩展${e2} 必须先注册` });
+    return await n2.invoke(t2, this);
+  }
+  useAdapters(e2) {
+    const { adapter: t2, runtime: n2 } = xe(e2) || {};
+    t2 && (Oe.adapter = t2), n2 && (Oe.runtime = n2);
+  }
+}
+var St = new It();
+function bt(e2, t2, n2) {
+  void 0 === n2 && (n2 = {});
+  var s2 = /\?/.test(t2), r2 = "";
+  for (var i2 in n2)
+    "" === r2 ? !s2 && (t2 += "?") : r2 += "&", r2 += i2 + "=" + encodeURIComponent(n2[i2]);
+  return /^http(s)?:\/\//.test(t2 += r2) ? t2 : "" + e2 + t2;
+}
+class kt {
+  get(e2) {
+    const { url: t2, data: n2, headers: s2, timeout: r2 } = e2;
+    return new Promise((e3, i2) => {
+      re.request({ url: bt("https:", t2), data: n2, method: "GET", header: s2, timeout: r2, success(t3) {
+        e3(t3);
+      }, fail(e4) {
+        i2(e4);
+      } });
+    });
+  }
+  post(e2) {
+    const { url: t2, data: n2, headers: s2, timeout: r2 } = e2;
+    return new Promise((e3, i2) => {
+      re.request({ url: bt("https:", t2), data: n2, method: "POST", header: s2, timeout: r2, success(t3) {
+        e3(t3);
+      }, fail(e4) {
+        i2(e4);
+      } });
+    });
+  }
+  upload(e2) {
+    return new Promise((t2, n2) => {
+      const { url: s2, file: r2, data: i2, headers: o2, fileType: a2 } = e2, c2 = re.uploadFile({ url: bt("https:", s2), name: "file", formData: Object.assign({}, i2), filePath: r2, fileType: a2, header: o2, success(e3) {
+        const n3 = { statusCode: e3.statusCode, data: e3.data || {} };
+        200 === e3.statusCode && i2.success_action_status && (n3.statusCode = parseInt(i2.success_action_status, 10)), t2(n3);
+      }, fail(e3) {
+        n2(new Error(e3.errMsg || "uploadFile:fail"));
+      } });
+      "function" == typeof e2.onUploadProgress && c2 && "function" == typeof c2.onProgressUpdate && c2.onProgressUpdate((t3) => {
+        e2.onUploadProgress({ loaded: t3.totalBytesSent, total: t3.totalBytesExpectedToSend });
+      });
+    });
+  }
+}
+const Tt = { setItem(e2, t2) {
+  re.setStorageSync(e2, t2);
+}, getItem: (e2) => re.getStorageSync(e2), removeItem(e2) {
+  re.removeStorageSync(e2);
+}, clear() {
+  re.clearStorageSync();
+} };
+var At = { genAdapter: function() {
+  return { root: {}, reqClass: kt, localStorage: Tt, primaryStorage: "local" };
+}, isMatch: function() {
+  return true;
+}, runtime: "uni_app" };
+St.useAdapters(At);
+const Pt = St, Ct = Pt.init;
+Pt.init = function(e2) {
+  e2.env = e2.spaceId;
+  const t2 = Ct.call(this, e2);
+  t2.config.provider = "tencent", t2.config.spaceId = e2.spaceId;
+  const n2 = t2.auth;
+  return t2.auth = function(e3) {
+    const t3 = n2.call(this, e3);
+    return ["linkAndRetrieveDataWithTicket", "signInAnonymously", "signOut", "getAccessToken", "getLoginState", "signInWithTicket", "getUserInfo"].forEach((e4) => {
+      var n3;
+      t3[e4] = (n3 = t3[e4], function(e5) {
+        e5 = e5 || {};
+        const { success: t4, fail: s2, complete: r2 } = ne(e5);
+        if (!(t4 || s2 || r2))
+          return n3.call(this, e5);
+        n3.call(this, e5).then((e6) => {
+          t4 && t4(e6), r2 && r2(e6);
+        }, (e6) => {
+          s2 && s2(e6), r2 && r2(e6);
+        });
+      }).bind(t3);
+    }), t3;
+  }, t2.customAuth = t2.auth, t2;
+};
+var xt = Pt;
+async function Ot(e2, t2) {
+  const n2 = `http://${e2}:${t2}/system/ping`;
+  try {
+    const e3 = await (s2 = { url: n2, timeout: 500 }, new Promise((e4, t3) => {
+      re.request({ ...s2, success(t4) {
+        e4(t4);
+      }, fail(e5) {
+        t3(e5);
+      } });
+    }));
+    return !(!e3.data || 0 !== e3.data.code);
+  } catch (e3) {
+    return false;
+  }
+  var s2;
+}
+async function Et(e2, t2) {
+  let n2;
+  for (let s2 = 0; s2 < e2.length; s2++) {
+    const r2 = e2[s2];
+    if (await Ot(r2, t2)) {
+      n2 = r2;
+      break;
+    }
+  }
+  return { address: n2, port: t2 };
+}
+const Lt = { "serverless.file.resource.generateProximalSign": "storage/generate-proximal-sign", "serverless.file.resource.report": "storage/report", "serverless.file.resource.delete": "storage/delete", "serverless.file.resource.getTempFileURL": "storage/get-temp-file-url" };
+var Rt = class {
+  constructor(e2) {
+    if (["spaceId", "clientSecret"].forEach((t2) => {
+      if (!Object.prototype.hasOwnProperty.call(e2, t2))
+        throw new Error(`${t2} required`);
+    }), !e2.endpoint)
+      throw new Error("集群空间未配置ApiEndpoint，配置后需要重新关联服务空间后生效");
+    this.config = Object.assign({}, e2), this.config.provider = "dcloud", this.config.requestUrl = this.config.endpoint + "/client", this.config.envType = this.config.envType || "public", this.adapter = re;
+  }
+  async request(e2, t2 = true) {
+    const n2 = t2;
+    return e2 = n2 ? await this.setupLocalRequest(e2) : this.setupRequest(e2), Promise.resolve().then(() => n2 ? this.requestLocal(e2) : fe.wrappedRequest(e2, this.adapter.request));
+  }
+  requestLocal(e2) {
+    return new Promise((t2, n2) => {
+      this.adapter.request(Object.assign(e2, { complete(e3) {
+        if (e3 || (e3 = {}), !e3.statusCode || e3.statusCode >= 400) {
+          const t3 = e3.data && e3.data.code || "SYS_ERR", s2 = e3.data && e3.data.message || "request:fail";
+          return n2(new se({ code: t3, message: s2 }));
+        }
+        t2({ success: true, result: e3.data });
+      } }));
+    });
+  }
+  setupRequest(e2) {
+    const t2 = Object.assign({}, e2, { spaceId: this.config.spaceId, timestamp: Date.now() }), n2 = { "Content-Type": "application/json" };
+    n2["x-serverless-sign"] = fe.sign(t2, this.config.clientSecret);
+    const s2 = pe();
+    n2["x-client-info"] = encodeURIComponent(JSON.stringify(s2));
+    const { token: r2 } = oe();
+    return n2["x-client-token"] = r2, { url: this.config.requestUrl, method: "POST", data: t2, dataType: "json", header: JSON.parse(JSON.stringify(n2)) };
+  }
+  async setupLocalRequest(e2) {
+    const t2 = pe(), { token: n2 } = oe(), s2 = Object.assign({}, e2, { spaceId: this.config.spaceId, timestamp: Date.now(), clientInfo: t2, token: n2 }), { address: r2, servePort: i2 } = this.__dev__ && this.__dev__.debugInfo || {}, { address: o2 } = await Et(r2, i2);
+    return { url: `http://${o2}:${i2}/${Lt[e2.method]}`, method: "POST", data: s2, dataType: "json", header: JSON.parse(JSON.stringify({ "Content-Type": "application/json" })) };
+  }
+  callFunction(e2) {
+    const t2 = { method: "serverless.function.runtime.invoke", params: JSON.stringify({ functionTarget: e2.name, functionArgs: e2.data || {} }) };
+    return this.request(t2, false);
+  }
+  getUploadFileOptions(e2) {
+    const t2 = { method: "serverless.file.resource.generateProximalSign", params: JSON.stringify(e2) };
+    return this.request(t2);
+  }
+  reportUploadFile(e2) {
+    const t2 = { method: "serverless.file.resource.report", params: JSON.stringify(e2) };
+    return this.request(t2);
+  }
+  uploadFile({ filePath: e2, cloudPath: t2, fileType: n2 = "image", onUploadProgress: s2 }) {
+    if (!t2)
+      throw new se({ code: "CLOUDPATH_REQUIRED", message: "cloudPath不可为空" });
+    let r2;
+    return this.getUploadFileOptions({ cloudPath: t2 }).then((t3) => {
+      const { url: i2, formData: o2, name: a2 } = t3.result;
+      return r2 = t3.result.fileUrl, new Promise((t4, r3) => {
+        const c2 = this.adapter.uploadFile({ url: i2, formData: o2, name: a2, filePath: e2, fileType: n2, success(e3) {
+          e3 && e3.statusCode < 400 ? t4(e3) : r3(new se({ code: "UPLOAD_FAILED", message: "文件上传失败" }));
+        }, fail(e3) {
+          r3(new se({ code: e3.code || "UPLOAD_FAILED", message: e3.message || e3.errMsg || "文件上传失败" }));
+        } });
+        "function" == typeof s2 && c2 && "function" == typeof c2.onProgressUpdate && c2.onProgressUpdate((e3) => {
+          s2({ loaded: e3.totalBytesSent, total: e3.totalBytesExpectedToSend });
+        });
+      });
+    }).then(() => this.reportUploadFile({ cloudPath: t2 })).then((t3) => new Promise((n3, s3) => {
+      t3.success ? n3({ success: true, filePath: e2, fileID: r2 }) : s3(new se({ code: "UPLOAD_FAILED", message: "文件上传失败" }));
+    }));
+  }
+  deleteFile({ fileList: e2 }) {
+    const t2 = { method: "serverless.file.resource.delete", params: JSON.stringify({ fileList: e2 }) };
+    return this.request(t2).then((e3) => {
+      if (e3.success)
+        return e3.result;
+      throw new se({ code: "DELETE_FILE_FAILED", message: "删除文件失败" });
+    });
+  }
+  getTempFileURL({ fileList: e2, maxAge: t2 } = {}) {
+    if (!Array.isArray(e2) || 0 === e2.length)
+      throw new se({ code: "INVALID_PARAM", message: "fileList的元素必须是非空的字符串" });
+    const n2 = { method: "serverless.file.resource.getTempFileURL", params: JSON.stringify({ fileList: e2, maxAge: t2 }) };
+    return this.request(n2).then((e3) => {
+      if (e3.success)
+        return { fileList: e3.result.fileList.map((e4) => ({ fileID: e4.fileID, tempFileURL: e4.tempFileURL })) };
+      throw new se({ code: "GET_TEMP_FILE_URL_FAILED", message: "获取临时文件链接失败" });
+    });
+  }
+};
+var Ut = { init(e2) {
+  const t2 = new Rt(e2), n2 = { signInAnonymously: function() {
+    return Promise.resolve();
+  }, getLoginState: function() {
+    return Promise.resolve(false);
+  } };
+  return t2.auth = function() {
+    return n2;
+  }, t2.customAuth = t2.auth, t2;
+} }, Nt = n(function(e2, t2) {
+  e2.exports = r.enc.Hex;
+});
+function Dt() {
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(e2) {
+    var t2 = 16 * Math.random() | 0;
+    return ("x" === e2 ? t2 : 3 & t2 | 8).toString(16);
+  });
+}
+function Mt(e2 = "", t2 = {}) {
+  const { data: n2, functionName: s2, method: r2, headers: i2, signHeaderKeys: o2 = [], config: a2 } = t2, c2 = String(Date.now()), u2 = Dt(), h2 = Object.assign({}, i2, { "x-from-app-id": a2.spaceAppId, "x-from-env-id": a2.spaceId, "x-to-env-id": a2.spaceId, "x-from-instance-id": c2, "x-from-function-name": s2, "x-client-timestamp": c2, "x-alipay-source": "client", "x-request-id": u2, "x-alipay-callid": u2, "x-trace-id": u2 }), l2 = ["x-from-app-id", "x-from-env-id", "x-to-env-id", "x-from-instance-id", "x-from-function-name", "x-client-timestamp"].concat(o2), [d2 = "", p2 = ""] = e2.split("?") || [], f2 = function(e3) {
+    const t3 = e3.signedHeaders.join(";"), n3 = e3.signedHeaders.map((t4) => `${t4.toLowerCase()}:${e3.headers[t4]}
+`).join(""), s3 = Ie(e3.body).toString(Nt), r3 = `${e3.method.toUpperCase()}
+${e3.path}
+${e3.query}
+${n3}
+${t3}
+${s3}
+`, i3 = Ie(r3).toString(Nt), o3 = `HMAC-SHA256
+${e3.timestamp}
+${i3}
+`, a3 = Se(o3, e3.secretKey).toString(Nt);
+    return `HMAC-SHA256 Credential=${e3.secretId}, SignedHeaders=${t3}, Signature=${a3}`;
+  }({ path: d2, query: p2, method: r2, headers: h2, timestamp: c2, body: JSON.stringify(n2), secretId: a2.accessKey, secretKey: a2.secretKey, signedHeaders: l2.sort() });
+  return { url: `${a2.endpoint}${e2}`, headers: Object.assign({}, h2, { Authorization: f2 }) };
+}
+function qt({ url: e2, data: t2, method: n2 = "POST", headers: s2 = {}, timeout: r2 }) {
+  return new Promise((i2, o2) => {
+    re.request({ url: e2, method: n2, data: "object" == typeof t2 ? JSON.stringify(t2) : t2, header: s2, dataType: "json", timeout: r2, complete: (e3 = {}) => {
+      const t3 = s2["x-trace-id"] || "";
+      if (!e3.statusCode || e3.statusCode >= 400) {
+        const { message: n3, errMsg: s3, trace_id: r3 } = e3.data || {};
+        return o2(new se({ code: "SYS_ERR", message: n3 || s3 || "request:fail", requestId: r3 || t3 }));
+      }
+      i2({ status: e3.statusCode, data: e3.data, headers: e3.header, requestId: t3 });
+    } });
+  });
+}
+function Kt(e2, t2) {
+  const { path: n2, data: s2, method: r2 = "GET" } = e2, { url: i2, headers: o2 } = Mt(n2, { functionName: "", data: s2, method: r2, headers: { "x-alipay-cloud-mode": "oss", "x-data-api-type": "oss", "x-expire-timestamp": Date.now() + 6e4 }, signHeaderKeys: ["x-data-api-type", "x-expire-timestamp"], config: t2 });
+  return qt({ url: i2, data: s2, method: r2, headers: o2 }).then((e3) => {
+    const t3 = e3.data || {};
+    if (!t3.success)
+      throw new se({ code: e3.errCode, message: e3.errMsg, requestId: e3.requestId });
+    return t3.data || {};
+  }).catch((e3) => {
+    throw new se({ code: e3.errCode, message: e3.errMsg, requestId: e3.requestId });
+  });
+}
+function Ft(e2 = "") {
+  const t2 = e2.trim().replace(/^cloud:\/\//, ""), n2 = t2.indexOf("/");
+  if (n2 <= 0)
+    throw new se({ code: "INVALID_PARAM", message: "fileID不合法" });
+  const s2 = t2.substring(0, n2), r2 = t2.substring(n2 + 1);
+  return s2 !== this.config.spaceId && console.warn("file ".concat(e2, " does not belong to env ").concat(this.config.spaceId)), r2;
+}
+function jt(e2 = "") {
+  return "cloud://".concat(this.config.spaceId, "/").concat(e2.replace(/^\/+/, ""));
+}
+class $t {
+  constructor(e2) {
+    this.config = e2;
+  }
+  signedURL(e2, t2 = {}) {
+    const n2 = `/ws/function/${e2}`, s2 = this.config.wsEndpoint.replace(/^ws(s)?:\/\//, ""), r2 = Object.assign({}, t2, { accessKeyId: this.config.accessKey, signatureNonce: Dt(), timestamp: "" + Date.now() }), i2 = [n2, ["accessKeyId", "authorization", "signatureNonce", "timestamp"].sort().map(function(e3) {
+      return r2[e3] ? "".concat(e3, "=").concat(r2[e3]) : null;
+    }).filter(Boolean).join("&"), `host:${s2}`].join("\n"), o2 = ["HMAC-SHA256", Ie(i2).toString(Nt)].join("\n"), a2 = Se(o2, this.config.secretKey).toString(Nt), c2 = Object.keys(r2).map((e3) => `${e3}=${encodeURIComponent(r2[e3])}`).join("&");
+    return `${this.config.wsEndpoint}${n2}?${c2}&signature=${a2}`;
+  }
+}
+var Bt = class {
+  constructor(e2) {
+    if (["spaceId", "spaceAppId", "accessKey", "secretKey"].forEach((t2) => {
+      if (!Object.prototype.hasOwnProperty.call(e2, t2))
+        throw new Error(`${t2} required`);
+    }), e2.endpoint) {
+      if ("string" != typeof e2.endpoint)
+        throw new Error("endpoint must be string");
+      if (!/^https:\/\//.test(e2.endpoint))
+        throw new Error("endpoint must start with https://");
+      e2.endpoint = e2.endpoint.replace(/\/$/, "");
+    }
+    this.config = Object.assign({}, e2, { endpoint: e2.endpoint || `https://${e2.spaceId}.api-hz.cloudbasefunction.cn`, wsEndpoint: e2.wsEndpoint || `wss://${e2.spaceId}.api-hz.cloudbasefunction.cn` }), this._websocket = new $t(this.config);
+  }
+  callFunction(e2) {
+    return function(e3, t2) {
+      const { name: n2, data: s2, async: r2 = false, timeout: i2 } = e3, o2 = "POST", a2 = { "x-to-function-name": n2 };
+      r2 && (a2["x-function-invoke-type"] = "async");
+      const { url: c2, headers: u2 } = Mt("/functions/invokeFunction", { functionName: n2, data: s2, method: o2, headers: a2, signHeaderKeys: ["x-to-function-name"], config: t2 });
+      return qt({ url: c2, data: s2, method: o2, headers: u2, timeout: i2 }).then((e4) => {
+        let t3 = 0;
+        if (r2) {
+          const n3 = e4.data || {};
+          t3 = "200" === n3.errCode ? 0 : n3.errCode, e4.data = n3.data || {}, e4.errMsg = n3.errMsg;
+        }
+        if (0 !== t3)
+          throw new se({ code: t3, message: e4.errMsg, requestId: e4.requestId });
+        return { errCode: t3, success: 0 === t3, requestId: e4.requestId, result: e4.data };
+      }).catch((e4) => {
+        throw new se({ code: e4.errCode, message: e4.errMsg, requestId: e4.requestId });
+      });
+    }(e2, this.config);
+  }
+  uploadFileToOSS({ url: e2, filePath: t2, fileType: n2, formData: s2, onUploadProgress: r2 }) {
+    return new Promise((i2, o2) => {
+      const a2 = re.uploadFile({ url: e2, filePath: t2, fileType: n2, formData: s2, name: "file", success(e3) {
+        e3 && e3.statusCode < 400 ? i2(e3) : o2(new se({ code: "UPLOAD_FAILED", message: "文件上传失败" }));
+      }, fail(e3) {
+        o2(new se({ code: e3.code || "UPLOAD_FAILED", message: e3.message || e3.errMsg || "文件上传失败" }));
+      } });
+      "function" == typeof r2 && a2 && "function" == typeof a2.onProgressUpdate && a2.onProgressUpdate((e3) => {
+        r2({ loaded: e3.totalBytesSent, total: e3.totalBytesExpectedToSend });
+      });
+    });
+  }
+  async uploadFile({ filePath: e2, cloudPath: t2 = "", fileType: n2 = "image", onUploadProgress: s2 }) {
+    if ("string" !== f(t2))
+      throw new se({ code: "INVALID_PARAM", message: "cloudPath必须为字符串类型" });
+    if (!(t2 = t2.trim()))
+      throw new se({ code: "INVALID_PARAM", message: "cloudPath不可为空" });
+    if (/:\/\//.test(t2))
+      throw new se({ code: "INVALID_PARAM", message: "cloudPath不合法" });
+    const r2 = await Kt({ path: "/".concat(t2.replace(/^\//, ""), "?post_url") }, this.config), { file_id: i2, upload_url: o2, form_data: a2 } = r2, c2 = a2 && a2.reduce((e3, t3) => (e3[t3.key] = t3.value, e3), {});
+    return this.uploadFileToOSS({ url: o2, filePath: e2, fileType: n2, formData: c2, onUploadProgress: s2 }).then(() => ({ fileID: i2 }));
+  }
+  async getTempFileURL({ fileList: e2 }) {
+    return new Promise((t2, n2) => {
+      (!e2 || e2.length < 0) && t2({ code: "INVALID_PARAM", message: "fileList不能为空数组" }), e2.length > 50 && t2({ code: "INVALID_PARAM", message: "fileList数组长度不能超过50" });
+      const s2 = [];
+      for (const n3 of e2) {
+        let e3;
+        "string" !== f(n3) && t2({ code: "INVALID_PARAM", message: "fileList的元素必须是非空的字符串" });
+        try {
+          e3 = Ft.call(this, n3);
+        } catch (t3) {
+          console.warn(t3.errCode, t3.errMsg), e3 = n3;
+        }
+        s2.push({ file_id: e3, expire: 600 });
+      }
+      Kt({ path: "/?download_url", data: { file_list: s2 }, method: "POST" }, this.config).then((e3) => {
+        const { file_list: n3 = [] } = e3;
+        t2({ fileList: n3.map((e4) => ({ fileID: jt.call(this, e4.file_id), tempFileURL: e4.download_url })) });
+      }).catch((e3) => n2(e3));
+    });
+  }
+  async connectWebSocket(e2) {
+    const { name: t2, query: n2 } = e2;
+    return re.connectSocket({ url: this._websocket.signedURL(t2, n2), complete: () => {
+    } });
+  }
+};
+var Wt = { init: (e2) => {
+  e2.provider = "alipay";
+  const t2 = new Bt(e2);
+  return t2.auth = function() {
+    return { signInAnonymously: function() {
+      return Promise.resolve();
+    }, getLoginState: function() {
+      return Promise.resolve(true);
+    } };
+  }, t2;
+} };
+function Ht({ data: e2 }) {
+  let t2;
+  t2 = pe();
+  const n2 = JSON.parse(JSON.stringify(e2 || {}));
+  if (Object.assign(n2, { clientInfo: t2 }), !n2.uniIdToken) {
+    const { token: e3 } = oe();
+    e3 && (n2.uniIdToken = e3);
+  }
+  return n2;
+}
+async function Jt(e2 = {}) {
+  await this.__dev__.initLocalNetwork();
+  const { localAddress: t2, localPort: n2 } = this.__dev__, s2 = { aliyun: "aliyun", tencent: "tcb", alipay: "alipay", dcloud: "dcloud" }[this.config.provider], r2 = this.config.spaceId, i2 = `http://${t2}:${n2}/system/check-function`, o2 = `http://${t2}:${n2}/cloudfunctions/${e2.name}`;
+  return new Promise((t3, n3) => {
+    re.request({ method: "POST", url: i2, data: { name: e2.name, platform: A, provider: s2, spaceId: r2 }, timeout: 3e3, success(e3) {
+      t3(e3);
+    }, fail() {
+      t3({ data: { code: "NETWORK_ERROR", message: "连接本地调试服务失败，请检查客户端是否和主机在同一局域网下，自动切换为已部署的云函数。" } });
+    } });
+  }).then(({ data: e3 } = {}) => {
+    const { code: t3, message: n3 } = e3 || {};
+    return { code: 0 === t3 ? 0 : t3 || "SYS_ERR", message: n3 || "SYS_ERR" };
+  }).then(({ code: t3, message: n3 }) => {
+    if (0 !== t3) {
+      switch (t3) {
+        case "MODULE_ENCRYPTED":
+          console.error(`此云函数（${e2.name}）依赖加密公共模块不可本地调试，自动切换为云端已部署的云函数`);
+          break;
+        case "FUNCTION_ENCRYPTED":
+          console.error(`此云函数（${e2.name}）已加密不可本地调试，自动切换为云端已部署的云函数`);
+          break;
+        case "ACTION_ENCRYPTED":
+          console.error(n3 || "需要访问加密的uni-clientDB-action，自动切换为云端环境");
+          break;
+        case "NETWORK_ERROR":
+          console.error(n3 || "连接本地调试服务失败，请检查客户端是否和主机在同一局域网下");
+          break;
+        case "SWITCH_TO_CLOUD":
+          break;
+        default: {
+          const e3 = `检测本地调试服务出现错误：${n3}，请检查网络环境或重启客户端再试`;
+          throw console.error(e3), new Error(e3);
+        }
+      }
+      return this._callCloudFunction(e2);
+    }
+    return new Promise((t4, n4) => {
+      const r3 = Ht.call(this, { data: e2.data });
+      re.request({ method: "POST", url: o2, data: { provider: s2, platform: A, param: r3 }, timeout: e2.timeout, success: ({ statusCode: e3, data: s3 } = {}) => !e3 || e3 >= 400 ? n4(new se({ code: s3.code || "SYS_ERR", message: s3.message || "request:fail" })) : t4({ result: s3 }), fail(e3) {
+        n4(new se({ code: e3.code || e3.errCode || "SYS_ERR", message: e3.message || e3.errMsg || "request:fail" }));
+      } });
+    });
+  });
+}
+const zt = [{ rule: /fc_function_not_found|FUNCTION_NOT_FOUND/, content: "，云函数[{functionName}]在云端不存在，请检查此云函数名称是否正确以及该云函数是否已上传到服务空间", mode: "append" }];
+var Vt = /[\\^$.*+?()[\]{}|]/g, Gt = RegExp(Vt.source);
+function Yt(e2, t2, n2) {
+  return e2.replace(new RegExp((s2 = t2) && Gt.test(s2) ? s2.replace(Vt, "\\$&") : s2, "g"), n2);
+  var s2;
+}
+const Xt = "request", Zt = "response", en = "both";
+const Mn = { code: 2e4, message: "System error" }, qn = { code: 20101, message: "Invalid client" };
+function jn(e2) {
+  const { errSubject: t2, subject: n2, errCode: s2, errMsg: r2, code: i2, message: o2, cause: a2 } = e2 || {};
+  return new se({ subject: t2 || n2 || "uni-secure-network", code: s2 || i2 || Mn.code, message: r2 || o2, cause: a2 });
+}
+let Bn;
+function Vn({ secretType: e2 } = {}) {
+  return e2 === Xt || e2 === Zt || e2 === en;
+}
+function Gn({ name: e2, data: t2 = {} } = {}) {
+  return "app" === A;
+}
+function Yn({ provider: e2, spaceId: t2, functionName: n2 } = {}) {
+  const { appId: s2, uniPlatform: r2, osName: i2 } = he();
+  let o2 = r2;
+  "app" === r2 && (o2 = i2);
+  const a2 = function({ provider: e3, spaceId: t3 } = {}) {
+    const n3 = T;
+    if (!n3)
+      return {};
+    e3 = /* @__PURE__ */ function(e4) {
+      return "tencent" === e4 ? "tcb" : e4;
+    }(e3);
+    const s3 = n3.find((n4) => n4.provider === e3 && n4.spaceId === t3);
+    return s3 && s3.config;
+  }({ provider: e2, spaceId: t2 });
+  if (!a2 || !a2.accessControl || !a2.accessControl.enable)
+    return false;
+  const c2 = a2.accessControl.function || {}, u2 = Object.keys(c2);
+  if (0 === u2.length)
+    return true;
+  const h2 = function(e3, t3) {
+    let n3, s3, r3;
+    for (let i3 = 0; i3 < e3.length; i3++) {
+      const o3 = e3[i3];
+      o3 !== t3 ? "*" !== o3 ? o3.split(",").map((e4) => e4.trim()).indexOf(t3) > -1 && (s3 = o3) : r3 = o3 : n3 = o3;
+    }
+    return n3 || s3 || r3;
+  }(u2, n2);
+  if (!h2)
+    return false;
+  if ((c2[h2] || []).find((e3 = {}) => e3.appId === s2 && (e3.platform || "").toLowerCase() === o2.toLowerCase()))
+    return true;
+  throw console.error(`此应用[appId: ${s2}, platform: ${o2}]不在云端配置的允许访问的应用列表内，参考：https://uniapp.dcloud.net.cn/uniCloud/secure-network.html#verify-client`), jn(qn);
+}
+function Qn({ functionName: e2, result: t2, logPvd: n2 }) {
+  if (this.__dev__.debugLog && t2 && t2.requestId) {
+    const s2 = JSON.stringify({ spaceId: this.config.spaceId, functionName: e2, requestId: t2.requestId });
+    console.log(`[${n2}-request]${s2}[/${n2}-request]`);
+  }
+}
+function Xn(e2) {
+  const t2 = e2.callFunction, n2 = function(n3) {
+    const s2 = n3.name;
+    n3.data = Ht.call(e2, { data: n3.data });
+    const r2 = { aliyun: "aliyun", tencent: "tcb", tcb: "tcb", alipay: "alipay", dcloud: "dcloud" }[this.config.provider], i2 = Vn(n3), o2 = Gn(n3), a2 = i2 || o2;
+    return t2.call(this, n3).then((e3) => (e3.errCode = 0, !a2 && Qn.call(this, { functionName: s2, result: e3, logPvd: r2 }), Promise.resolve(e3)), (e3) => (!a2 && Qn.call(this, { functionName: s2, result: e3, logPvd: r2 }), e3 && e3.message && (e3.message = function({ message: e4 = "", extraInfo: t3 = {}, formatter: n4 = [] } = {}) {
+      for (let s3 = 0; s3 < n4.length; s3++) {
+        const { rule: r3, content: i3, mode: o3 } = n4[s3], a3 = e4.match(r3);
+        if (!a3)
+          continue;
+        let c2 = i3;
+        for (let e5 = 1; e5 < a3.length; e5++)
+          c2 = Yt(c2, `{$${e5}}`, a3[e5]);
+        for (const e5 in t3)
+          c2 = Yt(c2, `{${e5}}`, t3[e5]);
+        return "replace" === o3 ? c2 : e4 + c2;
+      }
+      return e4;
+    }({ message: `[${n3.name}]: ${e3.message}`, formatter: zt, extraInfo: { functionName: s2 } })), Promise.reject(e3)));
+  };
+  e2.callFunction = function(t3) {
+    const { provider: s2, spaceId: r2 } = e2.config, i2 = t3.name;
+    let o2, a2;
+    if (t3.data = t3.data || {}, e2.__dev__.debugInfo && !e2.__dev__.debugInfo.forceRemote && C ? (e2._callCloudFunction || (e2._callCloudFunction = n2, e2._callLocalFunction = Jt), o2 = Jt) : o2 = n2, o2 = o2.bind(e2), Gn(t3))
+      ;
+    else if (function({ name: e3, data: t4 = {} }) {
+      return "uni-id-co" === e3 && "secureNetworkHandshakeByWeixin" === t4.method;
+    }(t3))
+      a2 = o2.call(e2, t3);
+    else if (Vn(t3)) {
+      a2 = new Bn({ secretType: t3.secretType, uniCloudIns: e2 }).wrapEncryptDataCallFunction(n2.bind(e2))(t3);
+    } else if (Yn({ provider: s2, spaceId: r2, functionName: i2 })) {
+      a2 = new Bn({ secretType: t3.secretType, uniCloudIns: e2 }).wrapVerifyClientCallFunction(n2.bind(e2))(t3);
+    } else
+      a2 = o2(t3);
+    return Object.defineProperty(a2, "result", { get: () => (console.warn("当前返回结果为Promise类型，不可直接访问其result属性，详情请参考：https://uniapp.dcloud.net.cn/uniCloud/faq?id=promise"), {}) }), a2.then((e3) => ("undefined" != typeof UTSJSONObject && "undefined" != typeof UTS && (e3.result = UTS.JSON.parse(JSON.stringify(e3.result))), e3));
+  };
+}
+Bn = class {
+  constructor() {
+    throw jn({ message: `Platform ${A} is not enabled, please check whether secure network module is enabled in your manifest.json` });
+  }
+};
+const Zn = Symbol("CLIENT_DB_INTERNAL");
+function es(e2, t2) {
+  return e2.then = "DoNotReturnProxyWithAFunctionNamedThen", e2._internalType = Zn, e2.inspect = null, e2.__v_raw = void 0, new Proxy(e2, { get(e3, n2, s2) {
+    if ("_uniClient" === n2)
+      return null;
+    if ("symbol" == typeof n2)
+      return e3[n2];
+    if (n2 in e3 || "string" != typeof n2) {
+      const t3 = e3[n2];
+      return "function" == typeof t3 ? t3.bind(e3) : t3;
+    }
+    return t2.get(e3, n2, s2);
+  } });
+}
+function ts(e2) {
+  return { on: (t2, n2) => {
+    e2[t2] = e2[t2] || [], e2[t2].indexOf(n2) > -1 || e2[t2].push(n2);
+  }, off: (t2, n2) => {
+    e2[t2] = e2[t2] || [];
+    const s2 = e2[t2].indexOf(n2);
+    -1 !== s2 && e2[t2].splice(s2, 1);
+  } };
+}
+const ns = ["db.Geo", "db.command", "command.aggregate"];
+function ss(e2, t2) {
+  return ns.indexOf(`${e2}.${t2}`) > -1;
+}
+function rs(e2) {
+  switch (f(e2 = ie(e2))) {
+    case "array":
+      return e2.map((e3) => rs(e3));
+    case "object":
+      return e2._internalType === Zn || Object.keys(e2).forEach((t2) => {
+        e2[t2] = rs(e2[t2]);
+      }), e2;
+    case "regexp":
+      return { $regexp: { source: e2.source, flags: e2.flags } };
+    case "date":
+      return { $date: e2.toISOString() };
+    default:
+      return e2;
+  }
+}
+function is(e2) {
+  return e2 && e2.content && e2.content.$method;
+}
+class os {
+  constructor(e2, t2, n2) {
+    this.content = e2, this.prevStage = t2 || null, this.udb = null, this._database = n2;
+  }
+  toJSON() {
+    let e2 = this;
+    const t2 = [e2.content];
+    for (; e2.prevStage; )
+      e2 = e2.prevStage, t2.push(e2.content);
+    return { $db: t2.reverse().map((e3) => ({ $method: e3.$method, $param: rs(e3.$param) })) };
+  }
+  toString() {
+    return JSON.stringify(this.toJSON());
+  }
+  getAction() {
+    const e2 = this.toJSON().$db.find((e3) => "action" === e3.$method);
+    return e2 && e2.$param && e2.$param[0];
+  }
+  getCommand() {
+    return { $db: this.toJSON().$db.filter((e2) => "action" !== e2.$method) };
+  }
+  get isAggregate() {
+    let e2 = this;
+    for (; e2; ) {
+      const t2 = is(e2), n2 = is(e2.prevStage);
+      if ("aggregate" === t2 && "collection" === n2 || "pipeline" === t2)
+        return true;
+      e2 = e2.prevStage;
+    }
+    return false;
+  }
+  get isCommand() {
+    let e2 = this;
+    for (; e2; ) {
+      if ("command" === is(e2))
+        return true;
+      e2 = e2.prevStage;
+    }
+    return false;
+  }
+  get isAggregateCommand() {
+    let e2 = this;
+    for (; e2; ) {
+      const t2 = is(e2), n2 = is(e2.prevStage);
+      if ("aggregate" === t2 && "command" === n2)
+        return true;
+      e2 = e2.prevStage;
+    }
+    return false;
+  }
+  getNextStageFn(e2) {
+    const t2 = this;
+    return function() {
+      return as({ $method: e2, $param: rs(Array.from(arguments)) }, t2, t2._database);
+    };
+  }
+  get count() {
+    return this.isAggregate ? this.getNextStageFn("count") : function() {
+      return this._send("count", Array.from(arguments));
+    };
+  }
+  get remove() {
+    return this.isCommand ? this.getNextStageFn("remove") : function() {
+      return this._send("remove", Array.from(arguments));
+    };
+  }
+  get() {
+    return this._send("get", Array.from(arguments));
+  }
+  get add() {
+    return this.isCommand ? this.getNextStageFn("add") : function() {
+      return this._send("add", Array.from(arguments));
+    };
+  }
+  update() {
+    return this._send("update", Array.from(arguments));
+  }
+  end() {
+    return this._send("end", Array.from(arguments));
+  }
+  get set() {
+    return this.isCommand ? this.getNextStageFn("set") : function() {
+      throw new Error("JQL禁止使用set方法");
+    };
+  }
+  _send(e2, t2) {
+    const n2 = this.getAction(), s2 = this.getCommand();
+    if (s2.$db.push({ $method: e2, $param: rs(t2) }), S) {
+      const e3 = s2.$db.find((e4) => "collection" === e4.$method), t3 = e3 && e3.$param;
+      t3 && 1 === t3.length && "string" == typeof e3.$param[0] && e3.$param[0].indexOf(",") > -1 && console.warn("检测到使用JQL语法联表查询时，未使用getTemp先过滤主表数据，在主表数据量大的情况下可能会查询缓慢。\n- 如何优化请参考此文档：https://uniapp.dcloud.net.cn/uniCloud/jql?id=lookup-with-temp \n- 如果主表数据量很小请忽略此信息，项目发行时不会出现此提示。");
+    }
+    return this._database._callCloudFunction({ action: n2, command: s2 });
+  }
+}
+function as(e2, t2, n2) {
+  return es(new os(e2, t2, n2), { get(e3, t3) {
+    let s2 = "db";
+    return e3 && e3.content && (s2 = e3.content.$method), ss(s2, t3) ? as({ $method: t3 }, e3, n2) : function() {
+      return as({ $method: t3, $param: rs(Array.from(arguments)) }, e3, n2);
+    };
+  } });
+}
+function cs({ path: e2, method: t2 }) {
+  return class {
+    constructor() {
+      this.param = Array.from(arguments);
+    }
+    toJSON() {
+      return { $newDb: [...e2.map((e3) => ({ $method: e3 })), { $method: t2, $param: this.param }] };
+    }
+    toString() {
+      return JSON.stringify(this.toJSON());
+    }
+  };
+}
+function us(e2, t2 = {}) {
+  return es(new e2(t2), { get: (e3, t3) => ss("db", t3) ? as({ $method: t3 }, null, e3) : function() {
+    return as({ $method: t3, $param: rs(Array.from(arguments)) }, null, e3);
+  } });
+}
+class hs extends class {
+  constructor({ uniClient: e2 = {}, isJQL: t2 = false } = {}) {
+    this._uniClient = e2, this._authCallBacks = {}, this._dbCallBacks = {}, e2._isDefault && (this._dbCallBacks = R("_globalUniCloudDatabaseCallback")), t2 || (this.auth = ts(this._authCallBacks)), this._isJQL = t2, Object.assign(this, ts(this._dbCallBacks)), this.env = es({}, { get: (e3, t3) => ({ $env: t3 }) }), this.Geo = es({}, { get: (e3, t3) => cs({ path: ["Geo"], method: t3 }) }), this.serverDate = cs({ path: [], method: "serverDate" }), this.RegExp = cs({ path: [], method: "RegExp" });
+  }
+  getCloudEnv(e2) {
+    if ("string" != typeof e2 || !e2.trim())
+      throw new Error("getCloudEnv参数错误");
+    return { $env: e2.replace("$cloudEnv_", "") };
+  }
+  _callback(e2, t2) {
+    const n2 = this._dbCallBacks;
+    n2[e2] && n2[e2].forEach((e3) => {
+      e3(...t2);
+    });
+  }
+  _callbackAuth(e2, t2) {
+    const n2 = this._authCallBacks;
+    n2[e2] && n2[e2].forEach((e3) => {
+      e3(...t2);
+    });
+  }
+  multiSend() {
+    const e2 = Array.from(arguments), t2 = e2.map((e3) => {
+      const t3 = e3.getAction(), n2 = e3.getCommand();
+      if ("getTemp" !== n2.$db[n2.$db.length - 1].$method)
+        throw new Error("multiSend只支持子命令内使用getTemp");
+      return { action: t3, command: n2 };
+    });
+    return this._callCloudFunction({ multiCommand: t2, queryList: e2 });
+  }
+} {
+  _parseResult(e2) {
+    return this._isJQL ? e2.result : e2;
+  }
+  _callCloudFunction({ action: e2, command: t2, multiCommand: n2, queryList: s2 }) {
+    function r2(e3, t3) {
+      if (n2 && s2)
+        for (let n3 = 0; n3 < s2.length; n3++) {
+          const r3 = s2[n3];
+          r3.udb && "function" == typeof r3.udb.setResult && (t3 ? r3.udb.setResult(t3) : r3.udb.setResult(e3.result.dataList[n3]));
+        }
+    }
+    const i2 = this, o2 = this._isJQL ? "databaseForJQL" : "database";
+    function a2(e3) {
+      return i2._callback("error", [e3]), K(F(o2, "fail"), e3).then(() => K(F(o2, "complete"), e3)).then(() => (r2(null, e3), X(B, { type: J, content: e3 }), Promise.reject(e3)));
+    }
+    const c2 = K(F(o2, "invoke")), u2 = this._uniClient;
+    return c2.then(() => u2.callFunction({ name: "DCloud-clientDB", type: h, data: { action: e2, command: t2, multiCommand: n2 } })).then((e3) => {
+      const { code: t3, message: n3, token: s3, tokenExpired: c3, systemInfo: u3 = [] } = e3.result;
+      if (u3)
+        for (let e4 = 0; e4 < u3.length; e4++) {
+          const { level: t4, message: n4, detail: s4 } = u3[e4], r3 = console[t4] || console.log;
+          let i3 = "[System Info]" + n4;
+          s4 && (i3 = `${i3}
+详细信息：${s4}`), r3(i3);
+        }
+      if (t3) {
+        return a2(new se({ code: t3, message: n3, requestId: e3.requestId }));
+      }
+      e3.result.errCode = e3.result.errCode || e3.result.code, e3.result.errMsg = e3.result.errMsg || e3.result.message, s3 && c3 && (ae({ token: s3, tokenExpired: c3 }), this._callbackAuth("refreshToken", [{ token: s3, tokenExpired: c3 }]), this._callback("refreshToken", [{ token: s3, tokenExpired: c3 }]), X(H, { token: s3, tokenExpired: c3 }));
+      const h2 = [{ prop: "affectedDocs", tips: "affectedDocs不再推荐使用，请使用inserted/deleted/updated/data.length替代" }, { prop: "code", tips: "code不再推荐使用，请使用errCode替代" }, { prop: "message", tips: "message不再推荐使用，请使用errMsg替代" }];
+      for (let t4 = 0; t4 < h2.length; t4++) {
+        const { prop: n4, tips: s4 } = h2[t4];
+        if (n4 in e3.result) {
+          const t5 = e3.result[n4];
+          Object.defineProperty(e3.result, n4, { get: () => (console.warn(s4), t5) });
+        }
+      }
+      return function(e4) {
+        return K(F(o2, "success"), e4).then(() => K(F(o2, "complete"), e4)).then(() => {
+          r2(e4, null);
+          const t4 = i2._parseResult(e4);
+          return X(B, { type: J, content: t4 }), Promise.resolve(t4);
+        });
+      }(e3);
+    }, (e3) => {
+      /fc_function_not_found|FUNCTION_NOT_FOUND/g.test(e3.message) && console.warn("clientDB未初始化，请在web控制台保存一次schema以开启clientDB");
+      return a2(new se({ code: e3.code || "SYSTEM_ERROR", message: e3.message, requestId: e3.requestId }));
+    });
+  }
+}
+const ls = "token无效，跳转登录页面", ds = "token过期，跳转登录页面", ps = { TOKEN_INVALID_TOKEN_EXPIRED: ds, TOKEN_INVALID_INVALID_CLIENTID: ls, TOKEN_INVALID: ls, TOKEN_INVALID_WRONG_TOKEN: ls, TOKEN_INVALID_ANONYMOUS_USER: ls }, fs = { "uni-id-token-expired": ds, "uni-id-check-token-failed": ls, "uni-id-token-not-exist": ls, "uni-id-check-device-feature-failed": ls };
+function gs(e2, t2) {
+  let n2 = "";
+  return n2 = e2 ? `${e2}/${t2}` : t2, n2.replace(/^\//, "");
+}
+function ms(e2 = [], t2 = "") {
+  const n2 = [], s2 = [];
+  return e2.forEach((e3) => {
+    true === e3.needLogin ? n2.push(gs(t2, e3.path)) : false === e3.needLogin && s2.push(gs(t2, e3.path));
+  }), { needLoginPage: n2, notNeedLoginPage: s2 };
+}
+function ys(e2) {
+  return e2.split("?")[0].replace(/^\//, "");
+}
+function _s() {
+  return function(e2) {
+    let t2 = e2 && e2.$page && e2.$page.fullPath || "";
+    return t2 ? ("/" !== t2.charAt(0) && (t2 = "/" + t2), t2) : t2;
+  }(function() {
+    const e2 = getCurrentPages();
+    return e2[e2.length - 1];
+  }());
+}
+function ws() {
+  return ys(_s());
+}
+function vs(e2 = "", t2 = {}) {
+  if (!e2)
+    return false;
+  if (!(t2 && t2.list && t2.list.length))
+    return false;
+  const n2 = t2.list, s2 = ys(e2);
+  return n2.some((e3) => e3.pagePath === s2);
+}
+const Is = !!e.uniIdRouter;
+const { loginPage: Ss, routerNeedLogin: bs, resToLogin: ks$1, needLoginPage: Ts, notNeedLoginPage: As, loginPageInTabBar: Ps } = function({ pages: t2 = [], subPackages: n2 = [], uniIdRouter: s2 = {}, tabBar: r2 = {} } = e) {
+  const { loginPage: i2, needLogin: o2 = [], resToLogin: a2 = true } = s2, { needLoginPage: c2, notNeedLoginPage: u2 } = ms(t2), { needLoginPage: h2, notNeedLoginPage: l2 } = function(e2 = []) {
+    const t3 = [], n3 = [];
+    return e2.forEach((e3) => {
+      const { root: s3, pages: r3 = [] } = e3, { needLoginPage: i3, notNeedLoginPage: o3 } = ms(r3, s3);
+      t3.push(...i3), n3.push(...o3);
+    }), { needLoginPage: t3, notNeedLoginPage: n3 };
+  }(n2);
+  return { loginPage: i2, routerNeedLogin: o2, resToLogin: a2, needLoginPage: [...c2, ...h2], notNeedLoginPage: [...u2, ...l2], loginPageInTabBar: vs(i2, r2) };
+}();
+if (Ts.indexOf(Ss) > -1)
+  throw new Error(`Login page [${Ss}] should not be "needLogin", please check your pages.json`);
+function Cs(e2) {
+  const t2 = ws();
+  if ("/" === e2.charAt(0))
+    return e2;
+  const [n2, s2] = e2.split("?"), r2 = n2.replace(/^\//, "").split("/"), i2 = t2.split("/");
+  i2.pop();
+  for (let e3 = 0; e3 < r2.length; e3++) {
+    const t3 = r2[e3];
+    ".." === t3 ? i2.pop() : "." !== t3 && i2.push(t3);
+  }
+  return "" === i2[0] && i2.shift(), "/" + i2.join("/") + (s2 ? "?" + s2 : "");
+}
+function xs(e2) {
+  const t2 = ys(Cs(e2));
+  return !(As.indexOf(t2) > -1) && (Ts.indexOf(t2) > -1 || bs.some((t3) => function(e3, t4) {
+    return new RegExp(t4).test(e3);
+  }(e2, t3)));
+}
+function Os({ redirect: e2 }) {
+  const t2 = ys(e2), n2 = ys(Ss);
+  return ws() !== n2 && t2 !== n2;
+}
+function Es({ api: e2, redirect: t2 } = {}) {
+  if (!t2 || !Os({ redirect: t2 }))
+    return;
+  const n2 = function(e3, t3) {
+    return "/" !== e3.charAt(0) && (e3 = "/" + e3), t3 ? e3.indexOf("?") > -1 ? e3 + `&uniIdRedirectUrl=${encodeURIComponent(t3)}` : e3 + `?uniIdRedirectUrl=${encodeURIComponent(t3)}` : e3;
+  }(Ss, t2);
+  Ps ? "navigateTo" !== e2 && "redirectTo" !== e2 || (e2 = "switchTab") : "switchTab" === e2 && (e2 = "navigateTo");
+  const s2 = { navigateTo: index$1.navigateTo, redirectTo: index$1.redirectTo, switchTab: index$1.switchTab, reLaunch: index$1.reLaunch };
+  setTimeout(() => {
+    s2[e2]({ url: n2 });
+  }, 0);
+}
+function Ls({ url: e2 } = {}) {
+  const t2 = { abortLoginPageJump: false, autoToLoginPage: false }, n2 = function() {
+    const { token: e3, tokenExpired: t3 } = oe();
+    let n3;
+    if (e3) {
+      if (t3 < Date.now()) {
+        const e4 = "uni-id-token-expired";
+        n3 = { errCode: e4, errMsg: fs[e4] };
+      }
+    } else {
+      const e4 = "uni-id-check-token-failed";
+      n3 = { errCode: e4, errMsg: fs[e4] };
+    }
+    return n3;
+  }();
+  if (xs(e2) && n2) {
+    n2.uniIdRedirectUrl = e2;
+    if (G(W).length > 0)
+      return setTimeout(() => {
+        X(W, n2);
+      }, 0), t2.abortLoginPageJump = true, t2;
+    t2.autoToLoginPage = true;
+  }
+  return t2;
+}
+function Rs() {
+  !function() {
+    const e3 = _s(), { abortLoginPageJump: t2, autoToLoginPage: n2 } = Ls({ url: e3 });
+    t2 || n2 && Es({ api: "redirectTo", redirect: e3 });
+  }();
+  const e2 = ["navigateTo", "redirectTo", "reLaunch", "switchTab"];
+  for (let t2 = 0; t2 < e2.length; t2++) {
+    const n2 = e2[t2];
+    index$1.addInterceptor(n2, { invoke(e3) {
+      const { abortLoginPageJump: t3, autoToLoginPage: s2 } = Ls({ url: e3.url });
+      return t3 ? e3 : s2 ? (Es({ api: n2, redirect: Cs(e3.url) }), false) : e3;
+    } });
+  }
+}
+function Us() {
+  this.onResponse((e2) => {
+    const { type: t2, content: n2 } = e2;
+    let s2 = false;
+    switch (t2) {
+      case "cloudobject":
+        s2 = function(e3) {
+          if ("object" != typeof e3)
+            return false;
+          const { errCode: t3 } = e3 || {};
+          return t3 in fs;
+        }(n2);
+        break;
+      case "clientdb":
+        s2 = function(e3) {
+          if ("object" != typeof e3)
+            return false;
+          const { errCode: t3 } = e3 || {};
+          return t3 in ps;
+        }(n2);
+    }
+    s2 && function(e3 = {}) {
+      const t3 = G(W);
+      te().then(() => {
+        const n3 = _s();
+        if (n3 && Os({ redirect: n3 }))
+          return t3.length > 0 ? X(W, Object.assign({ uniIdRedirectUrl: n3 }, e3)) : void (Ss && Es({ api: "navigateTo", redirect: n3 }));
+      });
+    }(n2);
+  });
+}
+function Ns(e2) {
+  !function(e3) {
+    e3.onResponse = function(e4) {
+      Y(B, e4);
+    }, e3.offResponse = function(e4) {
+      Q(B, e4);
+    };
+  }(e2), function(e3) {
+    e3.onNeedLogin = function(e4) {
+      Y(W, e4);
+    }, e3.offNeedLogin = function(e4) {
+      Q(W, e4);
+    }, Is && (R("_globalUniCloudStatus").needLoginInit || (R("_globalUniCloudStatus").needLoginInit = true, te().then(() => {
+      Rs.call(e3);
+    }), ks$1 && Us.call(e3)));
+  }(e2), function(e3) {
+    e3.onRefreshToken = function(e4) {
+      Y(H, e4);
+    }, e3.offRefreshToken = function(e4) {
+      Q(H, e4);
+    };
+  }(e2);
+}
+let Ds;
+const Ms = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=", qs = /^(?:[A-Za-z\d+/]{4})*?(?:[A-Za-z\d+/]{2}(?:==)?|[A-Za-z\d+/]{3}=?)?$/;
+function Ks() {
+  const e2 = oe().token || "", t2 = e2.split(".");
+  if (!e2 || 3 !== t2.length)
+    return { uid: null, role: [], permission: [], tokenExpired: 0 };
+  let n2;
+  try {
+    n2 = JSON.parse((s2 = t2[1], decodeURIComponent(Ds(s2).split("").map(function(e3) {
+      return "%" + ("00" + e3.charCodeAt(0).toString(16)).slice(-2);
+    }).join(""))));
+  } catch (e3) {
+    throw new Error("获取当前用户信息出错，详细错误信息为：" + e3.message);
+  }
+  var s2;
+  return n2.tokenExpired = 1e3 * n2.exp, delete n2.exp, delete n2.iat, n2;
+}
+Ds = "function" != typeof atob ? function(e2) {
+  if (e2 = String(e2).replace(/[\t\n\f\r ]+/g, ""), !qs.test(e2))
+    throw new Error("Failed to execute 'atob' on 'Window': The string to be decoded is not correctly encoded.");
+  var t2;
+  e2 += "==".slice(2 - (3 & e2.length));
+  for (var n2, s2, r2 = "", i2 = 0; i2 < e2.length; )
+    t2 = Ms.indexOf(e2.charAt(i2++)) << 18 | Ms.indexOf(e2.charAt(i2++)) << 12 | (n2 = Ms.indexOf(e2.charAt(i2++))) << 6 | (s2 = Ms.indexOf(e2.charAt(i2++))), r2 += 64 === n2 ? String.fromCharCode(t2 >> 16 & 255) : 64 === s2 ? String.fromCharCode(t2 >> 16 & 255, t2 >> 8 & 255) : String.fromCharCode(t2 >> 16 & 255, t2 >> 8 & 255, 255 & t2);
+  return r2;
+} : atob;
+var Fs = n(function(e2, t2) {
+  Object.defineProperty(t2, "__esModule", { value: true });
+  const n2 = "chooseAndUploadFile:ok", s2 = "chooseAndUploadFile:fail";
+  function r2(e3, t3) {
+    return e3.tempFiles.forEach((e4, n3) => {
+      e4.name || (e4.name = e4.path.substring(e4.path.lastIndexOf("/") + 1)), t3 && (e4.fileType = t3), e4.cloudPath = Date.now() + "_" + n3 + e4.name.substring(e4.name.lastIndexOf("."));
+    }), e3.tempFilePaths || (e3.tempFilePaths = e3.tempFiles.map((e4) => e4.path)), e3;
+  }
+  function i2(e3, t3, { onChooseFile: s3, onUploadProgress: r3 }) {
+    return t3.then((e4) => {
+      if (s3) {
+        const t4 = s3(e4);
+        if (void 0 !== t4)
+          return Promise.resolve(t4).then((t5) => void 0 === t5 ? e4 : t5);
+      }
+      return e4;
+    }).then((t4) => false === t4 ? { errMsg: n2, tempFilePaths: [], tempFiles: [] } : function(e4, t5, s4 = 5, r4) {
+      (t5 = Object.assign({}, t5)).errMsg = n2;
+      const i3 = t5.tempFiles, o2 = i3.length;
+      let a2 = 0;
+      return new Promise((n3) => {
+        for (; a2 < s4; )
+          c2();
+        function c2() {
+          const s5 = a2++;
+          if (s5 >= o2)
+            return void (!i3.find((e5) => !e5.url && !e5.errMsg) && n3(t5));
+          const u2 = i3[s5];
+          e4.uploadFile({ provider: u2.provider, filePath: u2.path, cloudPath: u2.cloudPath, fileType: u2.fileType, cloudPathAsRealPath: u2.cloudPathAsRealPath, onUploadProgress(e5) {
+            e5.index = s5, e5.tempFile = u2, e5.tempFilePath = u2.path, r4 && r4(e5);
+          } }).then((e5) => {
+            u2.url = e5.fileID, s5 < o2 && c2();
+          }).catch((e5) => {
+            u2.errMsg = e5.errMsg || e5.message, s5 < o2 && c2();
+          });
+        }
+      });
+    }(e3, t4, 5, r3));
+  }
+  t2.initChooseAndUploadFile = function(e3) {
+    return function(t3 = { type: "all" }) {
+      return "image" === t3.type ? i2(e3, function(e4) {
+        const { count: t4, sizeType: n3, sourceType: i3 = ["album", "camera"], extension: o2 } = e4;
+        return new Promise((e5, a2) => {
+          index$1.chooseImage({ count: t4, sizeType: n3, sourceType: i3, extension: o2, success(t5) {
+            e5(r2(t5, "image"));
+          }, fail(e6) {
+            a2({ errMsg: e6.errMsg.replace("chooseImage:fail", s2) });
+          } });
+        });
+      }(t3), t3) : "video" === t3.type ? i2(e3, function(e4) {
+        const { camera: t4, compressed: n3, maxDuration: i3, sourceType: o2 = ["album", "camera"], extension: a2 } = e4;
+        return new Promise((e5, c2) => {
+          index$1.chooseVideo({ camera: t4, compressed: n3, maxDuration: i3, sourceType: o2, extension: a2, success(t5) {
+            const { tempFilePath: n4, duration: s3, size: i4, height: o3, width: a3 } = t5;
+            e5(r2({ errMsg: "chooseVideo:ok", tempFilePaths: [n4], tempFiles: [{ name: t5.tempFile && t5.tempFile.name || "", path: n4, size: i4, type: t5.tempFile && t5.tempFile.type || "", width: a3, height: o3, duration: s3, fileType: "video", cloudPath: "" }] }, "video"));
+          }, fail(e6) {
+            c2({ errMsg: e6.errMsg.replace("chooseVideo:fail", s2) });
+          } });
+        });
+      }(t3), t3) : i2(e3, function(e4) {
+        const { count: t4, extension: n3 } = e4;
+        return new Promise((e5, i3) => {
+          let o2 = index$1.chooseFile;
+          if ("undefined" != typeof wx$1 && "function" == typeof wx$1.chooseMessageFile && (o2 = wx$1.chooseMessageFile), "function" != typeof o2)
+            return i3({ errMsg: s2 + " 请指定 type 类型，该平台仅支持选择 image 或 video。" });
+          o2({ type: "all", count: t4, extension: n3, success(t5) {
+            e5(r2(t5));
+          }, fail(e6) {
+            i3({ errMsg: e6.errMsg.replace("chooseFile:fail", s2) });
+          } });
+        });
+      }(t3), t3);
+    };
+  };
+}), js = t(Fs);
+const $s = "manual";
+function Bs(e2) {
+  return { props: { localdata: { type: Array, default: () => [] }, options: { type: [Object, Array], default: () => ({}) }, spaceInfo: { type: Object, default: () => ({}) }, collection: { type: [String, Array], default: "" }, action: { type: String, default: "" }, field: { type: String, default: "" }, orderby: { type: String, default: "" }, where: { type: [String, Object], default: "" }, pageData: { type: String, default: "add" }, pageCurrent: { type: Number, default: 1 }, pageSize: { type: Number, default: 20 }, getcount: { type: [Boolean, String], default: false }, gettree: { type: [Boolean, String], default: false }, gettreepath: { type: [Boolean, String], default: false }, startwith: { type: String, default: "" }, limitlevel: { type: Number, default: 10 }, groupby: { type: String, default: "" }, groupField: { type: String, default: "" }, distinct: { type: [Boolean, String], default: false }, foreignKey: { type: String, default: "" }, loadtime: { type: String, default: "auto" }, manual: { type: Boolean, default: false } }, data: () => ({ mixinDatacomLoading: false, mixinDatacomHasMore: false, mixinDatacomResData: [], mixinDatacomErrorMessage: "", mixinDatacomPage: {}, mixinDatacomError: null }), created() {
+    this.mixinDatacomPage = { current: this.pageCurrent, size: this.pageSize, count: 0 }, this.$watch(() => {
+      var e3 = [];
+      return ["pageCurrent", "pageSize", "localdata", "collection", "action", "field", "orderby", "where", "getont", "getcount", "gettree", "groupby", "groupField", "distinct"].forEach((t2) => {
+        e3.push(this[t2]);
+      }), e3;
+    }, (e3, t2) => {
+      if (this.loadtime === $s)
+        return;
+      let n2 = false;
+      const s2 = [];
+      for (let r2 = 2; r2 < e3.length; r2++)
+        e3[r2] !== t2[r2] && (s2.push(e3[r2]), n2 = true);
+      e3[0] !== t2[0] && (this.mixinDatacomPage.current = this.pageCurrent), this.mixinDatacomPage.size = this.pageSize, this.onMixinDatacomPropsChange(n2, s2);
+    });
+  }, methods: { onMixinDatacomPropsChange(e3, t2) {
+  }, mixinDatacomEasyGet({ getone: e3 = false, success: t2, fail: n2 } = {}) {
+    this.mixinDatacomLoading || (this.mixinDatacomLoading = true, this.mixinDatacomErrorMessage = "", this.mixinDatacomError = null, this.mixinDatacomGet().then((n3) => {
+      this.mixinDatacomLoading = false;
+      const { data: s2, count: r2 } = n3.result;
+      this.getcount && (this.mixinDatacomPage.count = r2), this.mixinDatacomHasMore = s2.length < this.pageSize;
+      const i2 = e3 ? s2.length ? s2[0] : void 0 : s2;
+      this.mixinDatacomResData = i2, t2 && t2(i2);
+    }).catch((e4) => {
+      this.mixinDatacomLoading = false, this.mixinDatacomErrorMessage = e4, this.mixinDatacomError = e4, n2 && n2(e4);
+    }));
+  }, mixinDatacomGet(t2 = {}) {
+    let n2;
+    t2 = t2 || {}, n2 = "undefined" != typeof __uniX && __uniX ? e2.databaseForJQL(this.spaceInfo) : e2.database(this.spaceInfo);
+    const s2 = t2.action || this.action;
+    s2 && (n2 = n2.action(s2));
+    const r2 = t2.collection || this.collection;
+    n2 = Array.isArray(r2) ? n2.collection(...r2) : n2.collection(r2);
+    const i2 = t2.where || this.where;
+    i2 && Object.keys(i2).length && (n2 = n2.where(i2));
+    const o2 = t2.field || this.field;
+    o2 && (n2 = n2.field(o2));
+    const a2 = t2.foreignKey || this.foreignKey;
+    a2 && (n2 = n2.foreignKey(a2));
+    const c2 = t2.groupby || this.groupby;
+    c2 && (n2 = n2.groupBy(c2));
+    const u2 = t2.groupField || this.groupField;
+    u2 && (n2 = n2.groupField(u2));
+    true === (void 0 !== t2.distinct ? t2.distinct : this.distinct) && (n2 = n2.distinct());
+    const h2 = t2.orderby || this.orderby;
+    h2 && (n2 = n2.orderBy(h2));
+    const l2 = void 0 !== t2.pageCurrent ? t2.pageCurrent : this.mixinDatacomPage.current, d2 = void 0 !== t2.pageSize ? t2.pageSize : this.mixinDatacomPage.size, p2 = void 0 !== t2.getcount ? t2.getcount : this.getcount, f2 = void 0 !== t2.gettree ? t2.gettree : this.gettree, g2 = void 0 !== t2.gettreepath ? t2.gettreepath : this.gettreepath, m2 = { getCount: p2 }, y2 = { limitLevel: void 0 !== t2.limitlevel ? t2.limitlevel : this.limitlevel, startWith: void 0 !== t2.startwith ? t2.startwith : this.startwith };
+    return f2 && (m2.getTree = y2), g2 && (m2.getTreePath = y2), n2 = n2.skip(d2 * (l2 - 1)).limit(d2).get(m2), n2;
+  } } };
+}
+function Ws(e2) {
+  return function(t2, n2 = {}) {
+    n2 = function(e3, t3 = {}) {
+      return e3.customUI = t3.customUI || e3.customUI, e3.parseSystemError = t3.parseSystemError || e3.parseSystemError, Object.assign(e3.loadingOptions, t3.loadingOptions), Object.assign(e3.errorOptions, t3.errorOptions), "object" == typeof t3.secretMethods && (e3.secretMethods = t3.secretMethods), e3;
+    }({ customUI: false, loadingOptions: { title: "加载中...", mask: true }, errorOptions: { type: "modal", retry: false } }, n2);
+    const { customUI: s2, loadingOptions: r2, errorOptions: i2, parseSystemError: o2 } = n2, a2 = !s2;
+    return new Proxy({}, { get(s3, c2) {
+      switch (c2) {
+        case "toString":
+          return "[object UniCloudObject]";
+        case "toJSON":
+          return {};
+      }
+      return function({ fn: e3, interceptorName: t3, getCallbackArgs: n3 } = {}) {
+        return async function(...s4) {
+          const r3 = n3 ? n3({ params: s4 }) : {};
+          let i3, o3;
+          try {
+            return await K(F(t3, "invoke"), { ...r3 }), i3 = await e3(...s4), await K(F(t3, "success"), { ...r3, result: i3 }), i3;
+          } catch (e4) {
+            throw o3 = e4, await K(F(t3, "fail"), { ...r3, error: o3 }), o3;
+          } finally {
+            await K(F(t3, "complete"), o3 ? { ...r3, error: o3 } : { ...r3, result: i3 });
+          }
+        };
+      }({ fn: async function s4(...h2) {
+        let l2;
+        a2 && index$1.showLoading({ title: r2.title, mask: r2.mask });
+        const d2 = { name: t2, type: u, data: { method: c2, params: h2 } };
+        "object" == typeof n2.secretMethods && function(e3, t3) {
+          const n3 = t3.data.method, s5 = e3.secretMethods || {}, r3 = s5[n3] || s5["*"];
+          r3 && (t3.secretType = r3);
+        }(n2, d2);
+        let p2 = false;
+        try {
+          l2 = await e2.callFunction(d2);
+        } catch (e3) {
+          p2 = true, l2 = { result: new se(e3) };
+        }
+        const { errSubject: f2, errCode: g2, errMsg: m2, newToken: y2 } = l2.result || {};
+        if (a2 && index$1.hideLoading(), y2 && y2.token && y2.tokenExpired && (ae(y2), X(H, { ...y2 })), g2) {
+          let e3 = m2;
+          if (p2 && o2) {
+            e3 = (await o2({ objectName: t2, methodName: c2, params: h2, errSubject: f2, errCode: g2, errMsg: m2 })).errMsg || m2;
+          }
+          if (a2)
+            if ("toast" === i2.type)
+              index$1.showToast({ title: e3, icon: "none" });
+            else {
+              if ("modal" !== i2.type)
+                throw new Error(`Invalid errorOptions.type: ${i2.type}`);
+              {
+                const { confirm: t3 } = await async function({ title: e4, content: t4, showCancel: n4, cancelText: s5, confirmText: r3 } = {}) {
+                  return new Promise((i3, o3) => {
+                    index$1.showModal({ title: e4, content: t4, showCancel: n4, cancelText: s5, confirmText: r3, success(e5) {
+                      i3(e5);
+                    }, fail() {
+                      i3({ confirm: false, cancel: true });
+                    } });
+                  });
+                }({ title: "提示", content: e3, showCancel: i2.retry, cancelText: "取消", confirmText: i2.retry ? "重试" : "确定" });
+                if (i2.retry && t3)
+                  return s4(...h2);
+              }
+            }
+          const n3 = new se({ subject: f2, code: g2, message: m2, requestId: l2.requestId });
+          throw n3.detail = l2.result, X(B, { type: V, content: n3 }), n3;
+        }
+        return X(B, { type: V, content: l2.result }), l2.result;
+      }, interceptorName: "callObject", getCallbackArgs: function({ params: e3 } = {}) {
+        return { objectName: t2, methodName: c2, params: e3 };
+      } });
+    } });
+  };
+}
+function Hs(e2) {
+  return R("_globalUniCloudSecureNetworkCache__{spaceId}".replace("{spaceId}", e2.config.spaceId));
+}
+async function Js({ openid: e2, callLoginByWeixin: t2 = false } = {}) {
+  const n2 = Hs(this);
+  if (e2 && t2)
+    throw new Error("[SecureNetwork] openid and callLoginByWeixin cannot be passed at the same time");
+  if (e2)
+    return n2.mpWeixinOpenid = e2, {};
+  const s2 = await new Promise((e3, t3) => {
+    index$1.login({ success(t4) {
+      e3(t4.code);
+    }, fail(e4) {
+      t3(new Error(e4.errMsg));
+    } });
+  }), r2 = this.importObject("uni-id-co", { customUI: true });
+  return await r2.secureNetworkHandshakeByWeixin({ code: s2, callLoginByWeixin: t2 }), n2.mpWeixinCode = s2, { code: s2 };
+}
+async function zs(e2) {
+  const t2 = Hs(this);
+  return t2.initPromise || (t2.initPromise = Js.call(this, e2).then((e3) => e3).catch((e3) => {
+    throw delete t2.initPromise, e3;
+  })), t2.initPromise;
+}
+function Vs(e2) {
+  return function({ openid: t2, callLoginByWeixin: n2 = false } = {}) {
+    return zs.call(e2, { openid: t2, callLoginByWeixin: n2 });
+  };
+}
+function Gs(e2) {
+  !function(e3) {
+    de = e3;
+  }(e2);
+}
+function Ys(e2) {
+  const t2 = { getSystemInfo: index$1.getSystemInfo, getPushClientId: index$1.getPushClientId };
+  return function(n2) {
+    return new Promise((s2, r2) => {
+      t2[e2]({ ...n2, success(e3) {
+        s2(e3);
+      }, fail(e3) {
+        r2(e3);
+      } });
+    });
+  };
+}
+class Qs extends class {
+  constructor() {
+    this._callback = {};
+  }
+  addListener(e2, t2) {
+    this._callback[e2] || (this._callback[e2] = []), this._callback[e2].push(t2);
+  }
+  on(e2, t2) {
+    return this.addListener(e2, t2);
+  }
+  removeListener(e2, t2) {
+    if (!t2)
+      throw new Error('The "listener" argument must be of type function. Received undefined');
+    const n2 = this._callback[e2];
+    if (!n2)
+      return;
+    const s2 = function(e3, t3) {
+      for (let n3 = e3.length - 1; n3 >= 0; n3--)
+        if (e3[n3] === t3)
+          return n3;
+      return -1;
+    }(n2, t2);
+    n2.splice(s2, 1);
+  }
+  off(e2, t2) {
+    return this.removeListener(e2, t2);
+  }
+  removeAllListener(e2) {
+    delete this._callback[e2];
+  }
+  emit(e2, ...t2) {
+    const n2 = this._callback[e2];
+    if (n2)
+      for (let e3 = 0; e3 < n2.length; e3++)
+        n2[e3](...t2);
+  }
+} {
+  constructor() {
+    super(), this._uniPushMessageCallback = this._receivePushMessage.bind(this), this._currentMessageId = -1, this._payloadQueue = [];
+  }
+  init() {
+    return Promise.all([Ys("getSystemInfo")(), Ys("getPushClientId")()]).then(([{ appId: e2 } = {}, { cid: t2 } = {}] = []) => {
+      if (!e2)
+        throw new Error("Invalid appId, please check the manifest.json file");
+      if (!t2)
+        throw new Error("Invalid push client id");
+      this._appId = e2, this._pushClientId = t2, this._seqId = Date.now() + "-" + Math.floor(9e5 * Math.random() + 1e5), this.emit("open"), this._initMessageListener();
+    }, (e2) => {
+      throw this.emit("error", e2), this.close(), e2;
+    });
+  }
+  async open() {
+    return this.init();
+  }
+  _isUniCloudSSE(e2) {
+    if ("receive" !== e2.type)
+      return false;
+    const t2 = e2 && e2.data && e2.data.payload;
+    return !(!t2 || "UNI_CLOUD_SSE" !== t2.channel || t2.seqId !== this._seqId);
+  }
+  _receivePushMessage(e2) {
+    if (!this._isUniCloudSSE(e2))
+      return;
+    const t2 = e2 && e2.data && e2.data.payload, { action: n2, messageId: s2, message: r2 } = t2;
+    this._payloadQueue.push({ action: n2, messageId: s2, message: r2 }), this._consumMessage();
+  }
+  _consumMessage() {
+    for (; ; ) {
+      const e2 = this._payloadQueue.find((e3) => e3.messageId === this._currentMessageId + 1);
+      if (!e2)
+        break;
+      this._currentMessageId++, this._parseMessagePayload(e2);
+    }
+  }
+  _parseMessagePayload(e2) {
+    const { action: t2, messageId: n2, message: s2 } = e2;
+    "end" === t2 ? this._end({ messageId: n2, message: s2 }) : "message" === t2 && this._appendMessage({ messageId: n2, message: s2 });
+  }
+  _appendMessage({ messageId: e2, message: t2 } = {}) {
+    this.emit("message", t2);
+  }
+  _end({ messageId: e2, message: t2 } = {}) {
+    this.emit("end", t2), this.close();
+  }
+  _initMessageListener() {
+    index$1.onPushMessage(this._uniPushMessageCallback);
+  }
+  _destroy() {
+    index$1.offPushMessage(this._uniPushMessageCallback);
+  }
+  toJSON() {
+    return { appId: this._appId, pushClientId: this._pushClientId, seqId: this._seqId };
+  }
+  close() {
+    this._destroy(), this.emit("close");
+  }
+}
+async function Xs(e2) {
+  const t2 = e2.__dev__;
+  if (!t2.debugInfo)
+    return;
+  const { address: n2, servePort: s2 } = t2.debugInfo, { address: r2 } = await Et(n2, s2);
+  if (r2)
+    return t2.localAddress = r2, void (t2.localPort = s2);
+  const i2 = console["warn"];
+  let o2 = "";
+  if ("remote" === t2.debugInfo.initialLaunchType ? (t2.debugInfo.forceRemote = true, o2 = "当前客户端和HBuilderX不在同一局域网下（或其他网络原因无法连接HBuilderX），uniCloud本地调试服务不对当前客户端生效。\n- 如果不使用uniCloud本地调试服务，请直接忽略此信息。\n- 如需使用uniCloud本地调试服务，请将客户端与主机连接到同一局域网下并重新运行到客户端。") : o2 = "无法连接uniCloud本地调试服务，请检查当前客户端是否与主机在同一局域网下。\n- 如需使用uniCloud本地调试服务，请将客户端与主机连接到同一局域网下并重新运行到客户端。", o2 += "\n- 如果在HBuilderX开启的状态下切换过网络环境，请重启HBuilderX后再试\n- 检查系统防火墙是否拦截了HBuilderX自带的nodejs\n- 检查是否错误的使用拦截器修改uni.request方法的参数", 0 === A.indexOf("mp-") && (o2 += "\n- 小程序中如何使用uniCloud，请参考：https://uniapp.dcloud.net.cn/uniCloud/publish.html#useinmp"), !t2.debugInfo.forceRemote)
+    throw new Error(o2);
+  i2(o2);
+}
+function Zs(e2) {
+  e2._initPromiseHub || (e2._initPromiseHub = new v({ createPromise: function() {
+    let t2 = Promise.resolve();
+    var n2;
+    n2 = 1, t2 = new Promise((e3) => {
+      setTimeout(() => {
+        e3();
+      }, n2);
+    });
+    const s2 = e2.auth();
+    return t2.then(() => s2.getLoginState()).then((e3) => e3 ? Promise.resolve() : s2.signInAnonymously());
+  } }));
+}
+const er = { tcb: xt, tencent: xt, aliyun: me, private: Ut, dcloud: Ut, alipay: Wt };
+let tr = new class {
+  init(e2) {
+    let t2 = {};
+    const n2 = er[e2.provider];
+    if (!n2)
+      throw new Error("未提供正确的provider参数");
+    t2 = n2.init(e2), function(e3) {
+      const t3 = {};
+      e3.__dev__ = t3, t3.debugLog = "mp-harmony" === A;
+      const n3 = P;
+      n3 && !n3.code && (t3.debugInfo = n3);
+      const s2 = new v({ createPromise: function() {
+        return Xs(e3);
+      } });
+      t3.initLocalNetwork = function() {
+        return s2.exec();
+      };
+    }(t2), Zs(t2), Xn(t2), function(e3) {
+      const t3 = e3.uploadFile;
+      e3.uploadFile = function(e4) {
+        return t3.call(this, e4);
+      };
+    }(t2), function(e3) {
+      e3.database = function(t3) {
+        if (t3 && Object.keys(t3).length > 0)
+          return e3.init(t3).database();
+        if (this._database)
+          return this._database;
+        const n3 = us(hs, { uniClient: e3 });
+        return this._database = n3, n3;
+      }, e3.databaseForJQL = function(t3) {
+        if (t3 && Object.keys(t3).length > 0)
+          return e3.init(t3).databaseForJQL();
+        if (this._databaseForJQL)
+          return this._databaseForJQL;
+        const n3 = us(hs, { uniClient: e3, isJQL: true });
+        return this._databaseForJQL = n3, n3;
+      };
+    }(t2), function(e3) {
+      e3.getCurrentUserInfo = Ks, e3.chooseAndUploadFile = js.initChooseAndUploadFile(e3), Object.assign(e3, { get mixinDatacom() {
+        return Bs(e3);
+      } }), e3.SSEChannel = Qs, e3.initSecureNetworkByWeixin = Vs(e3), e3.setCustomClientInfo = Gs, e3.importObject = Ws(e3);
+    }(t2);
+    return ["callFunction", "uploadFile", "deleteFile", "getTempFileURL", "downloadFile", "chooseAndUploadFile"].forEach((e3) => {
+      if (!t2[e3])
+        return;
+      const n3 = t2[e3];
+      t2[e3] = function() {
+        return n3.apply(t2, Array.from(arguments));
+      }, t2[e3] = (/* @__PURE__ */ function(e4, t3) {
+        return function(n4) {
+          let s2 = false;
+          if ("callFunction" === t3) {
+            const e5 = n4 && n4.type || c;
+            s2 = e5 !== c;
+          }
+          const r2 = "callFunction" === t3 && !s2, i2 = this._initPromiseHub.exec();
+          n4 = n4 || {};
+          const { success: o2, fail: a2, complete: u2 } = ne(n4), h2 = i2.then(() => s2 ? Promise.resolve() : K(F(t3, "invoke"), n4)).then(() => e4.call(this, n4)).then((e5) => s2 ? Promise.resolve(e5) : K(F(t3, "success"), e5).then(() => K(F(t3, "complete"), e5)).then(() => (r2 && X(B, { type: z, content: e5 }), Promise.resolve(e5))), (e5) => s2 ? Promise.reject(e5) : K(F(t3, "fail"), e5).then(() => K(F(t3, "complete"), e5)).then(() => (X(B, { type: z, content: e5 }), Promise.reject(e5))));
+          if (!(o2 || a2 || u2))
+            return h2;
+          h2.then((e5) => {
+            o2 && o2(e5), u2 && u2(e5), r2 && X(B, { type: z, content: e5 });
+          }, (e5) => {
+            a2 && a2(e5), u2 && u2(e5), r2 && X(B, { type: z, content: e5 });
+          });
+        };
+      }(t2[e3], e3)).bind(t2);
+    }), t2.init = this.init, t2;
+  }
+}();
+(() => {
+  const e2 = C;
+  let t2 = {};
+  if (e2 && 1 === e2.length)
+    t2 = e2[0], tr = tr.init(t2), tr._isDefault = true;
+  else {
+    const t3 = ["auth", "callFunction", "uploadFile", "deleteFile", "getTempFileURL", "downloadFile", "database", "getCurrentUSerInfo", "importObject"];
+    let n2;
+    n2 = e2 && e2.length > 0 ? "应用有多个服务空间，请通过uniCloud.init方法指定要使用的服务空间" : "应用未关联服务空间，请在uniCloud目录右键关联服务空间", t3.forEach((e3) => {
+      tr[e3] = function() {
+        return console.error(n2), Promise.reject(new se({ code: "SYS_ERR", message: n2 }));
+      };
+    });
+  }
+  if (Object.assign(tr, { get mixinDatacom() {
+    return Bs(tr);
+  } }), Ns(tr), tr.addInterceptor = M, tr.removeInterceptor = q, tr.interceptObject = j, "web" === A)
+    ;
+})();
+var nr = tr;
+const createHook = (lifecycle) => (hook, target = getCurrentInstance()) => {
+  !isInSSRComponentSetup && injectHook(lifecycle, hook, target);
+};
+const onReady = /* @__PURE__ */ createHook(ON_READY);
+const onBackPress = /* @__PURE__ */ createHook(ON_BACK_PRESS);
+const onPageScroll = /* @__PURE__ */ createHook(ON_PAGE_SCROLL);
+const onPullDownRefresh = /* @__PURE__ */ createHook(ON_PULL_DOWN_REFRESH);
+const props$g = defineMixin({
+  props: {
+    // 列表数组，元素可为字符串，如为对象可通过keyName指定目标属性名
+    list: {
+      type: Array,
+      default: () => props$h.swiper.list
+    },
+    // 是否显示面板指示器
+    indicator: {
+      type: Boolean,
+      default: () => props$h.swiper.indicator
+    },
+    // 指示器非激活颜色
+    indicatorActiveColor: {
+      type: String,
+      default: () => props$h.swiper.indicatorActiveColor
+    },
+    // 指示器的激活颜色
+    indicatorInactiveColor: {
+      type: String,
+      default: () => props$h.swiper.indicatorInactiveColor
+    },
+    // 指示器样式，可通过bottom，left，right进行定位
+    indicatorStyle: {
+      type: [String, Object],
+      default: () => props$h.swiper.indicatorStyle
+    },
+    // 指示器模式，line-线型，dot-点型
+    indicatorMode: {
+      type: String,
+      default: () => props$h.swiper.indicatorMode
+    },
+    // 是否自动切换
+    autoplay: {
+      type: Boolean,
+      default: () => props$h.swiper.autoplay
+    },
+    // 当前所在滑块的 index
+    current: {
+      type: [String, Number],
+      default: () => props$h.swiper.current
+    },
+    // 当前所在滑块的 item-id ，不能与 current 被同时指定
+    currentItemId: {
+      type: String,
+      default: () => props$h.swiper.currentItemId
+    },
+    // 滑块自动切换时间间隔
+    interval: {
+      type: [String, Number],
+      default: () => props$h.swiper.interval
+    },
+    // 滑块切换过程所需时间
+    duration: {
+      type: [String, Number],
+      default: () => props$h.swiper.duration
+    },
+    // 播放到末尾后是否重新回到开头
+    circular: {
+      type: Boolean,
+      default: () => props$h.swiper.circular
+    },
+    // 前边距，可用于露出前一项的一小部分，nvue和支付宝不支持
+    previousMargin: {
+      type: [String, Number],
+      default: () => props$h.swiper.previousMargin
+    },
+    // 后边距，可用于露出后一项的一小部分，nvue和支付宝不支持
+    nextMargin: {
+      type: [String, Number],
+      default: () => props$h.swiper.nextMargin
+    },
+    // 当开启时，会根据滑动速度，连续滑动多屏，支付宝不支持
+    acceleration: {
+      type: Boolean,
+      default: () => props$h.swiper.acceleration
+    },
+    // 同时显示的滑块数量，nvue、支付宝小程序不支持
+    displayMultipleItems: {
+      type: Number,
+      default: () => props$h.swiper.displayMultipleItems
+    },
+    // 指定swiper切换缓动动画类型，有效值：default、linear、easeInCubic、easeOutCubic、easeInOutCubic
+    // 只对微信小程序有效
+    easingFunction: {
+      type: String,
+      default: () => props$h.swiper.easingFunction
+    },
+    // list数组中指定对象的目标属性名
+    keyName: {
+      type: String,
+      default: () => props$h.swiper.keyName
+    },
+    // 图片的裁剪模式
+    imgMode: {
+      type: String,
+      default: () => props$h.swiper.imgMode
+    },
+    // 组件高度
+    height: {
+      type: [String, Number],
+      default: () => props$h.swiper.height
+    },
+    // 背景颜色
+    bgColor: {
+      type: String,
+      default: () => props$h.swiper.bgColor
+    },
+    // 组件圆角，数值或带单位的字符串
+    radius: {
+      type: [String, Number],
+      default: () => props$h.swiper.radius
+    },
+    // 是否加载中
+    loading: {
+      type: Boolean,
+      default: () => props$h.swiper.loading
+    },
+    // 是否显示标题，要求数组对象中有title属性
+    showTitle: {
+      type: Boolean,
+      default: () => props$h.swiper.showTitle
+    }
+  }
+});
+const props$f = defineMixin({
+  props: {
+    // 显示的内容，数组
+    text: {
+      type: [Array, String],
+      default: () => props$h.noticeBar.text
+    },
+    // 通告滚动模式，row-横向滚动，column-竖向滚动
+    direction: {
+      type: String,
+      default: () => props$h.noticeBar.direction
+    },
+    // direction = row时，是否使用步进形式滚动
+    step: {
+      type: Boolean,
+      default: () => props$h.noticeBar.step
+    },
+    // 是否显示左侧的音量图标
+    icon: {
+      type: String,
+      default: () => props$h.noticeBar.icon
+    },
+    // 通告模式，link-显示右箭头，closable-显示右侧关闭图标
+    mode: {
+      type: String,
+      default: () => props$h.noticeBar.mode
+    },
+    // 文字颜色，各图标也会使用文字颜色
+    color: {
+      type: String,
+      default: () => props$h.noticeBar.color
+    },
+    // 背景颜色
+    bgColor: {
+      type: String,
+      default: () => props$h.noticeBar.bgColor
+    },
+    // 水平滚动时的滚动速度，即每秒滚动多少px(px)，这有利于控制文字无论多少时，都能有一个恒定的速度
+    speed: {
+      type: [String, Number],
+      default: () => props$h.noticeBar.speed
+    },
+    // 字体大小
+    fontSize: {
+      type: [String, Number],
+      default: () => props$h.noticeBar.fontSize
+    },
+    // 滚动一个周期的时间长，单位ms
+    duration: {
+      type: [String, Number],
+      default: () => props$h.noticeBar.duration
+    },
+    // 是否禁止用手滑动切换
+    // 目前HX2.6.11，只支持App 2.5.5+、H5 2.5.5+、支付宝小程序、字节跳动小程序
+    disableTouch: {
+      type: Boolean,
+      default: () => props$h.noticeBar.disableTouch
+    },
+    // 跳转的页面路径
+    url: {
+      type: String,
+      default: () => props$h.noticeBar.url
+    },
+    // 页面跳转的类型
+    linkType: {
+      type: String,
+      default: () => props$h.noticeBar.linkType
+    },
+    justifyContent: {
+      type: String,
+      default: () => props$h.noticeBar.justifyContent
+    }
+  }
+});
+const props$e = defineMixin({
+  props: {
+    // 是否展示弹窗
+    show: {
+      type: Boolean,
+      default: () => props$h.popup.show
+    },
+    // 是否显示遮罩
+    overlay: {
+      type: Boolean,
+      default: () => props$h.popup.overlay
+    },
+    // 弹出的方向，可选值为 top bottom right left center
+    mode: {
+      type: String,
+      default: () => props$h.popup.mode
+    },
+    // 动画时长，单位ms
+    duration: {
+      type: [String, Number],
+      default: () => props$h.popup.duration
+    },
+    // 是否显示关闭图标
+    closeable: {
+      type: Boolean,
+      default: () => props$h.popup.closeable
+    },
+    // 自定义遮罩的样式
+    overlayStyle: {
+      type: [Object, String],
+      default: () => props$h.popup.overlayStyle
+    },
+    // 点击遮罩是否关闭弹窗
+    closeOnClickOverlay: {
+      type: Boolean,
+      default: () => props$h.popup.closeOnClickOverlay
+    },
+    // 层级
+    zIndex: {
+      type: [String, Number],
+      default: () => props$h.popup.zIndex
+    },
+    // 是否为iPhoneX留出底部安全距离
+    safeAreaInsetBottom: {
+      type: Boolean,
+      default: () => props$h.popup.safeAreaInsetBottom
+    },
+    // 是否留出顶部安全距离（状态栏高度）
+    safeAreaInsetTop: {
+      type: Boolean,
+      default: () => props$h.popup.safeAreaInsetTop
+    },
+    // 自定义关闭图标位置，top-left为左上角，top-right为右上角，bottom-left为左下角，bottom-right为右下角
+    closeIconPos: {
+      type: String,
+      default: () => props$h.popup.closeIconPos
+    },
+    // 是否显示圆角
+    round: {
+      type: [Boolean, String, Number],
+      default: () => props$h.popup.round
+    },
+    // mode=center，也即中部弹出时，是否使用缩放模式
+    zoom: {
+      type: Boolean,
+      default: () => props$h.popup.zoom
+    },
+    // 弹窗背景色，设置为transparent可去除白色背景
+    bgColor: {
+      type: String,
+      default: () => props$h.popup.bgColor
+    },
+    // 遮罩的透明度，0-1之间
+    overlayOpacity: {
+      type: [Number, String],
+      default: () => props$h.popup.overlayOpacity
+    }
+  }
+});
+const props$d = defineMixin({
+  props: {
+    modelValue: {
+      type: Array,
+      default: () => []
+    },
+    hasInput: {
+      type: Boolean,
+      default: false
+    },
+    inputProps: {
+      type: Object,
+      default: () => {
+        return {};
+      }
+    },
+    disabled: {
+      type: Boolean,
+      default: () => props$h.picker.disabled
+    },
+    disabledColor: {
+      type: String,
+      default: () => props$h.picker.disabledColor
+    },
+    placeholder: {
+      type: String,
+      default: () => props$h.picker.placeholder
+    },
+    // 是否展示picker弹窗
+    show: {
+      type: Boolean,
+      default: () => props$h.picker.show
+    },
+    // 弹出的方向，可选值为 top bottom right left center
+    popupMode: {
+      type: String,
+      default: () => props$h.picker.popupMode
+    },
+    // 是否展示顶部的操作栏
+    showToolbar: {
+      type: Boolean,
+      default: () => props$h.picker.showToolbar
+    },
+    // 顶部标题
+    title: {
+      type: String,
+      default: () => props$h.picker.title
+    },
+    // 对象数组，设置每一列的数据
+    columns: {
+      type: Array,
+      default: () => props$h.picker.columns
+    },
+    // 是否显示加载中状态
+    loading: {
+      type: Boolean,
+      default: () => props$h.picker.loading
+    },
+    // 各列中，单个选项的高度
+    itemHeight: {
+      type: [String, Number],
+      default: () => props$h.picker.itemHeight
+    },
+    // 取消按钮的文字
+    cancelText: {
+      type: String,
+      default: () => props$h.picker.cancelText
+    },
+    // 确认按钮的文字
+    confirmText: {
+      type: String,
+      default: () => props$h.picker.confirmText
+    },
+    // 取消按钮的颜色
+    cancelColor: {
+      type: String,
+      default: () => props$h.picker.cancelColor
+    },
+    // 确认按钮的颜色
+    confirmColor: {
+      type: String,
+      default: () => props$h.picker.confirmColor
+    },
+    // 每列中可见选项的数量
+    visibleItemCount: {
+      type: [String, Number],
+      default: () => props$h.picker.visibleItemCount
+    },
+    // 选项对象中，需要展示的属性键名
+    keyName: {
+      type: String,
+      default: () => props$h.picker.keyName
+    },
+    // 选项对象中，需要获取的属性值键名
+    valueName: {
+      type: String,
+      default: () => props$h.picker.valueName
+    },
+    // 是否允许点击遮罩关闭选择器
+    closeOnClickOverlay: {
+      type: Boolean,
+      default: () => props$h.picker.closeOnClickOverlay
+    },
+    // 各列的默认索引
+    defaultIndex: {
+      type: Array,
+      default: () => props$h.picker.defaultIndex
+    },
+    // 是否在手指松开时立即触发 change 事件。若不开启则会在滚动动画结束后触发 change 事件，只在微信2.21.1及以上有效
+    immediateChange: {
+      type: Boolean,
+      default: () => props$h.picker.immediateChange
+    },
+    // 工具栏右侧插槽是否开启
+    toolbarRightSlot: {
+      type: Boolean,
+      default: false
+    },
+    // 层级
+    zIndex: {
+      type: [String, Number],
+      default: () => props$h.picker.zIndex
+    }
+  }
+});
+const icons = {
+  "uicon-level": "",
+  "uicon-column-line": "",
+  "uicon-checkbox-mark": "",
+  "uicon-folder": "",
+  "uicon-movie": "",
+  "uicon-star-fill": "",
+  "uicon-star": "",
+  "uicon-phone-fill": "",
+  "uicon-phone": "",
+  "uicon-apple-fill": "",
+  "uicon-chrome-circle-fill": "",
+  "uicon-backspace": "",
+  "uicon-attach": "",
+  "uicon-cut": "",
+  "uicon-empty-car": "",
+  "uicon-empty-coupon": "",
+  "uicon-empty-address": "",
+  "uicon-empty-favor": "",
+  "uicon-empty-permission": "",
+  "uicon-empty-news": "",
+  "uicon-empty-search": "",
+  "uicon-github-circle-fill": "",
+  "uicon-rmb": "",
+  "uicon-person-delete-fill": "",
+  "uicon-reload": "",
+  "uicon-order": "",
+  "uicon-server-man": "",
+  "uicon-search": "",
+  "uicon-fingerprint": "",
+  "uicon-more-dot-fill": "",
+  "uicon-scan": "",
+  "uicon-share-square": "",
+  "uicon-map": "",
+  "uicon-map-fill": "",
+  "uicon-tags": "",
+  "uicon-tags-fill": "",
+  "uicon-bookmark-fill": "",
+  "uicon-bookmark": "",
+  "uicon-eye": "",
+  "uicon-eye-fill": "",
+  "uicon-mic": "",
+  "uicon-mic-off": "",
+  "uicon-calendar": "",
+  "uicon-calendar-fill": "",
+  "uicon-trash": "",
+  "uicon-trash-fill": "",
+  "uicon-play-left": "",
+  "uicon-play-right": "",
+  "uicon-minus": "",
+  "uicon-plus": "",
+  "uicon-info": "",
+  "uicon-info-circle": "",
+  "uicon-info-circle-fill": "",
+  "uicon-question": "",
+  "uicon-error": "",
+  "uicon-close": "",
+  "uicon-checkmark": "",
+  "uicon-android-circle-fill": "",
+  "uicon-android-fill": "",
+  "uicon-ie": "",
+  "uicon-IE-circle-fill": "",
+  "uicon-google": "",
+  "uicon-google-circle-fill": "",
+  "uicon-setting-fill": "",
+  "uicon-setting": "",
+  "uicon-minus-square-fill": "",
+  "uicon-plus-square-fill": "",
+  "uicon-heart": "",
+  "uicon-heart-fill": "",
+  "uicon-camera": "",
+  "uicon-camera-fill": "",
+  "uicon-more-circle": "",
+  "uicon-more-circle-fill": "",
+  "uicon-chat": "",
+  "uicon-chat-fill": "",
+  "uicon-bag-fill": "",
+  "uicon-bag": "",
+  "uicon-error-circle-fill": "",
+  "uicon-error-circle": "",
+  "uicon-close-circle": "",
+  "uicon-close-circle-fill": "",
+  "uicon-checkmark-circle": "",
+  "uicon-checkmark-circle-fill": "",
+  "uicon-question-circle-fill": "",
+  "uicon-question-circle": "",
+  "uicon-share": "",
+  "uicon-share-fill": "",
+  "uicon-shopping-cart": "",
+  "uicon-shopping-cart-fill": "",
+  "uicon-bell": "",
+  "uicon-bell-fill": "",
+  "uicon-list": "",
+  "uicon-list-dot": "",
+  "uicon-zhihu": "",
+  "uicon-zhihu-circle-fill": "",
+  "uicon-zhifubao": "",
+  "uicon-zhifubao-circle-fill": "",
+  "uicon-weixin-circle-fill": "",
+  "uicon-weixin-fill": "",
+  "uicon-twitter-circle-fill": "",
+  "uicon-twitter": "",
+  "uicon-taobao-circle-fill": "",
+  "uicon-taobao": "",
+  "uicon-weibo-circle-fill": "",
+  "uicon-weibo": "",
+  "uicon-qq-fill": "",
+  "uicon-qq-circle-fill": "",
+  "uicon-moments-circel-fill": "",
+  "uicon-moments": "",
+  "uicon-qzone": "",
+  "uicon-qzone-circle-fill": "",
+  "uicon-baidu-circle-fill": "",
+  "uicon-baidu": "",
+  "uicon-facebook-circle-fill": "",
+  "uicon-facebook": "",
+  "uicon-car": "",
+  "uicon-car-fill": "",
+  "uicon-warning-fill": "",
+  "uicon-warning": "",
+  "uicon-clock-fill": "",
+  "uicon-clock": "",
+  "uicon-edit-pen": "",
+  "uicon-edit-pen-fill": "",
+  "uicon-email": "",
+  "uicon-email-fill": "",
+  "uicon-minus-circle": "",
+  "uicon-minus-circle-fill": "",
+  "uicon-plus-circle": "",
+  "uicon-plus-circle-fill": "",
+  "uicon-file-text": "",
+  "uicon-file-text-fill": "",
+  "uicon-pushpin": "",
+  "uicon-pushpin-fill": "",
+  "uicon-grid": "",
+  "uicon-grid-fill": "",
+  "uicon-play-circle": "",
+  "uicon-play-circle-fill": "",
+  "uicon-pause-circle-fill": "",
+  "uicon-pause": "",
+  "uicon-pause-circle": "",
+  "uicon-eye-off": "",
+  "uicon-eye-off-outline": "",
+  "uicon-gift-fill": "",
+  "uicon-gift": "",
+  "uicon-rmb-circle-fill": "",
+  "uicon-rmb-circle": "",
+  "uicon-kefu-ermai": "",
+  "uicon-server-fill": "",
+  "uicon-coupon-fill": "",
+  "uicon-coupon": "",
+  "uicon-integral": "",
+  "uicon-integral-fill": "",
+  "uicon-home-fill": "",
+  "uicon-home": "",
+  "uicon-hourglass-half-fill": "",
+  "uicon-hourglass": "",
+  "uicon-account": "",
+  "uicon-plus-people-fill": "",
+  "uicon-minus-people-fill": "",
+  "uicon-account-fill": "",
+  "uicon-thumb-down-fill": "",
+  "uicon-thumb-down": "",
+  "uicon-thumb-up": "",
+  "uicon-thumb-up-fill": "",
+  "uicon-lock-fill": "",
+  "uicon-lock-open": "",
+  "uicon-lock-opened-fill": "",
+  "uicon-lock": "",
+  "uicon-red-packet-fill": "",
+  "uicon-photo-fill": "",
+  "uicon-photo": "",
+  "uicon-volume-off-fill": "",
+  "uicon-volume-off": "",
+  "uicon-volume-fill": "",
+  "uicon-volume": "",
+  "uicon-red-packet": "",
+  "uicon-download": "",
+  "uicon-arrow-up-fill": "",
+  "uicon-arrow-down-fill": "",
+  "uicon-play-left-fill": "",
+  "uicon-play-right-fill": "",
+  "uicon-rewind-left-fill": "",
+  "uicon-rewind-right-fill": "",
+  "uicon-arrow-downward": "",
+  "uicon-arrow-leftward": "",
+  "uicon-arrow-rightward": "",
+  "uicon-arrow-upward": "",
+  "uicon-arrow-down": "",
+  "uicon-arrow-right": "",
+  "uicon-arrow-left": "",
+  "uicon-arrow-up": "",
+  "uicon-skip-back-left": "",
+  "uicon-skip-forward-right": "",
+  "uicon-rewind-right": "",
+  "uicon-rewind-left": "",
+  "uicon-arrow-right-double": "",
+  "uicon-arrow-left-double": "",
+  "uicon-wifi-off": "",
+  "uicon-wifi": "",
+  "uicon-empty-data": "",
+  "uicon-empty-history": "",
+  "uicon-empty-list": "",
+  "uicon-empty-page": "",
+  "uicon-empty-order": "",
+  "uicon-man": "",
+  "uicon-woman": "",
+  "uicon-man-add": "",
+  "uicon-man-add-fill": "",
+  "uicon-man-delete": "",
+  "uicon-man-delete-fill": "",
+  "uicon-zh": "",
+  "uicon-en": ""
+};
+const props$c = defineMixin({
+  props: {
+    // 图标类名
+    name: {
+      type: String,
+      default: () => props$h.icon.name
+    },
+    // 图标颜色，可接受主题色
+    color: {
+      type: String,
+      default: () => props$h.icon.color
+    },
+    // 字体大小，单位px
+    size: {
+      type: [String, Number],
+      default: () => props$h.icon.size
+    },
+    // 是否显示粗体
+    bold: {
+      type: Boolean,
+      default: () => props$h.icon.bold
+    },
+    // 点击图标的时候传递事件出去的index（用于区分点击了哪一个）
+    index: {
+      type: [String, Number],
+      default: () => props$h.icon.index
+    },
+    // 触摸图标时的类名
+    hoverClass: {
+      type: String,
+      default: () => props$h.icon.hoverClass
+    },
+    // 自定义扩展前缀，方便用户扩展自己的图标库
+    customPrefix: {
+      type: String,
+      default: () => props$h.icon.customPrefix
+    },
+    // 图标右边或者下面的文字
+    label: {
+      type: [String, Number],
+      default: () => props$h.icon.label
+    },
+    // label的位置，只能右边或者下边
+    labelPos: {
+      type: String,
+      default: () => props$h.icon.labelPos
+    },
+    // label的大小
+    labelSize: {
+      type: [String, Number],
+      default: () => props$h.icon.labelSize
+    },
+    // label的颜色
+    labelColor: {
+      type: String,
+      default: () => props$h.icon.labelColor
+    },
+    // label与图标的距离
+    space: {
+      type: [String, Number],
+      default: () => props$h.icon.space
+    },
+    // 图片的mode
+    imgMode: {
+      type: String,
+      default: () => props$h.icon.imgMode
+    },
+    // 用于显示图片小图标时，图片的宽度
+    width: {
+      type: [String, Number],
+      default: () => props$h.icon.width
+    },
+    // 用于显示图片小图标时，图片的高度
+    height: {
+      type: [String, Number],
+      default: () => props$h.icon.height
+    },
+    // 用于解决某些情况下，让图标垂直居中的用途
+    top: {
+      type: [String, Number],
+      default: () => props$h.icon.top
+    },
+    // 是否阻止事件传播
+    stop: {
+      type: Boolean,
+      default: () => props$h.icon.stop
+    }
+  }
+});
+const props$b = defineMixin({
+  props: {
+    // radio的名称
+    name: {
+      type: [String, Number, Boolean],
+      default: () => props$h.radio.name
+    },
+    // 形状，square为方形，circle为圆型
+    shape: {
+      type: String,
+      default: () => props$h.radio.shape
+    },
+    // 是否禁用
+    disabled: {
+      type: [String, Boolean],
+      default: () => props$h.radio.disabled
+    },
+    // 是否禁止点击提示语选中单选框
+    labelDisabled: {
+      type: [String, Boolean],
+      default: () => props$h.radio.labelDisabled
+    },
+    // 选中状态下的颜色，如设置此值，将会覆盖parent的activeColor值
+    activeColor: {
+      type: String,
+      default: () => props$h.radio.activeColor
+    },
+    // 未选中的颜色
+    inactiveColor: {
+      type: String,
+      default: () => props$h.radio.inactiveColor
+    },
+    // 图标的大小，单位px
+    iconSize: {
+      type: [String, Number],
+      default: () => props$h.radio.iconSize
+    },
+    // label的字体大小，px单位
+    labelSize: {
+      type: [String, Number],
+      default: () => props$h.radio.labelSize
+    },
+    // label提示文字，因为nvue下，直接slot进来的文字，由于特殊的结构，无法修改样式
+    label: {
+      type: [String, Number],
+      default: () => props$h.radio.label
+    },
+    // 整体的大小
+    size: {
+      type: [String, Number],
+      default: () => props$h.radio.size
+    },
+    // 图标颜色
+    color: {
+      type: String,
+      default: () => props$h.radio.color
+    },
+    // label的颜色
+    labelColor: {
+      type: String,
+      default: () => props$h.radio.labelColor
+    },
+    // 图标颜色
+    iconColor: {
+      type: String,
+      default: () => props$h.radio.iconColor
+    }
+  }
+});
+const props$a = defineMixin({
+  props: {
+    // 绑定的值
+    modelValue: {
+      type: [String, Number, Boolean],
+      default: () => props$h.radioGroup.value
+    },
+    // 是否禁用全部radio
+    disabled: {
+      type: Boolean,
+      default: () => props$h.radioGroup.disabled
+    },
+    // 形状，circle-圆形，square-方形
+    shape: {
+      type: String,
+      default: () => props$h.radioGroup.shape
+    },
+    // 选中状态下的颜色，如设置此值，将会覆盖parent的activeColor值
+    activeColor: {
+      type: String,
+      default: () => props$h.radioGroup.activeColor
+    },
+    // 未选中的颜色
+    inactiveColor: {
+      type: String,
+      default: () => props$h.radioGroup.inactiveColor
+    },
+    // 标识符
+    name: {
+      type: String,
+      default: () => props$h.radioGroup.name
+    },
+    // 整个组件的尺寸，默认px
+    size: {
+      type: [String, Number],
+      default: () => props$h.radioGroup.size
+    },
+    // 布局方式，row-横向，column-纵向
+    placement: {
+      type: String,
+      default: () => props$h.radioGroup.placement
+    },
+    // label的文本
+    label: {
+      type: [String],
+      default: () => props$h.radioGroup.label
+    },
+    // label的颜色 （默认 '#303133' ）
+    labelColor: {
+      type: [String],
+      default: () => props$h.radioGroup.labelColor
+    },
+    // label的字体大小，px单位
+    labelSize: {
+      type: [String, Number],
+      default: () => props$h.radioGroup.labelSize
+    },
+    // 是否禁止点击文本操作checkbox(默认 false )
+    labelDisabled: {
+      type: Boolean,
+      default: () => props$h.radioGroup.labelDisabled
+    },
+    // 图标颜色
+    iconColor: {
+      type: String,
+      default: () => props$h.radioGroup.iconColor
+    },
+    // 图标的大小，单位px
+    iconSize: {
+      type: [String, Number],
+      default: () => props$h.radioGroup.iconSize
+    },
+    // 竖向配列时，是否显示下划线
+    borderBottom: {
+      type: Boolean,
+      default: () => props$h.radioGroup.borderBottom
+    },
+    // 图标与文字的对齐方式
+    iconPlacement: {
+      type: String,
+      default: () => props$h.radio.iconPlacement
+    },
+    // item 之间的间距
+    gap: {
+      type: [String, Number],
+      default: () => props$h.radioGroup.gap
+    }
+  }
+});
+const props$9 = defineMixin({
+  props: {
+    // 是否显示组件
+    show: {
+      type: Boolean,
+      default: () => props$h.loadingIcon.show
+    },
+    // 颜色
+    color: {
+      type: String,
+      default: () => props$h.loadingIcon.color
+    },
+    // 提示文字颜色
+    textColor: {
+      type: String,
+      default: () => props$h.loadingIcon.textColor
+    },
+    // 文字和图标是否垂直排列
+    vertical: {
+      type: Boolean,
+      default: () => props$h.loadingIcon.vertical
+    },
+    // 模式选择，circle-圆形，spinner-花朵形，semicircle-半圆形
+    mode: {
+      type: String,
+      default: () => props$h.loadingIcon.mode
+    },
+    // 图标大小，单位默认px
+    size: {
+      type: [String, Number],
+      default: () => props$h.loadingIcon.size
+    },
+    // 文字大小
+    textSize: {
+      type: [String, Number],
+      default: () => props$h.loadingIcon.textSize
+    },
+    // 文字内容
+    text: {
+      type: [String, Number],
+      default: () => props$h.loadingIcon.text
+    },
+    // 动画模式
+    timingFunction: {
+      type: String,
+      default: () => props$h.loadingIcon.timingFunction
+    },
+    // 动画执行周期时间
+    duration: {
+      type: [String, Number],
+      default: () => props$h.loadingIcon.duration
+    },
+    // mode=circle时的暗边颜色
+    inactiveColor: {
+      type: String,
+      default: () => props$h.loadingIcon.inactiveColor
+    }
+  }
+});
+const props$8 = defineMixin({
+  props: {
+    // 轮播的长度
+    length: {
+      type: [String, Number],
+      default: () => props$h.swiperIndicator.length
+    },
+    // 当前处于活动状态的轮播的索引
+    current: {
+      type: [String, Number],
+      default: () => props$h.swiperIndicator.current
+    },
+    // 指示器非激活颜色
+    indicatorActiveColor: {
+      type: String,
+      default: () => props$h.swiperIndicator.indicatorActiveColor
+    },
+    // 指示器的激活颜色
+    indicatorInactiveColor: {
+      type: String,
+      default: () => props$h.swiperIndicator.indicatorInactiveColor
+    },
+    // 指示器模式，line-线型，dot-点型
+    indicatorMode: {
+      type: String,
+      default: () => props$h.swiperIndicator.indicatorMode
+    }
+  }
+});
+const props$7 = defineMixin({
+  props: {
+    // 显示的内容，字符串
+    text: {
+      type: [Array],
+      default: () => props$h.columnNotice.text
+    },
+    // 是否显示左侧的音量图标
+    icon: {
+      type: String,
+      default: () => props$h.columnNotice.icon
+    },
+    // 通告模式，link-显示右箭头，closable-显示右侧关闭图标
+    mode: {
+      type: String,
+      default: () => props$h.columnNotice.mode
+    },
+    // 文字颜色，各图标也会使用文字颜色
+    color: {
+      type: String,
+      default: () => props$h.columnNotice.color
+    },
+    // 背景颜色
+    bgColor: {
+      type: String,
+      default: () => props$h.columnNotice.bgColor
+    },
+    // 字体大小，单位px
+    fontSize: {
+      type: [String, Number],
+      default: () => props$h.columnNotice.fontSize
+    },
+    // 水平滚动时的滚动速度，即每秒滚动多少px(px)，这有利于控制文字无论多少时，都能有一个恒定的速度
+    speed: {
+      type: [String, Number],
+      default: () => props$h.columnNotice.speed
+    },
+    // direction = row时，是否使用步进形式滚动
+    step: {
+      type: Boolean,
+      default: () => props$h.columnNotice.step
+    },
+    // 滚动一个周期的时间长，单位ms
+    duration: {
+      type: [String, Number],
+      default: () => props$h.columnNotice.duration
+    },
+    // 是否禁止用手滑动切换
+    // 目前HX2.6.11，只支持App 2.5.5+、H5 2.5.5+、支付宝小程序、字节跳动小程序
+    disableTouch: {
+      type: Boolean,
+      default: () => props$h.columnNotice.disableTouch
+    },
+    justifyContent: {
+      type: String,
+      default: () => props$h.columnNotice.justifyContent
+    }
+  }
+});
+const props$6 = defineMixin({
+  props: {
+    // 显示的内容，字符串
+    text: {
+      type: String,
+      default: () => props$h.rowNotice.text
+    },
+    // 是否显示左侧的音量图标
+    icon: {
+      type: String,
+      default: () => props$h.rowNotice.icon
+    },
+    // 通告模式，link-显示右箭头，closable-显示右侧关闭图标
+    mode: {
+      type: String,
+      default: () => props$h.rowNotice.mode
+    },
+    // 文字颜色，各图标也会使用文字颜色
+    color: {
+      type: String,
+      default: () => props$h.rowNotice.color
+    },
+    // 背景颜色
+    bgColor: {
+      type: String,
+      default: () => props$h.rowNotice.bgColor
+    },
+    // 字体大小，单位px
+    fontSize: {
+      type: [String, Number],
+      default: () => props$h.rowNotice.fontSize
+    },
+    // 水平滚动时的滚动速度，即每秒滚动多少px(rpx)，这有利于控制文字无论多少时，都能有一个恒定的速度
+    speed: {
+      type: [String, Number],
+      default: () => props$h.rowNotice.speed
+    }
+  }
+});
+const props$5 = defineMixin({
+  props: {
+    // 是否显示遮罩
+    show: {
+      type: Boolean,
+      default: () => props$h.overlay.show
+    },
+    // 层级z-index
+    zIndex: {
+      type: [String, Number],
+      default: () => props$h.overlay.zIndex
+    },
+    // 遮罩的过渡时间，单位为ms
+    duration: {
+      type: [String, Number],
+      default: () => props$h.overlay.duration
+    },
+    // 不透明度值，当做rgba的第四个参数
+    opacity: {
+      type: [String, Number],
+      default: () => props$h.overlay.opacity
+    }
+  }
+});
+const props$4 = defineMixin({
+  props: {
+    bgColor: {
+      type: String,
+      default: () => props$h.statusBar.bgColor
+    },
+    // 状态栏获取得高度
+    height: {
+      type: Number,
+      default: () => props$h.statusBar.height
+    }
+  }
+});
+const props$3 = defineMixin({
+  props: {}
+});
+const props$2 = defineMixin({
+  props: {
+    // 是否展示组件
+    show: {
+      type: Boolean,
+      default: () => props$h.transition.show
+    },
+    // 使用的动画模式
+    mode: {
+      type: String,
+      default: () => props$h.transition.mode
+    },
+    // 动画的执行时间，单位ms
+    duration: {
+      type: [String, Number],
+      default: () => props$h.transition.duration
+    },
+    // 使用的动画过渡函数
+    timingFunction: {
+      type: String,
+      default: () => props$h.transition.timingFunction
+    }
+  }
+});
+const getClassNames = (name) => ({
+  enter: `u-${name}-enter u-${name}-enter-active`,
+  "enter-to": `u-${name}-enter-to u-${name}-enter-active`,
+  leave: `u-${name}-leave u-${name}-leave-active`,
+  "leave-to": `u-${name}-leave-to u-${name}-leave-active`
+});
+const transitionMixin = {
+  methods: {
+    // 组件被点击发出事件
+    clickHandler() {
+      this.$emit("click");
+    },
+    // vue版本的组件进场处理
+    async vueEnter() {
+      const classNames = getClassNames(this.mode);
+      this.status = "enter";
+      this.$emit("beforeEnter");
+      this.inited = true;
+      this.display = true;
+      this.classes = classNames.enter;
+      await nextTick$1();
+      {
+        await sleep(20);
+        this.$emit("enter");
+        this.transitionEnded = false;
+        this.$emit("afterEnter");
+        this.classes = classNames["enter-to"];
+      }
+    },
+    // 动画离场处理
+    async vueLeave() {
+      if (!this.display)
+        return;
+      const classNames = getClassNames(this.mode);
+      this.status = "leave";
+      this.$emit("beforeLeave");
+      this.classes = classNames.leave;
+      await nextTick$1();
+      {
+        this.transitionEnded = false;
+        this.$emit("leave");
+        setTimeout(this.onTransitionEnd, this.duration);
+        this.classes = classNames["leave-to"];
+      }
+    },
+    // 完成过渡后触发
+    onTransitionEnd() {
+      if (this.transitionEnded)
+        return;
+      this.transitionEnded = true;
+      this.$emit(this.status === "leave" ? "afterLeave" : "afterEnter");
+      if (!this.show && this.display) {
+        this.display = false;
+        this.inited = false;
+      }
+    }
+  }
+};
+const props$1 = defineMixin({
+  props: {
+    // 绑定的值
+    modelValue: {
+      type: [String, Number],
+      default: () => props$h.input.value
+    },
+    // number-数字输入键盘，app-vue下可以输入浮点数，app-nvue和小程序平台下只能输入整数
+    // idcard-身份证输入键盘，微信、支付宝、百度、QQ小程序
+    // digit-带小数点的数字键盘，App的nvue页面、微信、支付宝、百度、头条、QQ小程序
+    // text-文本输入键盘
+    type: {
+      type: String,
+      default: () => props$h.input.type
+    },
+    // 如果 textarea 是在一个 position:fixed 的区域，需要显示指定属性 fixed 为 true，
+    // 兼容性：微信小程序、百度小程序、字节跳动小程序、QQ小程序
+    fixed: {
+      type: Boolean,
+      default: () => props$h.input.fixed
+    },
+    // 是否禁用输入框
+    disabled: {
+      type: Boolean,
+      default: () => props$h.input.disabled
+    },
+    // 禁用状态时的背景色
+    disabledColor: {
+      type: String,
+      default: () => props$h.input.disabledColor
+    },
+    // 是否显示清除控件
+    clearable: {
+      type: Boolean,
+      default: () => props$h.input.clearable
+    },
+    // 是否密码类型
+    password: {
+      type: Boolean,
+      default: () => props$h.input.password
+    },
+    // 最大输入长度，设置为 -1 的时候不限制最大长度
+    maxlength: {
+      type: [String, Number],
+      default: () => props$h.input.maxlength
+    },
+    // 	输入框为空时的占位符
+    placeholder: {
+      type: String,
+      default: () => props$h.input.placeholder
+    },
+    // 指定placeholder的样式类，注意页面或组件的style中写了scoped时，需要在类名前写/deep/
+    placeholderClass: {
+      type: String,
+      default: () => props$h.input.placeholderClass
+    },
+    // 指定placeholder的样式
+    placeholderStyle: {
+      type: [String, Object],
+      default: () => props$h.input.placeholderStyle
+    },
+    // 是否显示输入字数统计，只在 type ="text"或type ="textarea"时有效
+    showWordLimit: {
+      type: Boolean,
+      default: () => props$h.input.showWordLimit
+    },
+    // 设置右下角按钮的文字，有效值：send|search|next|go|done，兼容性详见uni-app文档
+    // https://uniapp.dcloud.io/component/input
+    // https://uniapp.dcloud.io/component/textarea
+    confirmType: {
+      type: String,
+      default: () => props$h.input.confirmType
+    },
+    // 点击键盘右下角按钮时是否保持键盘不收起，H5无效
+    confirmHold: {
+      type: Boolean,
+      default: () => props$h.input.confirmHold
+    },
+    // focus时，点击页面的时候不收起键盘，微信小程序有效
+    holdKeyboard: {
+      type: Boolean,
+      default: () => props$h.input.holdKeyboard
+    },
+    // 自动获取焦点
+    // 在 H5 平台能否聚焦以及软键盘是否跟随弹出，取决于当前浏览器本身的实现。nvue 页面不支持，需使用组件的 focus()、blur() 方法控制焦点
+    focus: {
+      type: Boolean,
+      default: () => props$h.input.focus
+    },
+    // 键盘收起时，是否自动失去焦点，目前仅App3.0.0+有效
+    autoBlur: {
+      type: Boolean,
+      default: () => props$h.input.autoBlur
+    },
+    // 是否去掉 iOS 下的默认内边距，仅微信小程序，且type=textarea时有效
+    disableDefaultPadding: {
+      type: Boolean,
+      default: () => props$h.input.disableDefaultPadding
+    },
+    // 指定focus时光标的位置
+    cursor: {
+      type: [String, Number],
+      default: () => props$h.input.cursor
+    },
+    // 输入框聚焦时底部与键盘的距离
+    cursorSpacing: {
+      type: [String, Number],
+      default: () => props$h.input.cursorSpacing
+    },
+    // 光标起始位置，自动聚集时有效，需与selection-end搭配使用
+    selectionStart: {
+      type: [String, Number],
+      default: () => props$h.input.selectionStart
+    },
+    // 光标结束位置，自动聚集时有效，需与selection-start搭配使用
+    selectionEnd: {
+      type: [String, Number],
+      default: () => props$h.input.selectionEnd
+    },
+    // 键盘弹起时，是否自动上推页面
+    adjustPosition: {
+      type: Boolean,
+      default: () => props$h.input.adjustPosition
+    },
+    // 输入框内容对齐方式，可选值为：left|center|right
+    inputAlign: {
+      type: String,
+      default: () => props$h.input.inputAlign
+    },
+    // 输入框字体的大小
+    fontSize: {
+      type: [String, Number],
+      default: () => props$h.input.fontSize
+    },
+    // 输入框字体颜色
+    color: {
+      type: String,
+      default: () => props$h.input.color
+    },
+    // 输入框前置图标
+    prefixIcon: {
+      type: String,
+      default: () => props$h.input.prefixIcon
+    },
+    // 前置图标样式，对象或字符串
+    prefixIconStyle: {
+      type: [String, Object],
+      default: () => props$h.input.prefixIconStyle
+    },
+    // 输入框后置图标
+    suffixIcon: {
+      type: String,
+      default: () => props$h.input.suffixIcon
+    },
+    // 后置图标样式，对象或字符串
+    suffixIconStyle: {
+      type: [String, Object],
+      default: () => props$h.input.suffixIconStyle
+    },
+    // 边框类型，surround-四周边框，bottom-底部边框，none-无边框
+    border: {
+      type: String,
+      default: () => props$h.input.border
+    },
+    // 是否只读，与disabled不同之处在于disabled会置灰组件，而readonly则不会
+    readonly: {
+      type: Boolean,
+      default: () => props$h.input.readonly
+    },
+    // 输入框形状，circle-圆形，square-方形
+    shape: {
+      type: String,
+      default: () => props$h.input.shape
+    },
+    // 用于处理或者过滤输入框内容的方法
+    formatter: {
+      type: [Function, null],
+      default: () => props$h.input.formatter
+    },
+    // 是否忽略组件内对文本合成系统事件的处理
+    ignoreCompositionEvent: {
+      type: Boolean,
+      default: true
+    }
+  }
+});
+const props = defineMixin({
+  props: {
+    // 是否展示工具条
+    show: {
+      type: Boolean,
+      default: () => props$h.toolbar.show
+    },
+    // 取消按钮的文字
+    cancelText: {
+      type: String,
+      default: () => props$h.toolbar.cancelText
+    },
+    // 确认按钮的文字
+    confirmText: {
+      type: String,
+      default: () => props$h.toolbar.confirmText
+    },
+    // 取消按钮的颜色
+    cancelColor: {
+      type: String,
+      default: () => props$h.toolbar.cancelColor
+    },
+    // 确认按钮的颜色
+    confirmColor: {
+      type: String,
+      default: () => props$h.toolbar.confirmColor
+    },
+    // 标题文字
+    title: {
+      type: String,
+      default: () => props$h.toolbar.title
+    },
+    // 开启右侧插槽
+    rightSlot: {
+      type: Boolean,
+      default: false
+    }
+  }
+});
 exports._export_sfc = _export_sfc;
+exports.addStyle = addStyle;
+exports.addUnit = addUnit;
+exports.colorGradient = colorGradient;
+exports.computed = computed;
+exports.config = config;
+exports.createPinia = createPinia;
 exports.createSSRApp = createSSRApp;
-exports.f = f;
-exports.index = index;
+exports.deepClone = deepClone;
+exports.deepMerge = deepMerge$1;
+exports.defineStore = defineStore;
+exports.e = e$1;
+exports.error = error;
+exports.f = f$1;
+exports.formValidate = formValidate;
+exports.gei = gei;
+exports.getPx = getPx;
+exports.getWindowInfo = getWindowInfo;
+exports.icons = icons;
+exports.index = index$1;
+exports.m = m$1;
+exports.mixin = mixin;
+exports.mpMixin = mpMixin;
+exports.n = n$1;
+exports.nr = nr;
+exports.o = o$1;
+exports.onBackPress = onBackPress;
+exports.onBeforeUnmount = onBeforeUnmount;
+exports.onMounted = onMounted;
+exports.onPageScroll = onPageScroll;
+exports.onPullDownRefresh = onPullDownRefresh;
+exports.onReady = onReady;
+exports.onUnmounted = onUnmounted;
+exports.os = os$1;
+exports.p = p$1;
+exports.props = props$g;
+exports.props$1 = props$f;
+exports.props$10 = props$6;
+exports.props$11 = props$5;
+exports.props$12 = props$4;
+exports.props$13 = props$3;
+exports.props$14 = props$2;
+exports.props$15 = props$1;
+exports.props$16 = props;
+exports.props$2 = props$e;
+exports.props$3 = props$d;
+exports.props$4 = props$c;
+exports.props$5 = props$b;
+exports.props$6 = props$a;
+exports.props$7 = props$9;
+exports.props$8 = props$8;
+exports.props$9 = props$7;
+exports.r = r$1;
+exports.reactive = reactive;
 exports.ref = ref;
-exports.t = t;
+exports.resolveComponent = resolveComponent;
+exports.s = s$1;
+exports.sleep = sleep;
+exports.sr = sr;
+exports.storeToRefs = storeToRefs;
+exports.t = t$1;
+exports.test = test;
+exports.transitionMixin = transitionMixin;
+exports.unref = unref;
+exports.uviewPlus = uviewPlus;
+exports.watch = watch;
+exports.wx$1 = wx$1;
 //# sourceMappingURL=../../.sourcemap/mp-weixin/common/vendor.js.map

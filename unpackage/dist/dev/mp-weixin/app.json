@@ -2,8 +2,25 @@
   "pages": [
     "pages/Index/Index",
     "pages/Shops/Shops",
-    "pages/Orders/Orders",
-    "pages/My/My"
+    "pages/Evaluate/Evaluate",
+    "pages/Forum/Forum",
+    "pages/Forum/Detail",
+    "pages/Forum/Post",
+    "pages/Forum/SearchResult",
+    "pages/My/My",
+    "pages/My/profile/index",
+    "pages/My/address/index",
+    "pages/My/address/edit",
+    "pages/My/posts/index",
+    "pages/My/favorites/index",
+    "pages/My/promotion/index",
+    "pages/My/exchange/index",
+    "pages/My/feedback/index",
+    "pages/My/join/index",
+    "pages/My/about/index",
+    "pages/Shops/Search",
+    "pages/Shops/SearchResult",
+    "pages/Shops/Order/Order"
   ],
   "window": {
     "navigationBarTextStyle": "black",
@@ -30,10 +47,16 @@
         "selectedIconPath": "/static/tabbar/Shops-active.png"
       },
       {
-        "pagePath": "pages/Orders/Orders",
-        "text": "订单",
-        "iconPath": "/static/tabbar/Orders.png",
-        "selectedIconPath": "/static/tabbar/Orders-active.png"
+        "pagePath": "pages/Evaluate/Evaluate",
+        "text": "科学评价",
+        "iconPath": "/static/tabbar/Evaluate.png",
+        "selectedIconPath": "/static/tabbar/Evaluate-active.png"
+      },
+      {
+        "pagePath": "pages/Forum/Forum",
+        "text": "论坛",
+        "iconPath": "/static/tabbar/Forum.png",
+        "selectedIconPath": "/static/tabbar/Forum-active.png"
       },
       {
         "pagePath": "pages/My/My",
@@ -42,6 +65,11 @@
         "selectedIconPath": "/static/tabbar/My-active.png"
       }
     ]
+  },
+  "permission": {
+    "scope.userInfo": {
+      "desc": "用于完善会员资料"
+    }
   },
   "usingComponents": {}
 }
